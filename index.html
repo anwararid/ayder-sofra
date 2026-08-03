@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayder Sofra</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: #f5f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #222;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    header p {
+      margin: 6px 0 0;
+      opacity: 0.8;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    .tables {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .table {
+      border: 0;
+      border-radius: 14px;
+      padding: 22px 10px;
+      font-size: 18px;
+      font-weight: bold;
+      background: #d9f7df;
+      cursor: pointer;
+      min-height: 90px;
+    }
+
+    .table:active {
+      transform: scale(0.97);
+    }
+
+    .status {
+      display: block;
+      font-size: 13px;
+      font-weight: normal;
+      margin-top: 8px;
+    }
+
+    .menu {
+      display: none;
+      margin-top: 25px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .menu h2 {
+      margin-top: 0;
+    }
+
+    .food {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .food button {
+      border: 0;
+      background: #222;
+      color: white;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 18px;
+    }
+
+    .cart {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 2px solid #ddd;
+    }
+
+    .send {
+      width: 100%;
+      margin-top: 15px;
+      padding: 15px;
+      border: 0;
+      border-radius: 12px;
+      background: #16803c;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 500px) {
+      .tables {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>🍽️ AYDER SOFRA</h1>
+  <p>Restoran Yönetim Sistemi</p>
+</header>
+
+<div class="container">
+
+  <div class="title">🪑 Masalar</div>
+
+  <div class="tables" id="tables"></div>
+
+  <div class="menu" id="menu">
+    <h2 id="selectedTable">Masa</h2>
+
+    <div class="food">
+      <span>🥘 Adana Kebap</span>
+      <button onclick="addFood('Adana Kebap')">+</button>
+    </div>
+
+    <div class="food">
+      <span>🍗 Tavuk Şiş</span>
+      <button onclick="addFood('Tavuk Şiş')">+</button>
+    </div>
+
+    <div class="food">
+      <span>🍲 Mercimek Çorbası</span>
+      <button onclick="addFood('Mercimek Çorbası')">+</button>
+    </div>
+
+    <div class="food">
+      <span>🥗 Salata</span>
+      <button onclick="addFood('Salata')">+</button>
+    </div>
+
+    <div class="food">
+      <span>🥤 Ayran</span>
+      <button onclick="addFood('Ayran')">+</button>
+    </div>
+
+    <div class="cart">
+      <h3>🧾 Sipariş</h3>
+      <div id="order"></div>
+
+      <button class="send" onclick="sendOrder()">
+        Siparişi Gönder
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+  let selectedTable = null;
+  let order = [];
+
+  const tablesContainer = document.getElementById("tables");
+
+  for (let i = 1; i <= 15; i++) {
+    const button = document.createElement("button");
+
+    button.className = "table";
+    button.innerHTML = `
+      Masa ${i}
+      <span class="status">Boş</span>
+    `;
+
+    button.onclick = function () {
+      openTable(i);
+    };
+
+    tablesContainer.appendChild(button);
+  }
+
+  function openTable(tableNumber) {
+    selectedTable = tableNumber;
+    order = [];
+
+    document.getElementById("selectedTable").innerText =
+      "Masa " + tableNumber;
+
+    document.getElementById("menu").style.display = "block";
+
+    updateOrder();
+
+    window.scrollTo({
+      top: document.body.scrollHeight,
+      behavior: "smooth"
+    });
+  }
+
+  function addFood(food) {
+    order.push(food);
+    updateOrder();
+  }
+
+  function updateOrder() {
+    const orderDiv = document.getElementById("order");
+
+    if (order.length === 0) {
+      orderDiv.innerHTML = "<p>Henüz ürün eklenmedi.</p>";
+      return;
+    }
+
+    orderDiv.innerHTML = order
+      .map((item, index) => `${index + 1}. ${item}`)
+      .join("<br>");
+  }
+
+  function sendOrder() {
+    if (!selectedTable) {
+      alert("Lütfen önce masa seçin.");
+      return;
+    }
+
+    if (order.length === 0) {
+      alert("Lütfen sipariş ekleyin.");
+      return;
+    }
+
+    alert(
+      "Masa " +
+      selectedTable +
+      " siparişi mutfağa gönderildi! 👨‍🍳"
+    );
+
+    order = [];
+    updateOrder();
+  }
+
+</script>
+
+</body>
+</html>
