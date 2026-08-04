@@ -4,10 +4,7 @@
 
 <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Ayder Sofra - Garson</title>
 
@@ -46,9 +43,7 @@ h2 {
 }
 
 
-/* =========================
-   MASALAR
-========================= */
+/* MASALAR */
 
 .tables {
   display: grid;
@@ -68,20 +63,24 @@ h2 {
 }
 
 .table.dolu {
-  background: #ffd6d6;
+  background: #ffd1d1;
 }
 
 .table span {
   display: block;
-  font-size: 12px;
+  font-size: 13px;
   margin-top: 7px;
   font-weight: normal;
 }
 
+.table .ready-text {
+  color: #16803c;
+  font-weight: bold;
+  margin-top: 5px;
+}
 
-/* =========================
-   MENÜ
-========================= */
+
+/* MENU */
 
 .menu {
   display: none;
@@ -102,7 +101,7 @@ h2 {
 .food-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .food-name {
@@ -125,9 +124,7 @@ h2 {
 }
 
 
-/* =========================
-   SIPARIŞ
-========================= */
+/* ORDER */
 
 .order {
   margin-top: 20px;
@@ -148,7 +145,7 @@ h2 {
   color: white;
   border: none;
   border-radius: 8px;
-  padding: 5px 9px;
+  padding: 5px 10px;
   cursor: pointer;
 }
 
@@ -184,9 +181,7 @@ h2 {
 }
 
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* MOBILE */
 
 @media(max-width:500px) {
 
@@ -206,9 +201,9 @@ h2 {
 
 <header>
 
-  <h1>🍽️ AYDER SOFRA</h1>
+<h1>🍽️ AYDER SOFRA</h1>
 
-  <p>Garson Sipariş Sistemi</p>
+<p>Garson Sipariş Sistemi</p>
 
 </header>
 
@@ -232,55 +227,49 @@ h2 {
 >
 
 
-  <h2 id="tableTitle">
-    Masa
-  </h2>
+<h2 id="tableTitle">
+Masa
+</h2>
 
 
-  <div
-    id="foods"
-  >
+<div id="foods">
 
-    <div class="loading">
-      Menü yükleniyor...
-    </div>
+<div class="loading">
+Menü yükleniyor...
+</div>
 
-  </div>
+</div>
 
 
 
-  <div class="order">
+<div class="order">
+
+<h3>
+🧾 Sipariş
+</h3>
 
 
-    <h3>
-      🧾 Sipariş
-    </h3>
+<div id="orderList">
+Henüz ürün eklenmedi.
+</div>
 
 
-    <div
-      id="orderList"
-    >
-      Henüz ürün eklenmedi.
-    </div>
+<button
+  class="send"
+  id="sendButton"
+>
+Siparişi Gönder 👨‍🍳
+</button>
 
 
-    <button
-      class="send"
-      onclick="sendOrder()"
-    >
-      Siparişi Gönder 👨‍🍳
-    </button>
+<div
+  class="ready-message"
+  id="readyMessage"
+>
+</div>
 
 
-    <div
-      class="ready-message"
-      id="readyMessage"
-    >
-      ✅ Sipariş hazır!
-    </div>
-
-
-  </div>
+</div>
 
 
 </div>
@@ -311,9 +300,7 @@ import {
   serverTimestamp,
   onSnapshot,
   query,
-  where,
-  doc,
-  updateDoc
+  where
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -343,7 +330,6 @@ const firebaseConfig = {
 };
 
 
-
 const app =
   initializeApp(firebaseConfig);
 
@@ -363,54 +349,54 @@ let order = [];
 
 let menuItems = [];
 
-let readyListener = null;
+let ordersData = [];
 
 
 
 const tables =
   document.getElementById("tables");
 
-
 const foods =
   document.getElementById("foods");
+
+const menu =
+  document.getElementById("menu");
+
+const orderList =
+  document.getElementById("orderList");
+
+const readyMessage =
+  document.getElementById("readyMessage");
+
+const sendButton =
+  document.getElementById("sendButton");
 
 
 
 /* =========================
-   إنشاء الطاولات
+   إنشاء 15 طاولة
 ========================= */
 
-for (
-  let i = 1;
-  i <= 15;
-  i++
-) {
+for (let i = 1; i <= 15; i++) {
 
   const button =
     document.createElement("button");
 
-
   button.className =
     "table";
-
 
   button.id =
     "table-" + i;
 
+  button.innerHTML = `
+    Masa ${i}
+    <span>Boş</span>
+  `;
 
-  button.innerHTML =
-    "Masa " +
-    i +
-    "<span>Boş</span>";
-
-
-  button.onclick =
-    function() {
-
-      openTable(i);
-
-    };
-
+  button.addEventListener(
+    "click",
+    () => openTable(i)
+  );
 
   tables.appendChild(button);
 
@@ -419,15 +405,16 @@ for (
 
 
 /* =========================
-   قراءة MENU من FIREBASE
+   قراءة MENU
 ========================= */
 
 onSnapshot(
+
   collection(db, "menu"),
+
   (snapshot) => {
 
     menuItems = [];
-
 
     snapshot.forEach(
       (productDoc) => {
@@ -435,33 +422,35 @@ onSnapshot(
         const data =
           productDoc.data();
 
-
         menuItems.push({
 
           id:
             productDoc.id,
 
           name:
-            data.name || "Ürün",
+            String(data.name || "Ürün"),
 
           price:
             Number(data.price || 0),
 
           station:
-            data.station || "kitchen"
+            String(data.station || "kitchen")
 
         });
 
       }
     );
 
-
     renderMenu();
 
   },
+
   (error) => {
 
-    console.error(error);
+    console.error(
+      "MENU ERROR:",
+      error
+    );
 
     foods.innerHTML = `
       <div class="loading">
@@ -470,18 +459,18 @@ onSnapshot(
     `;
 
   }
+
 );
 
 
 
 /* =========================
-   عرض القائمة
+   عرض MENU
 ========================= */
 
 function renderMenu() {
 
   foods.innerHTML = "";
-
 
   if (menuItems.length === 0) {
 
@@ -492,7 +481,6 @@ function renderMenu() {
     `;
 
     return;
-
   }
 
 
@@ -502,14 +490,12 @@ function renderMenu() {
       const food =
         document.createElement("div");
 
-
       food.className =
         "food";
 
 
       const info =
         document.createElement("div");
-
 
       info.className =
         "food-info";
@@ -518,10 +504,8 @@ function renderMenu() {
       const name =
         document.createElement("div");
 
-
       name.className =
         "food-name";
-
 
       name.textContent =
         item.name;
@@ -530,14 +514,11 @@ function renderMenu() {
       const price =
         document.createElement("div");
 
-
       price.className =
         "food-price";
 
-
       price.textContent =
-        item.price +
-        " TL";
+        item.price + " TL";
 
 
       info.appendChild(name);
@@ -549,23 +530,19 @@ function renderMenu() {
       const button =
         document.createElement("button");
 
-
       button.textContent =
         "+";
 
 
-      button.onclick =
-        function() {
-
-          addItem(item);
-
-        };
+      button.addEventListener(
+        "click",
+        () => addItem(item)
+      );
 
 
       food.appendChild(info);
 
       food.appendChild(button);
-
 
       foods.appendChild(food);
 
@@ -577,7 +554,7 @@ function renderMenu() {
 
 
 /* =========================
-   فتح طاولة
+   فتح الطاولة
 ========================= */
 
 function openTable(number) {
@@ -585,33 +562,22 @@ function openTable(number) {
   selectedTable =
     number;
 
-
   order = [];
 
 
   document
     .getElementById("tableTitle")
-    .innerText =
+    .textContent =
       "Masa " + number;
 
 
-  document
-    .getElementById("menu")
-    .style.display =
-      "block";
-
-
-  document
-    .getElementById("readyMessage")
-    .style.display =
-      "none";
+  menu.style.display =
+    "block";
 
 
   updateOrder();
 
-
-  listenForReadyOrder(number);
-
+  updateReadyMessage();
 
   window.scrollTo({
 
@@ -628,7 +594,7 @@ function openTable(number) {
 
 
 /* =========================
-   إضافة صنف للطلب
+   إضافة صنف
 ========================= */
 
 function addItem(item) {
@@ -659,21 +625,16 @@ function addItem(item) {
 
 function updateOrder() {
 
-  const list =
-    document.getElementById("orderList");
+  orderList.innerHTML = "";
 
 
   if (order.length === 0) {
 
-    list.innerHTML =
+    orderList.textContent =
       "Henüz ürün eklenmedi.";
 
     return;
-
   }
-
-
-  list.innerHTML = "";
 
 
   order.forEach(
@@ -682,7 +643,6 @@ function updateOrder() {
       const row =
         document.createElement("div");
 
-
       row.className =
         "order-item";
 
@@ -690,40 +650,37 @@ function updateOrder() {
       const text =
         document.createElement("span");
 
-
       text.textContent =
-        (index + 1) +
-        ". " +
-        item.name;
+        `${index + 1}. ${item.name}`;
 
 
       const remove =
         document.createElement("button");
 
-
       remove.className =
         "remove";
-
 
       remove.textContent =
         "×";
 
 
-      remove.onclick =
-        function() {
+      remove.addEventListener(
+        "click",
+        () => {
 
           order.splice(index, 1);
 
           updateOrder();
 
-        };
+        }
+      );
 
 
       row.appendChild(text);
 
       row.appendChild(remove);
 
-      list.appendChild(row);
+      orderList.appendChild(row);
 
     }
   );
@@ -736,9 +693,14 @@ function updateOrder() {
    إرسال الطلب
 ========================= */
 
-window.sendOrder =
-async function() {
+sendButton.addEventListener(
+  "click",
+  sendOrder
+);
 
+
+
+async function sendOrder() {
 
   if (!selectedTable) {
 
@@ -747,7 +709,6 @@ async function() {
     );
 
     return;
-
   }
 
 
@@ -758,44 +719,49 @@ async function() {
     );
 
     return;
-
   }
-
 
 
   try {
 
+    sendButton.disabled =
+      true;
+
 
     /*
-      هنا نرسل الطلب كاملًا إلى orders.
-      كل صنف يحتوي station.
-      لذلك الشوي والفرن والمطبخ
-      يستطيعون معرفة أصنافهم.
+      مهم جدًا:
+      نخزن name كنص وليس Object
+      لذلك المطبخ لن يعرض [object Object]
     */
+
+    const itemsToSend =
+      order.map(
+        (item) => ({
+
+          name:
+            String(item.name),
+
+          price:
+            Number(item.price || 0),
+
+          station:
+            String(item.station || "kitchen")
+
+        })
+      );
 
 
     await addDoc(
+
       collection(db, "orders"),
+
       {
 
         table:
-          selectedTable,
+          Number(selectedTable),
 
         items:
-          order.map(
-            (item) => ({
-
-              name:
-                item.name,
-
-              price:
-                item.price,
-
-              station:
-                item.station
-
-            })
-          ),
+          itemsToSend,
 
         status:
           "new",
@@ -804,8 +770,8 @@ async function() {
           serverTimestamp()
 
       }
-    );
 
+    );
 
 
     alert(
@@ -817,57 +783,28 @@ async function() {
 
     order = [];
 
-
     updateOrder();
 
 
-    setTableBusy(
-      selectedTable
+  }
+
+  catch (error) {
+
+    console.error(
+      "ORDER ERROR:",
+      error
     );
-
-
-  } catch (error) {
-
-
-    console.error(error);
-
 
     alert(
-      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
+      "Sipariş gönderilemedi."
     );
 
   }
 
-};
+  finally {
 
-
-
-/* =========================
-   حالة الطاولة
-========================= */
-
-function setTableBusy(number) {
-
-  const button =
-    document.getElementById(
-      "table-" + number
-    );
-
-
-  if (!button) return;
-
-
-  button.classList.add("dolu");
-
-
-  const span =
-    button.querySelector("span");
-
-
-  if (span) {
-
-    span.textContent =
-      "Dolu";
+    sendButton.disabled =
+      false;
 
   }
 
@@ -876,95 +813,16 @@ function setTableBusy(number) {
 
 
 /* =========================
-   الطلب الجاهز
-========================= */
-
-function listenForReadyOrder(
-  tableNumber
-) {
-
-
-  const readyMessage =
-    document.getElementById(
-      "readyMessage"
-    );
-
-
-  const q =
-    query(
-      collection(db, "orders"),
-
-      where(
-        "table",
-        "==",
-        tableNumber
-      ),
-
-      where(
-        "status",
-        "==",
-        "ready"
-      )
-    );
-
-
-  onSnapshot(
-    q,
-    (snapshot) => {
-
-
-      if (!selectedTable) {
-        return;
-      }
-
-
-      if (
-        selectedTable !== tableNumber
-      ) {
-        return;
-      }
-
-
-      if (!snapshot.empty) {
-
-
-        readyMessage.style.display =
-          "block";
-
-
-        readyMessage.innerText =
-          "✅ Masa " +
-          tableNumber +
-          " Sipariş Hazır!";
-
-
-      } else {
-
-
-        readyMessage.style.display =
-          "none";
-
-      }
-
-    }
-  );
-
-}
-
-
-
-/* =========================
-   تحديث الطاولات تلقائيًا
+   قراءة كل الطلبات
 ========================= */
 
 onSnapshot(
+
   collection(db, "orders"),
+
   (snapshot) => {
 
-
-    const busyTables =
-      new Set();
-
+    ordersData = [];
 
     snapshot.forEach(
       (orderDoc) => {
@@ -973,82 +831,196 @@ onSnapshot(
           orderDoc.data();
 
 
-        if (
-          data.table &&
-          data.status !== "completed" &&
-          data.status !== "deleted"
-        ) {
+        ordersData.push({
 
-          busyTables.add(
-            Number(data.table)
-          );
+          id:
+            orderDoc.id,
 
-        }
+          ...data
+
+        });
 
       }
     );
 
 
+    updateTables();
 
-    for (
-      let i = 1;
-      i <= 15;
-      i++
-    ) {
+    updateReadyMessage();
 
+  },
 
-      const button =
-        document.getElementById(
-          "table-" + i
-        );
+  (error) => {
 
+    console.error(
+      "ORDERS ERROR:",
+      error
+    );
 
-      if (!button) continue;
+  }
 
-
-      const span =
-        button.querySelector("span");
+);
 
 
-      if (
-        busyTables.has(i)
-      ) {
+
+/* =========================
+   تحديث الطاولات
+========================= */
+
+function updateTables() {
+
+  for (
+    let tableNumber = 1;
+    tableNumber <= 15;
+    tableNumber++
+  ) {
 
 
-        button.classList.add(
-          "dolu"
-        );
+    const button =
+      document.getElementById(
+        "table-" + tableNumber
+      );
 
 
-        if (span) {
+    if (!button) continue;
 
-          span.textContent =
-            "Dolu";
+
+    const span =
+      button.querySelector("span");
+
+
+    /*
+      فقط الطلبات الفعالة تجعل الطاولة Dolu
+    */
+
+    const tableOrders =
+      ordersData.filter(
+        (item) => {
+
+          return (
+            Number(item.table) ===
+            tableNumber
+            &&
+            item.status !==
+            "completed"
+            &&
+            item.status !==
+            "deleted"
+          );
 
         }
+      );
 
 
-      } else {
+    if (tableOrders.length > 0) {
+
+      button.classList.add(
+        "dolu"
+      );
 
 
-        button.classList.remove(
-          "dolu"
+      /*
+        دائمًا Dolu أولًا
+      */
+
+      span.innerHTML =
+        "Dolu";
+
+
+      /*
+        إذا كان هناك طلب جاهز
+        يظهر تحته Sipariş Hazır
+      */
+
+      const hasReady =
+        tableOrders.some(
+          (item) =>
+            item.status ===
+            "ready"
         );
 
 
-        if (span) {
+      if (hasReady) {
 
-          span.textContent =
-            "Boş";
-
-        }
+        span.innerHTML = `
+          Dolu
+          <div class="ready-text">
+            ✅ Sipariş Hazır
+          </div>
+        `;
 
       }
 
     }
 
+    else {
+
+      button.classList.remove(
+        "dolu"
+      );
+
+
+      span.innerHTML =
+        "Boş";
+
+    }
+
   }
-);
+
+}
+
+
+
+/* =========================
+   رسالة الطلب الجاهز
+========================= */
+
+function updateReadyMessage() {
+
+  if (!selectedTable) {
+
+    readyMessage.style.display =
+      "none";
+
+    return;
+  }
+
+
+  const readyOrders =
+    ordersData.filter(
+      (item) => {
+
+        return (
+          Number(item.table) ===
+          Number(selectedTable)
+          &&
+          item.status ===
+          "ready"
+        );
+
+      }
+    );
+
+
+  if (readyOrders.length > 0) {
+
+    readyMessage.style.display =
+      "block";
+
+    readyMessage.textContent =
+      "✅ Sipariş Hazır!";
+
+
+  }
+
+  else {
+
+    readyMessage.style.display =
+      "none";
+
+  }
+
+}
 
 </script>
 
