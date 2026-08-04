@@ -47,11 +47,15 @@ h2 {
 .table {
   border: none;
   border-radius: 15px;
-  padding: 25px 5px;
+  padding: 22px 5px;
   background: #d9f7df;
   font-size: 17px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.table.dolu {
+  background: #ffd6d6;
 }
 
 .table span {
@@ -200,7 +204,8 @@ import {
   onSnapshot,
   query,
   where,
-  orderBy
+  updateDoc,
+  doc
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -214,11 +219,8 @@ const firebaseConfig = {
   appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
-
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
-
 
 let selectedTable = null;
 let order = [];
@@ -226,15 +228,17 @@ let order = [];
 const tables = document.getElementById("tables");
 
 
+// إنشاء 15 طاولة
 for (let i = 1; i <= 15; i++) {
 
   const button = document.createElement("button");
 
   button.className = "table";
+  button.id = "table-" + i;
 
   button.innerHTML =
     "Masa " + i +
-    "<span>Boş</span>";
+    "<span id='table-status-" + i + "'>🟢 Boş</span>";
 
   button.onclick = function() {
     openTable(i);
@@ -244,10 +248,58 @@ for (let i = 1; i <= 15; i++) {
 }
 
 
+// مراقبة حالة الطاولات من Firebase
+onSnapshot(collection(db, "orders"), (snapshot) => {
+
+  const occupiedTables = new Set();
+
+  snapshot.forEach((orderDoc) => {
+
+    const data = orderDoc.data();
+
+    if (
+      data.status === "new" ||
+      data.status === "ready"
+    ) {
+      occupiedTables.add(Number(data.table));
+    }
+
+  });
+
+
+  for (let i = 1; i <= 15; i++) {
+
+    const button =
+      document.getElementById("table-" + i);
+
+    const status =
+      document.getElementById("table-status-" + i);
+
+
+    if (occupiedTables.has(i)) {
+
+      button.classList.add("dolu");
+
+      status.innerText =
+        "🔴 Dolu";
+
+    } else {
+
+      button.classList.remove("dolu");
+
+      status.innerText =
+        "🟢 Boş";
+
+    }
+
+  }
+
+});
+
+
 function openTable(number) {
 
   selectedTable = number;
-
   order = [];
 
   document.getElementById("tableTitle").innerText =
@@ -299,19 +351,18 @@ function updateOrder() {
 }
 
 
+// إرسال الطلب
 window.sendOrder = async function() {
 
   if (!selectedTable) {
 
     alert("Lütfen masa seçin.");
-
     return;
   }
 
   if (order.length === 0) {
 
     alert("Lütfen sipariş ekleyin.");
-
     return;
   }
 
@@ -354,16 +405,17 @@ window.sendOrder = async function() {
 };
 
 
+// مراقبة الطلب الجاهز
 function listenForReadyOrder(tableNumber) {
 
   const readyMessage =
     document.getElementById("readyMessage");
 
-  
+
   const q = query(
-  collection(db, "orders"),
-  where("table", "==", tableNumber),
-  where("status", "==", "ready")
+    collection(db, "orders"),
+    where("table", "==", tableNumber),
+    where("status", "==", "ready")
   );
 
 
