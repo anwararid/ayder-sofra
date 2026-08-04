@@ -222,15 +222,38 @@ function addItem(item){
 
 function updateOrder(){
 
-  const list =
-    document.getElementById("orderList");
+  async function sendOrder(){
+
+  if(!selectedTable){
+    alert("Lütfen masa seçin.");
+    return;
+  }
 
   if(order.length === 0){
-
-    list.innerHTML =
-      "Henüz ürün eklenmedi.";
-
+    alert("Lütfen sipariş ekleyin.");
     return;
+  }
+
+  try {
+    await window.sendOrderToFirebase(selectedTable, order);
+
+    alert(
+      "Masa " +
+      selectedTable +
+      " siparişi mutfağa gönderildi! 👨‍🍳"
+    );
+
+    order = [];
+    updateOrder();
+
+  } catch(error) {
+    console.error(error);
+
+    alert(
+      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
+    );
+  }
+  }
   }
 
   list.innerHTML = order
