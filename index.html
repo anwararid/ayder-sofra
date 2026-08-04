@@ -359,12 +359,11 @@ function listenForReadyOrder(tableNumber) {
   const readyMessage =
     document.getElementById("readyMessage");
 
-
+  
   const q = query(
-    collection(db, "orders"),
-    where("table", "==", tableNumber),
-    where("status", "==", "ready"),
-    orderBy("createdAt", "desc")
+  collection(db, "orders"),
+  where("table", "==", tableNumber),
+  where("status", "==", "ready")
   );
 
 
