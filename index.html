@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Ayder Sofra</title>
 
 <style>
@@ -48,7 +47,7 @@ h2 {
 .table {
   border: none;
   border-radius: 15px;
-  padding: 20px 5px;
+  padding: 22px 5px;
   background: #d9f7df;
   font-size: 17px;
   font-weight: bold;
@@ -56,7 +55,7 @@ h2 {
 }
 
 .table.dolu {
-  background: #ffd6d6;
+  background: #ffd9d9;
 }
 
 .table span {
@@ -66,11 +65,11 @@ h2 {
   font-weight: normal;
 }
 
-.ready-small {
-  display: block;
-  margin-top: 5px;
+.ready-status {
   color: #16803c;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-top: 6px;
 }
 
 .menu {
@@ -89,17 +88,6 @@ h2 {
   border-bottom: 1px solid #ddd;
 }
 
-.food-info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.price {
-  color: #16803c;
-  font-weight: bold;
-}
-
 .food button {
   background: #222;
   color: white;
@@ -107,7 +95,6 @@ h2 {
   border-radius: 10px;
   padding: 9px 17px;
   font-size: 20px;
-  cursor: pointer;
 }
 
 .order {
@@ -116,62 +103,25 @@ h2 {
   border-top: 2px solid #ddd;
 }
 
-.order-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-
-.total {
+.send,
+.empty-table {
+  width: 100%;
+  padding: 15px;
   margin-top: 15px;
-  padding-top: 15px;
-  border-top: 2px solid #ddd;
-  font-size: 20px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 17px;
   font-weight: bold;
+  cursor: pointer;
 }
 
 .send {
-  width: 100%;
-  padding: 15px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 12px;
   background: #16803c;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
 }
 
-.ready-message {
-  display: none;
-  margin-top: 15px;
-  padding: 15px;
-  border-radius: 12px;
-  background: #d9f7df;
-  color: #146c2e;
-  font-size: 17px;
-  font-weight: bold;
-  text-align: center;
-}
-
-.clear-table {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 12px;
-  background: #b3261e;
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.empty-menu {
-  text-align: center;
-  padding: 20px;
-  color: #777;
+.empty-table {
+  background: #555;
 }
 
 @media(max-width:500px) {
@@ -199,8 +149,29 @@ h2 {
 
   <h2 id="tableTitle">Masa</h2>
 
-  <div id="foodList">
-    Menü yükleniyor...
+  <div class="food">
+    <span>🥘 Adana Kebap</span>
+    <button onclick="addItem('Adana Kebap')">+</button>
+  </div>
+
+  <div class="food">
+    <span>🍗 Tavuk Şiş</span>
+    <button onclick="addItem('Tavuk Şiş')">+</button>
+  </div>
+
+  <div class="food">
+    <span>🍲 Mercimek Çorbası</span>
+    <button onclick="addItem('Mercimek Çorbası')">+</button>
+  </div>
+
+  <div class="food">
+    <span>🥗 Salata</span>
+    <button onclick="addItem('Salata')">+</button>
+  </div>
+
+  <div class="food">
+    <span>🥤 Ayran</span>
+    <button onclick="addItem('Ayran')">+</button>
   </div>
 
   <div class="order">
@@ -211,19 +182,11 @@ h2 {
       Henüz ürün eklenmedi.
     </div>
 
-    <div class="total">
-      Toplam: <span id="totalPrice">0</span> TL
-    </div>
-
     <button class="send" onclick="sendOrder()">
       Siparişi Gönder 👨‍🍳
     </button>
 
-    <div class="ready-message" id="readyMessage">
-      ✅ Sipariş hazır!
-    </div>
-
-    <button class="clear-table" onclick="clearTable()">
+    <button class="empty-table" onclick="emptyTable()">
       🧹 Masa Boşalt
     </button>
 
@@ -232,7 +195,6 @@ h2 {
 </div>
 
 </main>
-
 
 <script type="module">
 
@@ -247,8 +209,9 @@ import {
   onSnapshot,
   query,
   where,
-  doc,
-  updateDoc
+  getDocs,
+  setDoc,
+  doc
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -262,45 +225,31 @@ const firebaseConfig = {
   appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
-
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
-
 let selectedTable = null;
-
 let order = [];
 
-let menuItems = [];
-
-let tableOrders = {};
-
-let readyOrders = {};
-
-let readyListener = null;
+const tables = document.getElementById("tables");
 
 
-/* =========================
-   الطاولات
-========================= */
-
-const tables =
-  document.getElementById("tables");
-
+/* إنشاء 15 طاولة */
 
 for (let i = 1; i <= 15; i++) {
 
-  const button =
-    document.createElement("button");
+  const button = document.createElement("button");
 
   button.className = "table";
+  button.id = "table-" + i;
 
-  button.dataset.table = i;
-
-  button.innerHTML =
-    "Masa " + i +
-    "<span>Boş</span>";
+  button.innerHTML = `
+    Masa ${i}
+    <span class="table-status">🟢 Boş</span>
+    <div class="ready-status" style="display:none;">
+      🟢 Sipariş Hazır
+    </div>
+  `;
 
   button.onclick = function() {
     openTable(i);
@@ -310,280 +259,166 @@ for (let i = 1; i <= 15; i++) {
 }
 
 
-/* =========================
-   قراءة قائمة الطعام
-========================= */
+/* متابعة حالة الطاولات فقط */
 
 onSnapshot(
-  collection(db, "menu"),
+  collection(db, "tables"),
   (snapshot) => {
 
-    menuItems = [];
+    for (let i = 1; i <= 15; i++) {
 
-    snapshot.forEach((productDoc) => {
+      const button =
+        document.getElementById("table-" + i);
 
-      const data =
-        productDoc.data();
+      button.classList.remove("dolu");
 
-      menuItems.push({
-        id: productDoc.id,
-        name: data.name || "Ürün",
-        price: Number(data.price) || 0
-      });
+      button.querySelector(
+        ".table-status"
+      ).textContent = "🟢 Boş";
+
+      button.querySelector(
+        ".ready-status"
+      ).style.display = "none";
+    }
+
+
+    snapshot.forEach((tableDoc) => {
+
+      const data = tableDoc.data();
+
+      const number = Number(tableDoc.id);
+
+      if (number < 1 || number > 15) {
+        return;
+      }
+
+      const button =
+        document.getElementById(
+          "table-" + number
+        );
+
+      if (data.status === "occupied") {
+
+        button.classList.add("dolu");
+
+        button.querySelector(
+          ".table-status"
+        ).textContent = "🔴 Dolu";
+      }
+
+      if (data.ready === true) {
+
+        button.querySelector(
+          ".ready-status"
+        ).style.display = "block";
+
+        button.querySelector(
+          ".ready-status"
+        ).textContent =
+          "🟢 Sipariş Hazır";
+      }
 
     });
-
-    renderMenu();
-
-  },
-  (error) => {
-
-    console.error(error);
-
-    document.getElementById("foodList").innerHTML =
-      '<div class="empty-menu">Menü yüklenemedi.</div>';
 
   }
 );
 
 
-/* =========================
-   عرض القائمة
-========================= */
-
-function renderMenu() {
-
-  const foodList =
-    document.getElementById("foodList");
-
-  foodList.innerHTML = "";
-
-
-  if (menuItems.length === 0) {
-
-    foodList.innerHTML =
-      '<div class="empty-menu">Menü boş.</div>';
-
-    return;
-  }
-
-
-  menuItems.forEach((item) => {
-
-    const food =
-      document.createElement("div");
-
-    food.className = "food";
-
-
-    const info =
-      document.createElement("div");
-
-    info.className = "food-info";
-
-
-    const name =
-      document.createElement("strong");
-
-    name.textContent =
-      item.name;
-
-
-    const price =
-      document.createElement("span");
-
-    price.className = "price";
-
-    price.textContent =
-      item.price + " TL";
-
-
-    info.appendChild(name);
-    info.appendChild(price);
-
-
-    const button =
-      document.createElement("button");
-
-    button.textContent = "+";
-
-
-    button.onclick = function() {
-
-      addItem(item);
-
-    };
-
-
-    food.appendChild(info);
-    food.appendChild(button);
-
-    foodList.appendChild(food);
-
-  });
-
-}
-
-
-/* =========================
-   فتح طاولة
-========================= */
+/* فتح الطاولة */
 
 function openTable(number) {
 
   selectedTable = number;
-
   order = [];
 
+  document.getElementById(
+    "tableTitle"
+  ).innerText = "Masa " + number;
 
-  document.getElementById("tableTitle").innerText =
-    "Masa " + number;
-
-
-  document.getElementById("menu").style.display =
-    "block";
-
-
-  document.getElementById("readyMessage").style.display =
-    "none";
-
+  document.getElementById(
+    "menu"
+  ).style.display = "block";
 
   updateOrder();
-
-  listenForReadyOrder(number);
 
   window.scrollTo({
     top: document.body.scrollHeight,
     behavior: "smooth"
   });
-
 }
 
 
-/* =========================
-   إضافة منتج
-========================= */
+/* إضافة صنف */
 
-function addItem(item) {
+window.addItem = function(item) {
 
-  order.push({
-    name: item.name,
-    price: item.price
-  });
+  order.push(item);
 
   updateOrder();
+};
 
-}
 
-
-/* =========================
-   عرض الطلب والحساب
-========================= */
+/* عرض الطلب */
 
 function updateOrder() {
 
   const list =
     document.getElementById("orderList");
 
-  const totalElement =
-    document.getElementById("totalPrice");
-
-
   if (order.length === 0) {
 
     list.innerHTML =
       "Henüz ürün eklenmedi.";
 
-    totalElement.textContent =
-      "0";
-
     return;
   }
 
-
-  list.innerHTML = "";
-
-
-  let total = 0;
-
-
-  order.forEach((item) => {
-
-    total += Number(item.price) || 0;
-
-
-    const row =
-      document.createElement("div");
-
-    row.className =
-      "order-item";
-
-
-    row.innerHTML =
-      "<span>" +
-      escapeHtml(item.name) +
-      "</span>" +
-      "<strong>" +
-      item.price +
-      " TL</strong>";
-
-
-    list.appendChild(row);
-
-  });
-
-
-  totalElement.textContent =
-    total;
-
+  list.innerHTML =
+    order.map(
+      (item, index) =>
+        (index + 1) + ". " + item
+    ).join("<br>");
 }
 
 
-/* =========================
-   إرسال الطلب
-========================= */
+/* إرسال الطلب */
 
 window.sendOrder = async function() {
 
   if (!selectedTable) {
 
     alert("Lütfen masa seçin.");
-
     return;
   }
-
 
   if (order.length === 0) {
 
     alert("Lütfen sipariş ekleyin.");
-
     return;
   }
 
-
   try {
 
-    const itemsForFirebase =
-      order.map((item) => ({
-        name: item.name,
-        price: item.price
-      }));
+    /* الطاولة تصبح مشغولة */
+
+    await setDoc(
+      doc(db, "tables", String(selectedTable)),
+      {
+        status: "occupied",
+        ready: false,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
 
 
-    const total =
-      order.reduce(
-        (sum, item) =>
-          sum + Number(item.price || 0),
-        0
-      );
-
+    /* إرسال الطلب للمطبخ */
 
     await addDoc(
       collection(db, "orders"),
       {
         table: selectedTable,
-        items: itemsForFirebase,
-        total: total,
+        items: [...order],
         status: "new",
         createdAt: serverTimestamp()
       }
@@ -596,7 +431,6 @@ window.sendOrder = async function() {
       " siparişi mutfağa gönderildi! 👨‍🍳"
     );
 
-
     order = [];
 
     updateOrder();
@@ -606,246 +440,72 @@ window.sendOrder = async function() {
     console.error(error);
 
     alert(
-      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
+      "Sipariş gönderilemedi."
     );
-
   }
-
 };
 
 
-/* =========================
-   الطلبات الجاهزة
-========================= */
+/* تفريغ الطاولة */
 
-function listenForReadyOrder(tableNumber) {
-
-  if (readyListener) {
-
-    readyListener();
-
-    readyListener = null;
-
-  }
-
-
-  const q =
-    query(
-      collection(db, "orders"),
-      where("table", "==", tableNumber),
-      where("status", "==", "ready")
-    );
-
-
-  readyListener =
-    onSnapshot(q, (snapshot) => {
-
-      const readyMessage =
-        document.getElementById("readyMessage");
-
-
-      if (!snapshot.empty) {
-
-        readyMessage.style.display =
-          "block";
-
-        readyMessage.innerText =
-          "✅ Masa " +
-          tableNumber +
-          " siparişi hazır!";
-
-      } else {
-
-        readyMessage.style.display =
-          "none";
-
-      }
-
-    });
-
-}
-
-
-/* =========================
-   تحديث حالة الطاولات
-========================= */
-
-onSnapshot(
-  collection(db, "orders"),
-  (snapshot) => {
-
-    tableOrders = {};
-    readyOrders = {};
-
-
-    snapshot.forEach((orderDoc) => {
-
-      const data =
-        orderDoc.data();
-
-      const table =
-        Number(data.table);
-
-
-      if (!table) {
-        return;
-      }
-
-
-      if (
-        data.status === "new" ||
-        data.status === "ready"
-      ) {
-
-        tableOrders[table] = true;
-
-      }
-
-
-      if (data.status === "ready") {
-
-        readyOrders[table] = true;
-
-      }
-
-    });
-
-
-    updateTableButtons();
-
-  }
-);
-
-
-/* =========================
-   ألوان الطاولات
-========================= */
-
-function updateTableButtons() {
-
-  const buttons =
-    document.querySelectorAll(".table");
-
-
-  buttons.forEach((button) => {
-
-    const number =
-      Number(button.dataset.table);
-
-
-    const span =
-      button.querySelector("span");
-
-
-    const ready =
-      readyOrders[number];
-
-
-    const occupied =
-      tableOrders[number];
-
-
-    button.classList.toggle(
-      "dolu",
-      occupied
-    );
-
-
-    if (ready) {
-
-      span.innerHTML =
-        "Dolu" +
-        '<span class="ready-small">✅ Sipariş Hazır</span>';
-
-    } else if (occupied) {
-
-      span.textContent =
-        "Dolu";
-
-    } else {
-
-      span.textContent =
-        "Boş";
-
-    }
-
-  });
-
-}
-
-
-/* =========================
-   إفراغ الطاولة
-========================= */
-
-window.clearTable = async function() {
+window.emptyTable = async function() {
 
   if (!selectedTable) {
 
     alert("Lütfen masa seçin.");
-
     return;
   }
 
-
-  const ok =
-    confirm(
-      "Masa " +
-      selectedTable +
-      " temizlendi mi?"
-    );
-
+  const ok = confirm(
+    "Masa " +
+    selectedTable +
+    " boşaltılacak. Emin misiniz?"
+  );
 
   if (!ok) {
     return;
   }
 
-
   try {
 
-    const q =
-      query(
-        collection(db, "orders"),
-        where("table", "==", selectedTable),
-        where("status", "==", "ready")
-      );
+    /*
+      هنا أهم جزء:
+      الطاولة نفسها تصبح فارغة
+    */
 
-
-    onSnapshot(
-      q,
-      async (snapshot) => {
-
-        for (const orderDoc of snapshot.docs) {
-
-          await updateDoc(
-            doc(
-              db,
-              "orders",
-              orderDoc.id
-            ),
-            {
-              status: "completed"
-            }
-          );
-
-        }
-
-      },
+    await setDoc(
+      doc(
+        db,
+        "tables",
+        String(selectedTable)
+      ),
       {
-        once: true
-      }
+        status: "empty",
+        ready: false,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
     );
 
+
+    /*
+      الطلبات القديمة لا نستخدمها
+      لتحديد Dolu/Boş.
+    */
 
     alert(
       "Masa " +
       selectedTable +
-      " Boş oldu. ✅"
+      " artık boş. 🟢"
     );
 
 
-    document.getElementById("readyMessage").style.display =
-      "none";
+    document.getElementById(
+      "menu"
+    ).style.display = "none";
+
+    selectedTable = null;
+    order = [];
 
   } catch (error) {
 
@@ -854,30 +514,10 @@ window.clearTable = async function() {
     alert(
       "Masa boşaltılamadı."
     );
-
   }
-
 };
-
-
-/* =========================
-   حماية النص
-========================= */
-
-function escapeHtml(text) {
-
-  const div =
-    document.createElement("div");
-
-  div.textContent =
-    text;
-
-  return div.innerHTML;
-
-}
 
 </script>
 
 </body>
 </html>
-```
