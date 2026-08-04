@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ayder Sofra</title>
 
- <style>
+<style>
 * {
   box-sizing: border-box;
   font-family: Arial, sans-serif;
@@ -109,240 +109,6 @@ h2 {
     grid-template-columns: repeat(2, 1fr);
   }
 }
- </style>
-</head>
-
-<body>
-
-<header>
-  <h1>🍽️ AYDER SOFRA</h1>
-  <p>Restoran Yönetim Sistemi</p>
-</header>
-
-<main>
-
-<h2>🪑 Masalar</h2>
-
-<div class="tables" id="tables"></div>
-
-<div class="menu" id="menu">
-
-  <h2 id="tableTitle">Masa</h2>
-
-  <div class="food">
-    <span>🥘 Adana Kebap</span>
-    <button onclick="addItem('Adana Kebap')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🍗 Tavuk Şiş</span>
-    <button onclick="addItem('Tavuk Şiş')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🍲 Mercimek Çorbası</span>
-    <button onclick="addItem('Mercimek Çorbası')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🥗 Salata</span>
-    <button onclick="addItem('Salata')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🥤 Ayran</span>
-    <button onclick="addItem('Ayran')">+</button>
-  </div>
-
-  <div class="order">
-    <h3>🧾 Sipariş</h3>
-
-    <div id="orderList">
-      Henüz ürün eklenmedi.
-    </div>
-
-    <button class="send" onclick="sendOrder()">
-      Siparişi Gönder 👨‍🍳
-    </button>
-  </div>
-
-</div>
-
-</main>
-
-<script>
-
-let selectedTable = null;
-let order = [];
-
-const tables = document.getElementById("tables");
-
-for(let i = 1; i <= 15; i++){
-
-  const button = document.createElement("button");
-
-  button.className = "table";
-
-  button.innerHTML =
-    "Masa " + i +
-    "<span>Boş</span>";
-
-  button.onclick = function(){
-    openTable(i);
-  };
-
-  tables.appendChild(button);
-}
-
-function openTable(number){
-
-  selectedTable = number;
-  order = [];
-
-  document.getElementById("tableTitle").innerText =
-    "Masa " + number;
-
-  document.getElementById("menu").style.display =
-    "block";
-
-  updateOrder();
-
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-function addItem(item){
-
-  order.push(item);
-
-  updateOrder();
-}
-
-function updateOrder(){
-
-  const list =
-    document.getElementById("orderList");
-
-  if(order.length === 0){
-
-    list.innerHTML =
-      "Henüz ürün eklenmedi.";
-
-    return;
-  }
-
-  list.innerHTML = order
-    .map((item, index) =>
-      (index + 1) + ". " + item
-    )
-    .join("<br>");
-}
-
-function sendOrder(){
-
-  if(!selectedTable){
-
-    alert("Lütfen masa seçin.");
-    return;
-  }
-
-  if(order.length === 0){
-
-    alert("Lütfen sipariş ekleyin.");
-    return;
-  }
-
-  alert(
-    "Masa " +
-    selectedTable +
-    " siparişi mutfağa gönderildi! 👨‍🍳"
-  );
-
-  order = [];
-
-  updateOrder();
-}
-
-</script>
-
-</body>
-</html>h2 {
-  margin-top: 5px;
-}
-
-.tables {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.table {
-  border: none;
-  border-radius: 15px;
-  padding: 25px 5px;
-  background: #d9f7df;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.table span {
-  display: block;
-  font-size: 12px;
-  margin-top: 7px;
-  font-weight: normal;
-}
-
-.menu {
-  display: none;
-  margin-top: 25px;
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-}
-
-.food {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.food button {
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 9px 17px;
-  font-size: 20px;
-}
-
-.order {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 2px solid #ddd;
-}
-
-.send {
-  width: 100%;
-  padding: 15px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 12px;
-  background: #16803c;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-@media(max-width:500px) {
-  .tables {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 </style>
 </head>
 
@@ -404,134 +170,8 @@ function sendOrder(){
 
 </main>
 
-<script>
+<script type="module">
 
-let selectedTable = null;
-let order = [];
-
-const tables = document.getElementById("tables");
-
-for(let i = 1; i <= 15; i++){
-
-  const button = document.createElement("button");
-
-  button.className = "table";
-
-  button.innerHTML =
-    "Masa " + i +
-    "<span>Boş</span>";
-
-  button.onclick = function(){
-    openTable(i);
-  };
-
-  tables.appendChild(button);
-}
-
-function openTable(number){
-
-  selectedTable = number;
-  order = [];
-
-  document.getElementById("tableTitle").innerText =
-    "Masa " + number;
-
-  document.getElementById("menu").style.display =
-    "block";
-
-  updateOrder();
-
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-function addItem(item){
-
-  order.push(item);
-
-  updateOrder();
-}
-
-function updateOrder(){
-
-  const list =
-    document.getElementById("orderList");
-
-  if(order.length === 0){
-
-    list.innerHTML =
-      "Henüz ürün eklenmedi.";
-
-    return;
-  }
-
-  list.innerHTML = order
-    .map((item, index) =>
-      (index + 1) + ". " + item
-    )
-    .join("<br>");
-}
-
-async function sendOrder(){
-
-  if(!selectedTable){
-    alert("Lütfen masa seçin.");
-    return;
-  }
-
-  if(order.length === 0){
-    alert("Lütfen sipariş ekleyin.");
-    return;
-  }
-
-  try {
-
-    await window.sendOrderToFirebase(
-      selectedTable,
-      order
-    );
-
-    alert(
-      "Masa " +
-      selectedTable +
-      " siparişi mutfağa gönderildi! 👨‍🍳"
-    );
-
-    order = [];
-    updateOrder();
-
-  } catch(error) {
-
-    console.error(error);
-
-    alert(
-      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
-    );
-
-  }
-}
-
-  if(order.length === 0){
-
-    alert("Lütfen sipariş ekleyin.");
-    return;
-  }
-
-  alert(
-    "Masa " +
-    selectedTable +
-    " siparişi mutfağa gönderildi! 👨‍🍳"
-  );
-
-  order = [];
-
-  updateOrder();
-}
-
-</script>
-  <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
@@ -551,478 +191,68 @@ const firebaseConfig = {
   appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
-
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
 
-window.sendOrderToFirebase = async function(tableNumber, items) {
+let selectedTable = null;
+let order = [];
 
-  const orderData = {
-    table: tableNumber,
-    items: items,
-    status: "new",
-    createdAt: serverTimestamp()
+const tables = document.getElementById("tables");
+
+
+for (let i = 1; i <= 15; i++) {
+
+  const button = document.createElement("button");
+
+  button.className = "table";
+
+  button.innerHTML =
+    "Masa " + i +
+    "<span>Boş</span>";
+
+  button.onclick = function() {
+    openTable(i);
   };
 
-  await addDoc(
-    collection(db, "orders"),
-    orderData
-  );
+  tables.appendChild(button);
+}
 
+
+function openTable(number) {
+
+  selectedTable = number;
+  order = [];
+
+  document.getElementById("tableTitle").innerText =
+    "Masa " + number;
+
+  document.getElementById("menu").style.display =
+    "block";
+
+  updateOrder();
+
+  window.scrollTo({
+    top: document.body.scrollHeight,
+    behavior: "smooth"
+  });
+}
+
+
+window.addItem = function(item) {
+
+  order.push(item);
+
+  updateOrder();
 };
-</script>
-</body>
-</html>h2 {
-  margin-top: 5px;
-}
 
-.tables {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
 
-.table {
-  border: none;
-  border-radius: 15px;
-  padding: 25px 5px;
-  background: #d9f7df;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.table span {
-  display: block;
-  font-size: 12px;
-  margin-top: 7px;
-  font-weight: normal;
-}
-
-.menu {
-  display: none;
-  margin-top: 25px;
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-}
-
-.food {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.food button {
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 9px 17px;
-  font-size: 20px;
-}
-
-.order {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 2px solid #ddd;
-}
-
-.send {
-  width: 100%;
-  padding: 15px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 12px;
-  background: #16803c;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-@media(max-width:500px) {
-  .tables {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <h1>🍽️ AYDER SOFRA</h1>
-  <p>Restoran Yönetim Sistemi</p>
-</header>
-
-<main>
-
-<h2>🪑 Masalar</h2>
-
-<div class="tables" id="tables"></div>
-
-<div class="menu" id="menu">
-
-  <h2 id="tableTitle">Masa</h2>
-
-  <div class="food">
-    <span>🥘 Adana Kebap</span>
-    <button onclick="addItem('Adana Kebap')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🍗 Tavuk Şiş</span>
-    <button onclick="addItem('Tavuk Şiş')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🍲 Mercimek Çorbası</span>
-    <button onclick="addItem('Mercimek Çorbası')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🥗 Salata</span>
-    <button onclick="addItem('Salata')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🥤 Ayran</span>
-    <button onclick="addItem('Ayran')">+</button>
-  </div>
-
-  <div class="order">
-    <h3>🧾 Sipariş</h3>
-
-    <div id="orderList">
-      Henüz ürün eklenmedi.
-    </div>
-
-    <button class="send" onclick="sendOrder()">
-      Siparişi Gönder 👨‍🍳
-    </button>
-  </div>
-
-</div>
-
-</main>
-
-<script>
-
-let selectedTable = null;
-let order = [];
-
-const tables = document.getElementById("tables");
-
-for(let i = 1; i <= 15; i++){
-
-  const button = document.createElement("button");
-
-  button.className = "table";
-
-  button.innerHTML =
-    "Masa " + i +
-    "<span>Boş</span>";
-
-  button.onclick = function(){
-    openTable(i);
-  };
-
-  tables.appendChild(button);
-}
-
-function openTable(number){
-
-  selectedTable = number;
-  order = [];
-
-  document.getElementById("tableTitle").innerText =
-    "Masa " + number;
-
-  document.getElementById("menu").style.display =
-    "block";
-
-  updateOrder();
-
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-function addItem(item){
-
-  order.push(item);
-
-  updateOrder();
-}
-
-function updateOrder(){
-
-  async function sendOrder(){
-
-  if(!selectedTable){
-    alert("Lütfen masa seçin.");
-    return;
-  }
-
-  if(order.length === 0){
-    alert("Lütfen sipariş ekleyin.");
-    return;
-  }
-
-  try {
-    await window.sendOrderToFirebase(selectedTable, order);
-
-    alert(
-      "Masa " +
-      selectedTable +
-      " siparişi mutfağa gönderildi! 👨‍🍳"
-    );
-
-    order = [];
-    updateOrder();
-
-  } catch(error) {
-    console.error(error);
-
-    alert(
-      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
-    );
-  }
-  }
-  }
-
-  list.innerHTML = order
-    .map((item, index) =>
-      (index + 1) + ". " + item
-    )
-    .join("<br>");
-}
-
-function sendOrder(){
-
-  if(!selectedTable){
-
-    alert("Lütfen masa seçin.");
-    return;
-  }
-
-  if(order.length === 0){
-
-    alert("Lütfen sipariş ekleyin.");
-    return;
-  }
-
-  alert(
-    "Masa " +
-    selectedTable +
-    " siparişi mutfağa gönderildi! 👨‍🍳"
-  );
-
-  order = [];
-
-  updateOrder();
-}
-
-</script>
-
-</body>
-</html>h2 {
-  margin-top: 5px;
-}
-
-.tables {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-.table {
-  border: none;
-  border-radius: 15px;
-  padding: 25px 5px;
-  background: #d9f7df;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.table span {
-  display: block;
-  font-size: 12px;
-  margin-top: 7px;
-  font-weight: normal;
-}
-
-.menu {
-  display: none;
-  margin-top: 25px;
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-}
-
-.food {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid #ddd;
-}
-
-.food button {
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 9px 17px;
-  font-size: 20px;
-}
-
-.order {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 2px solid #ddd;
-}
-
-.send {
-  width: 100%;
-  padding: 15px;
-  margin-top: 15px;
-  border: none;
-  border-radius: 12px;
-  background: #16803c;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-}
-
-@media(max-width:500px) {
-  .tables {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-</style>
-</head>
-
-<body>
-
-<header>
-  <h1>🍽️ AYDER SOFRA</h1>
-  <p>Restoran Yönetim Sistemi</p>
-</header>
-
-<main>
-
-<h2>🪑 Masalar</h2>
-
-<div class="tables" id="tables"></div>
-
-<div class="menu" id="menu">
-
-  <h2 id="tableTitle">Masa</h2>
-
-  <div class="food">
-    <span>🥘 Adana Kebap</span>
-    <button onclick="addItem('Adana Kebap')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🍗 Tavuk Şiş</span>
-    <button onclick="addItem('Tavuk Şiş')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🍲 Mercimek Çorbası</span>
-    <button onclick="addItem('Mercimek Çorbası')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🥗 Salata</span>
-    <button onclick="addItem('Salata')">+</button>
-  </div>
-
-  <div class="food">
-    <span>🥤 Ayran</span>
-    <button onclick="addItem('Ayran')">+</button>
-  </div>
-
-  <div class="order">
-    <h3>🧾 Sipariş</h3>
-
-    <div id="orderList">
-      Henüz ürün eklenmedi.
-    </div>
-
-    <button class="send" onclick="sendOrder()">
-      Siparişi Gönder 👨‍🍳
-    </button>
-  </div>
-
-</div>
-
-</main>
-
-<script>
-
-let selectedTable = null;
-let order = [];
-
-const tables = document.getElementById("tables");
-
-for(let i = 1; i <= 15; i++){
-
-  const button = document.createElement("button");
-
-  button.className = "table";
-
-  button.innerHTML =
-    "Masa " + i +
-    "<span>Boş</span>";
-
-  button.onclick = function(){
-    openTable(i);
-  };
-
-  tables.appendChild(button);
-}
-
-function openTable(number){
-
-  selectedTable = number;
-  order = [];
-
-  document.getElementById("tableTitle").innerText =
-    "Masa " + number;
-
-  document.getElementById("menu").style.display =
-    "block";
-
-  updateOrder();
-
-  window.scrollTo({
-    top: document.body.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-function addItem(item){
-
-  order.push(item);
-
-  updateOrder();
-}
-
-function updateOrder(){
+function updateOrder() {
 
   const list =
     document.getElementById("orderList");
 
-  if(order.length === 0){
+  if (order.length === 0) {
 
     list.innerHTML =
       "Henüz ürün eklenmedi.";
@@ -1037,23 +267,31 @@ function updateOrder(){
     .join("<br>");
 }
 
-async function sendOrder(){
 
-  if(!selectedTable){
+window.sendOrder = async function() {
+
+  if (!selectedTable) {
+
     alert("Lütfen masa seçin.");
     return;
   }
 
-  if(order.length === 0){
+  if (order.length === 0) {
+
     alert("Lütfen sipariş ekleyin.");
     return;
   }
 
   try {
 
-    await window.sendOrderToFirebase(
-      selectedTable,
-      order
+    await addDoc(
+      collection(db, "orders"),
+      {
+        table: selectedTable,
+        items: order,
+        status: "new",
+        createdAt: serverTimestamp()
+      }
     );
 
     alert(
@@ -1063,78 +301,20 @@ async function sendOrder(){
     );
 
     order = [];
+
     updateOrder();
 
-  } catch(error) {
+  } catch (error) {
 
     console.error(error);
 
     alert(
       "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
     );
-
   }
-}
-
-  if(order.length === 0){
-
-    alert("Lütfen sipariş ekleyin.");
-    return;
-  }
-
-  alert(
-    "Masa " +
-    selectedTable +
-    " siparişi mutfağa gönderildi! 👨‍🍳"
-  );
-
-  order = [];
-
-  updateOrder();
-}
-
-</script>
-  <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
-  authDomain: "ayder-sofra.firebaseapp.com",
-  projectId: "ayder-sofra",
-  storageBucket: "ayder-sofra.firebasestorage.app",
-  messagingSenderId: "459245770853",
-  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
-
-const app = initializeApp(firebaseConfig);
-
-const db = getFirestore(app);
-
-
-window.sendOrderToFirebase = async function(tableNumber, items) {
-
-  const orderData = {
-    table: tableNumber,
-    items: items,
-    status: "new",
-    createdAt: serverTimestamp()
-  };
-
-  await addDoc(
-    collection(db, "orders"),
-    orderData
-  );
-
-};
 </script>
+
 </body>
 </html>
