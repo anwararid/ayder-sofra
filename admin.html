@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Ayder Sofra - Yönetim</title>
 
 <style>
@@ -38,7 +37,8 @@ main {
   margin-bottom: 20px;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 13px;
   margin: 7px 0 12px;
@@ -69,15 +69,20 @@ button {
   margin-bottom: 12px;
 }
 
-.item-name {
+.name {
   font-size: 18px;
   font-weight: bold;
 }
 
-.item-price {
-  margin: 7px 0 12px;
+.price {
   color: #16803c;
   font-weight: bold;
+  margin: 6px 0;
+}
+
+.station {
+  margin-bottom: 12px;
+  color: #555;
 }
 
 .edit {
@@ -94,6 +99,7 @@ button {
 .empty {
   text-align: center;
   padding: 20px;
+  color: #777;
 }
 </style>
 </head>
@@ -123,7 +129,26 @@ button {
     placeholder="Fiyat (TL)"
   >
 
-  <button class="add" onclick="addProduct()">
+  <select id="station">
+
+    <option value="grill">
+      🔥 Şef Izgara
+    </option>
+
+    <option value="oven">
+      🥖 Fırın
+    </option>
+
+    <option value="kitchen">
+      👨‍🍳 Mutfak
+    </option>
+
+  </select>
+
+  <button
+    class="add"
+    onclick="addProduct()"
+  >
     Ürünü Ekle
   </button>
 
@@ -161,46 +186,80 @@ import {
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
-  authDomain: "ayder-sofra.firebaseapp.com",
-  projectId: "ayder-sofra",
-  storageBucket: "ayder-sofra.firebasestorage.app",
-  messagingSenderId: "459245770853",
-  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
+
+  apiKey:
+    "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
+
+  authDomain:
+    "ayder-sofra.firebaseapp.com",
+
+  projectId:
+    "ayder-sofra",
+
+  storageBucket:
+    "ayder-sofra.firebasestorage.app",
+
+  messagingSenderId:
+    "459245770853",
+
+  appId:
+    "1:459245770853:web:8d32163fef443a2b7c8e8c"
+
 };
 
 
-const app = initializeApp(firebaseConfig);
+const app =
+  initializeApp(firebaseConfig);
 
-const db = getFirestore(app);
+
+const db =
+  getFirestore(app);
+
 
 const menuList =
   document.getElementById("menuList");
 
 
-/* إضافة منتج */
+
+/* =========================
+   YENİ ÜRÜN EKLE
+========================= */
 
 window.addProduct = async function() {
 
   const name =
-    document.getElementById("name").value.trim();
+    document
+      .getElementById("name")
+      .value
+      .trim();
+
 
   const price =
     Number(
-      document.getElementById("price").value
+      document
+        .getElementById("price")
+        .value
     );
+
+
+  const station =
+    document
+      .getElementById("station")
+      .value;
 
 
   if (!name) {
 
     alert("Ürün adını yazın.");
+
     return;
   }
 
 
-  if (!price || price < 0) {
+  if (isNaN(price) || price < 0) {
 
     alert("Geçerli bir fiyat yazın.");
+
     return;
   }
 
@@ -211,27 +270,42 @@ window.addProduct = async function() {
       collection(db, "menu"),
       {
         name: name,
-        price: price
+        price: price,
+        station: station
       }
     );
 
 
-    document.getElementById("name").value = "";
-    document.getElementById("price").value = "";
+    document
+      .getElementById("name")
+      .value = "";
+
+
+    document
+      .getElementById("price")
+      .value = "";
+
 
     alert("Ürün eklendi! ✅");
+
 
   } catch (error) {
 
     console.error(error);
 
-    alert("Ürün eklenemedi.");
+    alert(
+      "Ürün eklenemedi."
+    );
+
   }
 
 };
 
 
-/* عرض المنتجات */
+
+/* =========================
+   MENÜYÜ GÖSTER
+========================= */
 
 onSnapshot(
   collection(db, "menu"),
@@ -249,154 +323,226 @@ onSnapshot(
     }
 
 
-    snapshot.forEach((productDoc) => {
+    snapshot.forEach(
+      (productDoc) => {
 
-      const data =
-        productDoc.data();
-
-
-      const item =
-        document.createElement("div");
-
-      item.className = "item";
+        const data =
+          productDoc.data();
 
 
-      item.innerHTML = `
-        <div class="item-name">
-          ${escapeHtml(data.name || "")}
-        </div>
-
-        <div class="item-price">
-          ${data.price || 0} TL
-        </div>
-
-        <button class="edit">
-          ✏️ Düzenle
-        </button>
-
-        <button class="delete">
-          🗑️ Sil
-        </button>
-      `;
+        const item =
+          document.createElement("div");
 
 
-      const editButton =
-        item.querySelector(".edit");
+        item.className = "item";
 
 
-      editButton.onclick =
-        async function() {
-
-          const newName =
-            prompt(
-              "Yeni ürün adı:",
-              data.name || ""
-            );
+        let stationName;
 
 
-          if (newName === null) {
-            return;
-          }
+        if (data.station === "grill") {
+
+          stationName =
+            "🔥 Şef Izgara";
+
+        } else if (
+          data.station === "oven"
+        ) {
+
+          stationName =
+            "🥖 Fırın";
+
+        } else {
+
+          stationName =
+            "👨‍🍳 Mutfak";
+
+        }
 
 
-          const newPrice =
-            prompt(
-              "Yeni fiyat (TL):",
-              data.price || 0
-            );
+        item.innerHTML = `
+
+          <div class="name">
+            ${escapeHtml(data.name || "")}
+          </div>
+
+          <div class="price">
+            ${data.price || 0} TL
+          </div>
+
+          <div class="station">
+            Bölüm: ${stationName}
+          </div>
+
+          <button class="edit">
+            ✏️ Düzenle
+          </button>
+
+          <button class="delete">
+            🗑️ Sil
+          </button>
+
+        `;
 
 
-          if (newPrice === null) {
-            return;
-          }
+
+        /* =========================
+           DÜZENLE
+        ========================= */
+
+        item
+          .querySelector(".edit")
+          .onclick = async function() {
 
 
-          const priceNumber =
-            Number(newPrice);
+            const newName =
+              prompt(
+                "Yeni ürün adı:",
+                data.name || ""
+              );
 
 
-          if (
-            !newName.trim() ||
-            isNaN(priceNumber) ||
-            priceNumber < 0
-          ) {
+            if (newName === null) {
 
-            alert("Bilgileri kontrol edin.");
-            return;
-          }
+              return;
+            }
 
 
-          try {
-
-            await updateDoc(
-              doc(
-                db,
-                "menu",
-                productDoc.id
-              ),
-              {
-                name: newName.trim(),
-                price: priceNumber
-              }
-            );
-
-          } catch (error) {
-
-            console.error(error);
-
-            alert("Ürün güncellenemedi.");
-          }
-
-        };
+            const newPrice =
+              prompt(
+                "Yeni fiyat:",
+                data.price || 0
+              );
 
 
-      const deleteButton =
-        item.querySelector(".delete");
+            if (newPrice === null) {
+
+              return;
+            }
 
 
-      deleteButton.onclick =
-        async function() {
-
-          const ok =
-            confirm(
-              `"${data.name}" silinsin mi?`
-            );
+            const newStation =
+              prompt(
+                "Bölüm yazın: grill / oven / kitchen",
+                data.station || "kitchen"
+              );
 
 
-          if (!ok) {
-            return;
-          }
+            if (newStation === null) {
+
+              return;
+            }
 
 
-          try {
+            if (
+              !newName.trim() ||
+              isNaN(Number(newPrice)) ||
+              ![
+                "grill",
+                "oven",
+                "kitchen"
+              ].includes(newStation)
+            ) {
 
-            await deleteDoc(
-              doc(
-                db,
-                "menu",
-                productDoc.id
+              alert(
+                "Bilgileri kontrol edin."
+              );
+
+              return;
+            }
+
+
+            try {
+
+              await updateDoc(
+                doc(
+                  db,
+                  "menu",
+                  productDoc.id
+                ),
+                {
+                  name:
+                    newName.trim(),
+
+                  price:
+                    Number(newPrice),
+
+                  station:
+                    newStation
+                }
+              );
+
+
+            } catch (error) {
+
+              console.error(error);
+
+              alert(
+                "Ürün güncellenemedi."
+              );
+
+            }
+
+          };
+
+
+
+        /* =========================
+           SİL
+        ========================= */
+
+        item
+          .querySelector(".delete")
+          .onclick = async function() {
+
+
+            if (
+              !confirm(
+                `"${data.name}" silinsin mi?`
               )
-            );
+            ) {
 
-          } catch (error) {
-
-            console.error(error);
-
-            alert("Ürün silinemedi.");
-          }
-
-        };
+              return;
+            }
 
 
-      menuList.appendChild(item);
+            try {
 
-    });
+              await deleteDoc(
+                doc(
+                  db,
+                  "menu",
+                  productDoc.id
+                )
+              );
+
+
+            } catch (error) {
+
+              console.error(error);
+
+              alert(
+                "Ürün silinemedi."
+              );
+
+            }
+
+          };
+
+
+        menuList.appendChild(item);
+
+      }
+    );
 
   }
 );
 
 
-/* حماية عرض النص */
+
+/* =========================
+   GÜVENLİ GÖSTERİM
+========================= */
 
 function escapeHtml(text) {
 
@@ -406,6 +552,7 @@ function escapeHtml(text) {
   div.textContent = text;
 
   return div.innerHTML;
+
 }
 
 </script>
@@ -413,4 +560,3 @@ function escapeHtml(text) {
 </body>
 </html>
 ```
-
