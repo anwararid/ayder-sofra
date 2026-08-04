@@ -1,1 +1,217 @@
 
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ayder Sofra - Mutfak</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f5f5;
+  color: #222;
+}
+
+header {
+  background: #222;
+  color: white;
+  text-align: center;
+  padding: 22px 10px;
+}
+
+main {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+}
+
+.order {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.order h2 {
+  margin-top: 0;
+}
+
+.order ul {
+  padding-left: 25px;
+}
+
+.status {
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.ready {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #16803c;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.empty {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>👨‍🍳 AYDER SOFRA</h1>
+  <p>Mutfak Siparişleri</p>
+</header>
+
+<main id="orders">
+  <div class="empty">
+    Siparişler yükleniyor...
+  </div>
+</main>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
+  authDomain: "ayder-sofra.firebaseapp.com",
+  projectId: "ayder-sofra",
+  storageBucket: "ayder-sofra.firebasestorage.app",
+  messagingSenderId: "459245770853",
+  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+const ordersDiv = document.getElementById("orders");
+
+
+onSnapshot(collection(db, "orders"), (snapshot) => {
+
+  ordersDiv.innerHTML = "";
+
+  if (snapshot.empty) {
+
+    ordersDiv.innerHTML = `
+      <div class="empty">
+        Henüz sipariş yok.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  snapshot.forEach((orderDoc) => {
+
+    const data = orderDoc.data();
+
+    const orderDiv = document.createElement("div");
+
+    orderDiv.className = "order";
+
+
+    const title = document.createElement("h2");
+
+    title.textContent =
+      "🪑 Masa " + data.table;
+
+
+    const list = document.createElement("ul");
+
+
+    (data.items || []).forEach((item) => {
+
+      const li = document.createElement("li");
+
+      li.textContent = item;
+
+      list.appendChild(li);
+
+    });
+
+
+    const status = document.createElement("div");
+
+    status.className = "status";
+
+    status.textContent =
+      data.status === "ready"
+      ? "✅ Hazır"
+      : "🔴 Yeni Sipariş";
+
+
+    orderDiv.appendChild(title);
+
+    orderDiv.appendChild(list);
+
+    orderDiv.appendChild(status);
+
+
+    if (data.status !== "ready") {
+
+      const button = document.createElement("button");
+
+      button.className = "ready";
+
+      button.textContent =
+        "✅ Hazır";
+
+
+      button.onclick = async function() {
+
+        await updateDoc(
+          doc(db, "orders", orderDoc.id),
+          {
+            status: "ready"
+          }
+        );
+
+      };
+
+
+      orderDiv.appendChild(button);
+
+    }
+
+
+    ordersDiv.appendChild(orderDiv);
+
+  });
+
+});
+
+</script>
+
+</body>
+</html>
