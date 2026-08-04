@@ -25,10 +25,6 @@ header {
   padding: 22px 10px;
 }
 
-header h1 {
-  margin: 0;
-}
-
 main {
   max-width: 700px;
   margin: auto;
@@ -40,8 +36,6 @@ main {
   border-radius: 15px;
   padding: 20px;
   margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-left: 6px solid #e53935;
 }
 
 .order h2 {
@@ -57,28 +51,29 @@ main {
   margin: 15px 0;
 }
 
-button {
+.ready {
   width: 100%;
   padding: 14px;
   border: none;
   border-radius: 12px;
+  background: #16803c;
   color: white;
   font-size: 17px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 10px;
-}
-
-.ready {
-  background: #16803c;
-}
-
-.delivered {
-  background: #555;
 }
 
 .delete {
-  background: #c62828;
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #b3261e;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .empty {
@@ -86,12 +81,6 @@ button {
   padding: 25px;
   border-radius: 15px;
   text-align: center;
-}
-
-.time {
-  color: #777;
-  font-size: 13px;
-  margin-top: 5px;
 }
 </style>
 </head>
@@ -122,6 +111,7 @@ import {
   onSnapshot,
   doc,
   updateDoc,
+  setDoc,
   deleteDoc
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -136,53 +126,31 @@ const firebaseConfig = {
   appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
-
 const app = initializeApp(firebaseConfig);
-
 const db = getFirestore(app);
 
 const ordersDiv =
   document.getElementById("orders");
 
 
-// متابعة الطلبات
 onSnapshot(
   collection(db, "orders"),
   (snapshot) => {
 
     ordersDiv.innerHTML = "";
 
-    const orders = [];
-
-    snapshot.forEach((orderDoc) => {
-
-      const data = orderDoc.data();
-
-      // نظهر فقط الطلبات الجديدة والجاهزة
-      if (
-        data.status === "new" ||
-        data.status === "ready"
-      ) {
-
-        orders.push({
-          id: orderDoc.id,
-          data: data
-        });
-
-      }
-
-    });
+    const newOrders =
+      snapshot.docs.filter(
+        (orderDoc) =>
+          orderDoc.data().status === "new"
+      );
 
 
-    // الأحدث أولًا
-    orders.reverse();
-
-
-    if (orders.length === 0) {
+    if (newOrders.length === 0) {
 
       ordersDiv.innerHTML = `
         <div class="empty">
-          ✅ لا توجد طلبات
+          Henüz yeni sipariş yok.
         </div>
       `;
 
@@ -190,23 +158,24 @@ onSnapshot(
     }
 
 
-    orders.forEach((orderItem) => {
+    /*
+      الأحدث أولًا
+    */
 
-      const orderId =
-        orderItem.id;
+    newOrders.reverse();
+
+
+    newOrders.forEach((orderDoc) => {
 
       const data =
-        orderItem.data;
-
+        orderDoc.data();
 
       const orderDiv =
         document.createElement("div");
 
-      orderDiv.className =
-        "order";
+      orderDiv.className = "order";
 
 
-      // رقم الطاولة
       const title =
         document.createElement("h2");
 
@@ -214,31 +183,6 @@ onSnapshot(
         "🪑 Masa " + data.table;
 
 
-      // الوقت
-      const time =
-        document.createElement("div");
-
-      time.className = "time";
-
-      if (data.createdAt) {
-
-        const date =
-          data.createdAt.toDate();
-
-        time.textContent =
-          "Sipariş zamanı: " +
-          date.toLocaleTimeString(
-            "tr-TR",
-            {
-              hour: "2-digit",
-              minute: "2-digit"
-            }
-          );
-
-      }
-
-
-      // المنتجات
       const list =
         document.createElement("ul");
 
@@ -252,55 +196,80 @@ onSnapshot(
           li.textContent = item;
 
           list.appendChild(li);
-
         }
       );
 
 
-      // الحالة
       const status =
         document.createElement("div");
 
-      status.className =
-        "status";
+      status.className = "status";
+
+      status.textContent =
+        "🔴 Yeni Sipariş";
 
 
-      if (data.status === "ready") {
-
-        status.textContent =
-          "✅ Hazır";
-
-      } else {
-
-        status.textContent =
-          "🔴 Yeni Sipariş";
-
-      }
-
-
-      // زر Hazır
-      const readyButton =
+      const button =
         document.createElement("button");
 
-      readyButton.className =
-        "ready";
+      button.className = "ready";
 
-      readyButton.textContent =
+      button.textContent =
         "✅ Hazır";
 
 
-      // زر التسليم
-      const deliveredButton =
-        document.createElement("button");
+      button.onclick =
+        async function() {
 
-      deliveredButton.className =
-        "delivered";
+          try {
 
-      deliveredButton.textContent =
-        "📦 Teslim Edildi";
+            /*
+              الطلب أصبح جاهز
+            */
+
+            await updateDoc(
+              doc(
+                db,
+                "orders",
+                orderDoc.id
+              ),
+              {
+                status: "ready"
+              }
+            );
 
 
-      // زر الحذف
+            /*
+              نخبر صفحة النادل
+              أن الطلب جاهز
+            */
+
+            await setDoc(
+              doc(
+                db,
+                "tables",
+                String(data.table)
+              ),
+              {
+                status: "occupied",
+                ready: true
+              },
+              { merge: true }
+            );
+
+
+          } catch (error) {
+
+            console.error(error);
+
+            alert(
+              "Güncelleme başarısız."
+            );
+          }
+
+        };
+
+
       const deleteButton =
         document.createElement("button");
 
@@ -311,139 +280,16 @@ onSnapshot(
         "🗑️ Sil";
 
 
-      // إذا كان الطلب جاهزًا
-      if (data.status === "ready") {
-
-        readyButton.style.display =
-          "none";
-
-        deliveredButton.style.display =
-          "block";
-
-      } else {
-
-        deliveredButton.style.display =
-          "none";
-
-      }
-
-
-      // تجهيز الطلب
-      readyButton.onclick =
-        async function() {
-
-          readyButton.disabled = true;
-
-          readyButton.textContent =
-            "⏳ Hazırlanıyor...";
-
-          try {
-
-            await updateDoc(
-              doc(
-                db,
-                "orders",
-                orderId
-              ),
-              {
-                status: "ready"
-              }
-            );
-
-          } catch (error) {
-
-            console.error(error);
-
-            readyButton.disabled = false;
-
-            readyButton.textContent =
-              "✅ Hazır";
-
-            alert(
-              "Hata oluştu."
-            );
-
-          }
-
-        };
-
-
-      // تسليم الطلب
-      deliveredButton.onclick =
-        async function() {
-
-          const ok =
-            confirm(
-              "Masa " +
-              data.table +
-              " siparişi teslim edildi mi?"
-            );
-
-          if (!ok) return;
-
-
-          deliveredButton.disabled =
-            true;
-
-          deliveredButton.textContent =
-            "⏳ İşleniyor...";
-
-
-          try {
-
-            await deleteDoc(
-              doc(
-                db,
-                "orders",
-                orderId
-              )
-            );
-
-          } catch (error) {
-
-            console.error(error);
-
-            deliveredButton.disabled =
-              false;
-
-            deliveredButton.textContent =
-              "📦 Teslim Edildi";
-
-            alert(
-              "Sipariş silinemedi."
-            );
-
-          }
-
-        };
-
-
-      // حذف الطلب مباشرة
       deleteButton.onclick =
         async function() {
 
-          const ok =
-            confirm(
-              "Bu siparişi silmek istediğinize emin misiniz?"
-            );
-
-          if (!ok) return;
-
-
-          deleteButton.disabled =
-            true;
-
-          deleteButton.textContent =
-            "⏳ Siliniyor...";
-
-
           try {
 
             await deleteDoc(
               doc(
                 db,
                 "orders",
-                orderId
+                orderDoc.id
               )
             );
 
@@ -451,49 +297,23 @@ onSnapshot(
 
             console.error(error);
 
-            deleteButton.disabled =
-              false;
-
-            deleteButton.textContent =
-              "🗑️ Sil";
-
             alert(
               "Sipariş silinemedi."
             );
-
           }
 
         };
 
 
       orderDiv.appendChild(title);
-
-      orderDiv.appendChild(time);
-
       orderDiv.appendChild(list);
-
       orderDiv.appendChild(status);
-
-      orderDiv.appendChild(readyButton);
-
-      orderDiv.appendChild(deliveredButton);
-
+      orderDiv.appendChild(button);
       orderDiv.appendChild(deleteButton);
 
       ordersDiv.appendChild(orderDiv);
 
     });
-
-  },
-  (error) => {
-
-    console.error(error);
-
-    ordersDiv.innerHTML = `
-      <div class="empty">
-        ❌ Firebase bağlantı hatası
-      </div>
-    `;
 
   }
 );
