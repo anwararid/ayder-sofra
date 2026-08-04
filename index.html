@@ -43,7 +43,9 @@ h2 {
 }
 
 
-/* MASALAR */
+/* =========================
+   MASALAR
+========================= */
 
 .tables {
   display: grid;
@@ -73,14 +75,17 @@ h2 {
   font-weight: normal;
 }
 
-.table .ready-text {
+.ready-text {
+  display: block;
   color: #16803c;
   font-weight: bold;
   margin-top: 5px;
 }
 
 
-/* MENU */
+/* =========================
+   MENU
+========================= */
 
 .menu {
   display: none;
@@ -124,7 +129,9 @@ h2 {
 }
 
 
-/* ORDER */
+/* =========================
+   ORDER
+========================= */
 
 .order {
   margin-top: 20px;
@@ -162,6 +169,15 @@ h2 {
   cursor: pointer;
 }
 
+.send:disabled {
+  opacity: 0.6;
+}
+
+
+/* =========================
+   READY
+========================= */
+
 .ready-message {
   display: none;
   margin-top: 15px;
@@ -174,6 +190,34 @@ h2 {
   text-align: center;
 }
 
+
+/* =========================
+   تفريغ الطاولة
+========================= */
+
+.clear-table {
+  display: none;
+  width: 100%;
+  padding: 15px;
+  margin-top: 12px;
+  border: none;
+  border-radius: 12px;
+  background: #d35400;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.clear-table:disabled {
+  opacity: 0.6;
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
 .loading {
   text-align: center;
   padding: 20px;
@@ -181,7 +225,9 @@ h2 {
 }
 
 
-/* MOBILE */
+/* =========================
+   MOBILE
+========================= */
 
 @media(max-width:500px) {
 
@@ -269,6 +315,14 @@ Siparişi Gönder 👨‍🍳
 </div>
 
 
+<button
+  class="clear-table"
+  id="clearTableButton"
+>
+🧹 Masayı Boşalt
+</button>
+
+
 </div>
 
 
@@ -299,12 +353,10 @@ import {
   addDoc,
   serverTimestamp,
   onSnapshot,
-  query,
-  where
+  writeBatch
 }
 from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
 
 
 const firebaseConfig = {
@@ -352,51 +404,70 @@ let menuItems = [];
 let ordersData = [];
 
 
-
 const tables =
   document.getElementById("tables");
+
 
 const foods =
   document.getElementById("foods");
 
+
 const menu =
   document.getElementById("menu");
+
 
 const orderList =
   document.getElementById("orderList");
 
+
 const readyMessage =
   document.getElementById("readyMessage");
+
 
 const sendButton =
   document.getElementById("sendButton");
 
 
+const clearTableButton =
+  document.getElementById(
+    "clearTableButton"
+  );
+
+
 
 /* =========================
-   إنشاء 15 طاولة
+   إنشاء الطاولات
 ========================= */
 
-for (let i = 1; i <= 15; i++) {
+for (
+  let i = 1;
+  i <= 15;
+  i++
+) {
 
   const button =
     document.createElement("button");
 
+
   button.className =
     "table";
 
+
   button.id =
     "table-" + i;
+
 
   button.innerHTML = `
     Masa ${i}
     <span>Boş</span>
   `;
 
+
   button.addEventListener(
     "click",
     () => openTable(i)
   );
+
 
   tables.appendChild(button);
 
@@ -416,11 +487,13 @@ onSnapshot(
 
     menuItems = [];
 
+
     snapshot.forEach(
       (productDoc) => {
 
         const data =
           productDoc.data();
+
 
         menuItems.push({
 
@@ -428,18 +501,26 @@ onSnapshot(
             productDoc.id,
 
           name:
-            String(data.name || "Ürün"),
+            String(
+              data.name || "Ürün"
+            ),
 
           price:
-            Number(data.price || 0),
+            Number(
+              data.price || 0
+            ),
 
           station:
-            String(data.station || "kitchen")
+            String(
+              data.station ||
+              "kitchen"
+            )
 
         });
 
       }
     );
+
 
     renderMenu();
 
@@ -451,6 +532,7 @@ onSnapshot(
       "MENU ERROR:",
       error
     );
+
 
     foods.innerHTML = `
       <div class="loading">
@@ -472,7 +554,10 @@ function renderMenu() {
 
   foods.innerHTML = "";
 
-  if (menuItems.length === 0) {
+
+  if (
+    menuItems.length === 0
+  ) {
 
     foods.innerHTML = `
       <div class="loading">
@@ -481,6 +566,7 @@ function renderMenu() {
     `;
 
     return;
+
   }
 
 
@@ -488,34 +574,48 @@ function renderMenu() {
     (item) => {
 
       const food =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       food.className =
         "food";
 
 
       const info =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       info.className =
         "food-info";
 
 
       const name =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       name.className =
         "food-name";
+
 
       name.textContent =
         item.name;
 
 
       const price =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       price.className =
         "food-price";
+
 
       price.textContent =
         item.price + " TL";
@@ -526,9 +626,11 @@ function renderMenu() {
       info.appendChild(price);
 
 
-
       const button =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
+
 
       button.textContent =
         "+";
@@ -562,11 +664,14 @@ function openTable(number) {
   selectedTable =
     number;
 
+
   order = [];
 
 
   document
-    .getElementById("tableTitle")
+    .getElementById(
+      "tableTitle"
+    )
     .textContent =
       "Masa " + number;
 
@@ -578,6 +683,9 @@ function openTable(number) {
   updateOrder();
 
   updateReadyMessage();
+
+  updateClearButton();
+
 
   window.scrollTo({
 
@@ -628,12 +736,15 @@ function updateOrder() {
   orderList.innerHTML = "";
 
 
-  if (order.length === 0) {
+  if (
+    order.length === 0
+  ) {
 
     orderList.textContent =
       "Henüz ürün eklenmedi.";
 
     return;
+
   }
 
 
@@ -641,24 +752,34 @@ function updateOrder() {
     (item, index) => {
 
       const row =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
+
 
       row.className =
         "order-item";
 
 
       const text =
-        document.createElement("span");
+        document.createElement(
+          "span"
+        );
+
 
       text.textContent =
         `${index + 1}. ${item.name}`;
 
 
       const remove =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
+
 
       remove.className =
         "remove";
+
 
       remove.textContent =
         "×";
@@ -668,7 +789,11 @@ function updateOrder() {
         "click",
         () => {
 
-          order.splice(index, 1);
+          order.splice(
+            index,
+            1
+          );
+
 
           updateOrder();
 
@@ -699,7 +824,6 @@ sendButton.addEventListener(
 );
 
 
-
 async function sendOrder() {
 
   if (!selectedTable) {
@@ -709,16 +833,20 @@ async function sendOrder() {
     );
 
     return;
+
   }
 
 
-  if (order.length === 0) {
+  if (
+    order.length === 0
+  ) {
 
     alert(
       "Lütfen sipariş ekleyin."
     );
 
     return;
+
   }
 
 
@@ -728,12 +856,6 @@ async function sendOrder() {
       true;
 
 
-    /*
-      مهم جدًا:
-      نخزن name كنص وليس Object
-      لذلك المطبخ لن يعرض [object Object]
-    */
-
     const itemsToSend =
       order.map(
         (item) => ({
@@ -742,10 +864,15 @@ async function sendOrder() {
             String(item.name),
 
           price:
-            Number(item.price || 0),
+            Number(
+              item.price || 0
+            ),
 
           station:
-            String(item.station || "kitchen")
+            String(
+              item.station ||
+              "kitchen"
+            )
 
         })
       );
@@ -753,12 +880,17 @@ async function sendOrder() {
 
     await addDoc(
 
-      collection(db, "orders"),
+      collection(
+        db,
+        "orders"
+      ),
 
       {
 
         table:
-          Number(selectedTable),
+          Number(
+            selectedTable
+          ),
 
         items:
           itemsToSend,
@@ -783,10 +915,11 @@ async function sendOrder() {
 
     order = [];
 
+
     updateOrder();
 
-
   }
+
 
   catch (error) {
 
@@ -795,11 +928,13 @@ async function sendOrder() {
       error
     );
 
+
     alert(
       "Sipariş gönderilemedi."
     );
 
   }
+
 
   finally {
 
@@ -813,7 +948,7 @@ async function sendOrder() {
 
 
 /* =========================
-   قراءة كل الطلبات
+   قراءة الطلبات
 ========================= */
 
 onSnapshot(
@@ -823,6 +958,7 @@ onSnapshot(
   (snapshot) => {
 
     ordersData = [];
+
 
     snapshot.forEach(
       (orderDoc) => {
@@ -847,6 +983,8 @@ onSnapshot(
     updateTables();
 
     updateReadyMessage();
+
+    updateClearButton();
 
   },
 
@@ -878,59 +1016,62 @@ function updateTables() {
 
     const button =
       document.getElementById(
-        "table-" + tableNumber
+        "table-" +
+        tableNumber
       );
 
 
-    if (!button) continue;
+    if (!button) {
+      continue;
+    }
 
 
     const span =
-      button.querySelector("span");
+      button.querySelector(
+        "span"
+      );
 
-
-    /*
-      فقط الطلبات الفعالة تجعل الطاولة Dolu
-    */
 
     const tableOrders =
       ordersData.filter(
         (item) => {
 
           return (
-            Number(item.table) ===
+
+            Number(
+              item.table
+            ) ===
             tableNumber
+
             &&
+
             item.status !==
             "completed"
+
             &&
+
             item.status !==
             "deleted"
+
           );
 
         }
       );
 
 
-    if (tableOrders.length > 0) {
+    if (
+      tableOrders.length > 0
+    ) {
+
 
       button.classList.add(
         "dolu"
       );
 
 
-      /*
-        دائمًا Dolu أولًا
-      */
-
       span.innerHTML =
         "Dolu";
 
-
-      /*
-        إذا كان هناك طلب جاهز
-        يظهر تحته Sipariş Hazır
-      */
 
       const hasReady =
         tableOrders.some(
@@ -955,6 +1096,7 @@ function updateTables() {
 
     else {
 
+
       button.classList.remove(
         "dolu"
       );
@@ -972,7 +1114,7 @@ function updateTables() {
 
 
 /* =========================
-   رسالة الطلب الجاهز
+   الطلب جاهز
 ========================= */
 
 function updateReadyMessage() {
@@ -983,6 +1125,7 @@ function updateReadyMessage() {
       "none";
 
     return;
+
   }
 
 
@@ -991,25 +1134,35 @@ function updateReadyMessage() {
       (item) => {
 
         return (
-          Number(item.table) ===
-          Number(selectedTable)
+
+          Number(
+            item.table
+          ) ===
+          Number(
+            selectedTable
+          )
+
           &&
+
           item.status ===
           "ready"
+
         );
 
       }
     );
 
 
-  if (readyOrders.length > 0) {
+  if (
+    readyOrders.length > 0
+  ) {
 
     readyMessage.style.display =
       "block";
 
+
     readyMessage.textContent =
       "✅ Sipariş Hazır!";
-
 
   }
 
@@ -1017,6 +1170,236 @@ function updateReadyMessage() {
 
     readyMessage.style.display =
       "none";
+
+  }
+
+}
+
+
+
+/* =========================
+   زر تفريغ الطاولة
+========================= */
+
+function updateClearButton() {
+
+  if (!selectedTable) {
+
+    clearTableButton.style.display =
+      "none";
+
+    return;
+
+  }
+
+
+  const activeOrders =
+    ordersData.filter(
+      (item) => {
+
+        return (
+
+          Number(
+            item.table
+          ) ===
+          Number(
+            selectedTable
+          )
+
+          &&
+
+          item.status !==
+          "completed"
+
+          &&
+
+          item.status !==
+          "deleted"
+
+        );
+
+      }
+    );
+
+
+  if (
+    activeOrders.length > 0
+  ) {
+
+    clearTableButton.style.display =
+      "block";
+
+  }
+
+  else {
+
+    clearTableButton.style.display =
+      "none";
+
+  }
+
+}
+
+
+
+/* =========================
+   تفريغ الطاولة فعليًا
+========================= */
+
+clearTableButton.addEventListener(
+  "click",
+  clearTable
+);
+
+
+async function clearTable() {
+
+  if (!selectedTable) {
+
+    return;
+
+  }
+
+
+  const activeOrders =
+    ordersData.filter(
+      (item) => {
+
+        return (
+
+          Number(
+            item.table
+          ) ===
+          Number(
+            selectedTable
+          )
+
+          &&
+
+          item.status !==
+          "completed"
+
+          &&
+
+          item.status !==
+          "deleted"
+
+        );
+
+      }
+    );
+
+
+  if (
+    activeOrders.length === 0
+  ) {
+
+    return;
+
+  }
+
+
+  const confirmClear =
+    confirm(
+      "Masa " +
+      selectedTable +
+      " boşaltılsın mı?"
+    );
+
+
+  if (!confirmClear) {
+
+    return;
+
+  }
+
+
+  try {
+
+    clearTableButton.disabled =
+      true;
+
+
+    /*
+      لا نحذف الطلب.
+      نغيّر حالته إلى completed
+      حتى يبقى محفوظًا في Firebase.
+    */
+
+    const batch =
+      writeBatch(db);
+
+
+    activeOrders.forEach(
+      (item) => {
+
+        const orderRef =
+          doc(
+            db,
+            "orders",
+            item.id
+          );
+
+
+        batch.update(
+          orderRef,
+          {
+            status:
+              "completed",
+
+            completedAt:
+              serverTimestamp()
+
+          }
+        );
+
+      }
+    );
+
+
+    await batch.commit();
+
+
+    alert(
+      "Masa " +
+      selectedTable +
+      " artık boş. 🟢"
+    );
+
+
+    order = [];
+
+
+    updateOrder();
+
+
+    updateReadyMessage();
+
+
+    updateClearButton();
+
+  }
+
+
+  catch (error) {
+
+    console.error(
+      "CLEAR TABLE ERROR:",
+      error
+    );
+
+
+    alert(
+      "Masa boşaltılamadı. Firebase bağlantısını kontrol edin."
+    );
+
+  }
+
+
+  finally {
+
+    clearTableButton.disabled =
+      false;
 
   }
 
