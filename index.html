@@ -104,6 +104,18 @@ h2 {
   font-weight: bold;
 }
 
+.ready-message {
+  display: none;
+  margin-top: 15px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #d9f7df;
+  color: #146c2e;
+  font-size: 17px;
+  font-weight: bold;
+  text-align: center;
+}
+
 @media(max-width:500px) {
   .tables {
     grid-template-columns: repeat(2, 1fr);
@@ -164,6 +176,11 @@ h2 {
     <button class="send" onclick="sendOrder()">
       Siparişi Gönder 👨‍🍳
     </button>
+
+    <div class="ready-message" id="readyMessage">
+      ✅ Sipariş hazır!
+    </div>
+
   </div>
 
 </div>
@@ -172,14 +189,20 @@ h2 {
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp } from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
   getFirestore,
   collection,
   addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  serverTimestamp,
+  onSnapshot,
+  query,
+  where,
+  orderBy
+} from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 const firebaseConfig = {
@@ -191,7 +214,9 @@ const firebaseConfig = {
   appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
+
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
 
 
@@ -222,6 +247,7 @@ for (let i = 1; i <= 15; i++) {
 function openTable(number) {
 
   selectedTable = number;
+
   order = [];
 
   document.getElementById("tableTitle").innerText =
@@ -230,7 +256,12 @@ function openTable(number) {
   document.getElementById("menu").style.display =
     "block";
 
+  document.getElementById("readyMessage").style.display =
+    "none";
+
   updateOrder();
+
+  listenForReadyOrder(number);
 
   window.scrollTo({
     top: document.body.scrollHeight,
@@ -273,14 +304,17 @@ window.sendOrder = async function() {
   if (!selectedTable) {
 
     alert("Lütfen masa seçin.");
+
     return;
   }
 
   if (order.length === 0) {
 
     alert("Lütfen sipariş ekleyin.");
+
     return;
   }
+
 
   try {
 
@@ -288,11 +322,12 @@ window.sendOrder = async function() {
       collection(db, "orders"),
       {
         table: selectedTable,
-        items: order,
+        items: [...order],
         status: "new",
         createdAt: serverTimestamp()
       }
     );
+
 
     alert(
       "Masa " +
@@ -300,9 +335,11 @@ window.sendOrder = async function() {
       " siparişi mutfağa gönderildi! 👨‍🍳"
     );
 
+
     order = [];
 
     updateOrder();
+
 
   } catch (error) {
 
@@ -311,8 +348,48 @@ window.sendOrder = async function() {
     alert(
       "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
     );
+
   }
+
 };
+
+
+function listenForReadyOrder(tableNumber) {
+
+  const readyMessage =
+    document.getElementById("readyMessage");
+
+
+  const q = query(
+    collection(db, "orders"),
+    where("table", "==", tableNumber),
+    where("status", "==", "ready"),
+    orderBy("createdAt", "desc")
+  );
+
+
+  onSnapshot(q, (snapshot) => {
+
+    if (!snapshot.empty) {
+
+      readyMessage.style.display =
+        "block";
+
+      readyMessage.innerText =
+        "✅ Masa " +
+        tableNumber +
+        " siparişi hazır!";
+
+    } else {
+
+      readyMessage.style.display =
+        "none";
+
+    }
+
+  });
+
+}
 
 </script>
 
