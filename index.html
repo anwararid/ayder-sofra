@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Ayder Sofra</title>
 
 <style>
@@ -55,7 +56,7 @@ h2 {
 }
 
 .table.dolu {
-  background: #ffd6d6;
+  background: #ffd9d9;
 }
 
 .table span {
@@ -63,6 +64,13 @@ h2 {
   font-size: 12px;
   margin-top: 7px;
   font-weight: normal;
+}
+
+.ready-status {
+  color: #16803c;
+  font-weight: bold;
+  font-size: 13px;
+  margin-top: 6px;
 }
 
 .menu {
@@ -106,18 +114,6 @@ h2 {
   color: white;
   font-size: 17px;
   font-weight: bold;
-}
-
-.ready-message {
-  display: none;
-  margin-top: 15px;
-  padding: 15px;
-  border-radius: 12px;
-  background: #d9f7df;
-  color: #146c2e;
-  font-size: 17px;
-  font-weight: bold;
-  text-align: center;
 }
 
 @media(max-width:500px) {
@@ -171,6 +167,7 @@ h2 {
   </div>
 
   <div class="order">
+
     <h3>🧾 Sipariş</h3>
 
     <div id="orderList">
@@ -180,10 +177,6 @@ h2 {
     <button class="send" onclick="sendOrder()">
       Siparişi Gönder 👨‍🍳
     </button>
-
-    <div class="ready-message" id="readyMessage">
-      ✅ Sipariş hazır!
-    </div>
 
   </div>
 
@@ -201,11 +194,7 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-  onSnapshot,
-  query,
-  where,
-  updateDoc,
-  doc
+  onSnapshot
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -219,26 +208,42 @@ const firebaseConfig = {
   appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
+
 const app = initializeApp(firebaseConfig);
+
 const db = getFirestore(app);
+
 
 let selectedTable = null;
 let order = [];
 
-const tables = document.getElementById("tables");
+const tables =
+  document.getElementById("tables");
 
 
-// إنشاء 15 طاولة
+/*
+  إنشاء 15 طاولة
+*/
 for (let i = 1; i <= 15; i++) {
 
-  const button = document.createElement("button");
+  const button =
+    document.createElement("button");
 
   button.className = "table";
+
   button.id = "table-" + i;
 
-  button.innerHTML =
-    "Masa " + i +
-    "<span id='table-status-" + i + "'>🟢 Boş</span>";
+  button.innerHTML = `
+    Masa ${i}
+    <span class="table-status">
+      🟢 Boş
+    </span>
+
+    <div class="ready-status"
+         style="display:none;">
+      🟢 Sipariş Hazır
+    </div>
+  `;
 
   button.onclick = function() {
     openTable(i);
@@ -248,92 +253,159 @@ for (let i = 1; i <= 15; i++) {
 }
 
 
-// مراقبة حالة الطاولات من Firebase
-onSnapshot(collection(db, "orders"), (snapshot) => {
+/*
+  متابعة الطلبات من Firebase
+*/
+onSnapshot(
+  collection(db, "orders"),
+  (snapshot) => {
 
-  const occupiedTables = new Set();
+    // نرجع كل الطاولات فارغة أولًا
+    for (let i = 1; i <= 15; i++) {
 
-  snapshot.forEach((orderDoc) => {
+      const table =
+        document.getElementById(
+          "table-" + i
+        );
 
-    const data = orderDoc.data();
+      const status =
+        table.querySelector(
+          ".table-status"
+        );
 
-    if (
-      data.status === "new" ||
-      data.status === "ready"
-    ) {
-      occupiedTables.add(Number(data.table));
-    }
+      const ready =
+        table.querySelector(
+          ".ready-status"
+        );
 
-  });
+      table.classList.remove("dolu");
 
-
-  for (let i = 1; i <= 15; i++) {
-
-    const button =
-      document.getElementById("table-" + i);
-
-    const status =
-      document.getElementById("table-status-" + i);
-
-
-    if (occupiedTables.has(i)) {
-
-      button.classList.add("dolu");
-
-      status.innerText =
-        "🔴 Dolu";
-
-    } else {
-
-      button.classList.remove("dolu");
-
-      status.innerText =
+      status.textContent =
         "🟢 Boş";
 
+      ready.style.display =
+        "none";
     }
 
+
+    /*
+      فحص الطلبات الموجودة
+    */
+    snapshot.forEach((orderDoc) => {
+
+      const data =
+        orderDoc.data();
+
+      const tableNumber =
+        Number(data.table);
+
+      if (
+        tableNumber < 1 ||
+        tableNumber > 15
+      ) {
+        return;
+      }
+
+
+      const table =
+        document.getElementById(
+          "table-" + tableNumber
+        );
+
+      const status =
+        table.querySelector(
+          ".table-status"
+        );
+
+      const ready =
+        table.querySelector(
+          ".ready-status"
+        );
+
+
+      // إذا الطلب موجود = الطاولة مشغولة
+      table.classList.add("dolu");
+
+      status.textContent =
+        "🔴 Dolu";
+
+
+      // إذا المطبخ جهز الطلب
+      if (data.status === "ready") {
+
+        ready.style.display =
+          "block";
+
+        ready.textContent =
+          "🟢 Sipariş Hazır";
+
+      }
+
+    });
+
+  },
+  (error) => {
+
+    console.error(
+      "Firebase error:",
+      error
+    );
+
   }
+);
 
-});
 
-
+/*
+  فتح الطاولة
+*/
 function openTable(number) {
 
   selectedTable = number;
+
   order = [];
 
-  document.getElementById("tableTitle").innerText =
+  document.getElementById(
+    "tableTitle"
+  ).innerText =
     "Masa " + number;
 
-  document.getElementById("menu").style.display =
+  document.getElementById(
+    "menu"
+  ).style.display =
     "block";
 
-  document.getElementById("readyMessage").style.display =
-    "none";
-
   updateOrder();
-
-  listenForReadyOrder(number);
 
   window.scrollTo({
     top: document.body.scrollHeight,
     behavior: "smooth"
   });
+
 }
 
 
+/*
+  إضافة الطعام
+*/
 window.addItem = function(item) {
 
   order.push(item);
 
   updateOrder();
+
 };
 
 
+/*
+  تحديث الطلب
+*/
 function updateOrder() {
 
   const list =
-    document.getElementById("orderList");
+    document.getElementById(
+      "orderList"
+    );
+
 
   if (order.length === 0) {
 
@@ -343,26 +415,41 @@ function updateOrder() {
     return;
   }
 
-  list.innerHTML = order
-    .map((item, index) =>
-      (index + 1) + ". " + item
-    )
-    .join("<br>");
+
+  list.innerHTML =
+    order
+      .map(
+        (item, index) =>
+          (index + 1) +
+          ". " +
+          item
+      )
+      .join("<br>");
+
 }
 
 
-// إرسال الطلب
+/*
+  إرسال الطلب للمطبخ
+*/
 window.sendOrder = async function() {
 
   if (!selectedTable) {
 
-    alert("Lütfen masa seçin.");
+    alert(
+      "Lütfen masa seçin."
+    );
+
     return;
   }
 
+
   if (order.length === 0) {
 
-    alert("Lütfen sipariş ekleyin.");
+    alert(
+      "Lütfen sipariş ekleyin."
+    );
+
     return;
   }
 
@@ -375,7 +462,8 @@ window.sendOrder = async function() {
         table: selectedTable,
         items: [...order],
         status: "new",
-        createdAt: serverTimestamp()
+        createdAt:
+          serverTimestamp()
       }
     );
 
@@ -397,50 +485,12 @@ window.sendOrder = async function() {
     console.error(error);
 
     alert(
-      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
+      "Sipariş gönderilemedi."
     );
 
   }
 
 };
-
-
-// مراقبة الطلب الجاهز
-function listenForReadyOrder(tableNumber) {
-
-  const readyMessage =
-    document.getElementById("readyMessage");
-
-
-  const q = query(
-    collection(db, "orders"),
-    where("table", "==", tableNumber),
-    where("status", "==", "ready")
-  );
-
-
-  onSnapshot(q, (snapshot) => {
-
-    if (!snapshot.empty) {
-
-      readyMessage.style.display =
-        "block";
-
-      readyMessage.innerText =
-        "✅ Masa " +
-        tableNumber +
-        " siparişi hazır!";
-
-    } else {
-
-      readyMessage.style.display =
-        "none";
-
-    }
-
-  });
-
-}
 
 </script>
 
