@@ -240,13 +240,44 @@ function updateOrder(){
     .join("<br>");
 }
 
-function sendOrder(){
+async function sendOrder(){
 
   if(!selectedTable){
-
     alert("Lütfen masa seçin.");
     return;
   }
+
+  if(order.length === 0){
+    alert("Lütfen sipariş ekleyin.");
+    return;
+  }
+
+  try {
+
+    await window.sendOrderToFirebase(
+      selectedTable,
+      order
+    );
+
+    alert(
+      "Masa " +
+      selectedTable +
+      " siparişi mutfağa gönderildi! 👨‍🍳"
+    );
+
+    order = [];
+    updateOrder();
+
+  } catch(error) {
+
+    console.error(error);
+
+    alert(
+      "Sipariş gönderilemedi. Firebase bağlantısını kontrol edin."
+    );
+
+  }
+}
 
   if(order.length === 0){
 
@@ -266,6 +297,47 @@ function sendOrder(){
 }
 
 </script>
+  <script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
+  authDomain: "ayder-sofra.firebaseapp.com",
+  projectId: "ayder-sofra",
+  storageBucket: "ayder-sofra.firebasestorage.app",
+  messagingSenderId: "459245770853",
+  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+window.sendOrderToFirebase = async function(tableNumber, items) {
+
+  const orderData = {
+    table: tableNumber,
+    items: items,
+    status: "new",
+    createdAt: serverTimestamp()
+  };
+
+  await addDoc(
+    collection(db, "orders"),
+    orderData
+  );
+
+};
+</script>
 </body>
 </html>
