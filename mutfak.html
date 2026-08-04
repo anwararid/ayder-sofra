@@ -41,9 +41,6 @@ main {
   padding: 20px;
   margin-bottom: 15px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.order.new {
   border-left: 6px solid #e53935;
 }
 
@@ -60,28 +57,28 @@ main {
   margin: 15px 0;
 }
 
-.ready {
+button {
   width: 100%;
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: #16803c;
   color: white;
   font-size: 17px;
   font-weight: bold;
   cursor: pointer;
+  margin-top: 10px;
+}
+
+.ready {
+  background: #16803c;
 }
 
 .delivered {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
   background: #555;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
+}
+
+.delete {
+  background: #c62828;
 }
 
 .empty {
@@ -148,22 +145,24 @@ const ordersDiv =
   document.getElementById("orders");
 
 
-// متابعة الطلبات لحظيًا
+// متابعة الطلبات
 onSnapshot(
   collection(db, "orders"),
   (snapshot) => {
 
     ordersDiv.innerHTML = "";
 
-
-    // نأخذ الطلبات الجديدة فقط
     const orders = [];
 
     snapshot.forEach((orderDoc) => {
 
       const data = orderDoc.data();
 
-      if (data.status === "new") {
+      // نظهر فقط الطلبات الجديدة والجاهزة
+      if (
+        data.status === "new" ||
+        data.status === "ready"
+      ) {
 
         orders.push({
           id: orderDoc.id,
@@ -183,7 +182,7 @@ onSnapshot(
 
       ordersDiv.innerHTML = `
         <div class="empty">
-          ✅ لا توجد طلبات جديدة
+          ✅ لا توجد طلبات
         </div>
       `;
 
@@ -191,10 +190,9 @@ onSnapshot(
     }
 
 
-    // عرض الطلبات
     orders.forEach((orderItem) => {
 
-      const orderDocId =
+      const orderId =
         orderItem.id;
 
       const data =
@@ -205,7 +203,7 @@ onSnapshot(
         document.createElement("div");
 
       orderDiv.className =
-        "order new";
+        "order";
 
 
       // رقم الطاولة
@@ -213,10 +211,10 @@ onSnapshot(
         document.createElement("h2");
 
       title.textContent =
-        "🔴 Masa " + data.table;
+        "🪑 Masa " + data.table;
 
 
-      // وقت الطلب
+      // الوقت
       const time =
         document.createElement("div");
 
@@ -240,7 +238,7 @@ onSnapshot(
       }
 
 
-      // قائمة الطعام
+      // المنتجات
       const list =
         document.createElement("ul");
 
@@ -266,11 +264,21 @@ onSnapshot(
       status.className =
         "status";
 
-      status.textContent =
-        "🔴 Yeni Sipariş";
+
+      if (data.status === "ready") {
+
+        status.textContent =
+          "✅ Hazır";
+
+      } else {
+
+        status.textContent =
+          "🔴 Yeni Sipariş";
+
+      }
 
 
-      // زر جاهز
+      // زر Hazır
       const readyButton =
         document.createElement("button");
 
@@ -281,6 +289,46 @@ onSnapshot(
         "✅ Hazır";
 
 
+      // زر التسليم
+      const deliveredButton =
+        document.createElement("button");
+
+      deliveredButton.className =
+        "delivered";
+
+      deliveredButton.textContent =
+        "📦 Teslim Edildi";
+
+
+      // زر الحذف
+      const deleteButton =
+        document.createElement("button");
+
+      deleteButton.className =
+        "delete";
+
+      deleteButton.textContent =
+        "🗑️ Sil";
+
+
+      // إذا كان الطلب جاهزًا
+      if (data.status === "ready") {
+
+        readyButton.style.display =
+          "none";
+
+        deliveredButton.style.display =
+          "block";
+
+      } else {
+
+        deliveredButton.style.display =
+          "none";
+
+      }
+
+
+      // تجهيز الطلب
       readyButton.onclick =
         async function() {
 
@@ -289,14 +337,13 @@ onSnapshot(
           readyButton.textContent =
             "⏳ Hazırlanıyor...";
 
-
           try {
 
             await updateDoc(
               doc(
                 db,
                 "orders",
-                orderDocId
+                orderId
               ),
               {
                 status: "ready"
@@ -313,7 +360,7 @@ onSnapshot(
               "✅ Hazır";
 
             alert(
-              "Hata oluştu. Tekrar deneyin."
+              "Hata oluştu."
             );
 
           }
@@ -321,81 +368,25 @@ onSnapshot(
         };
 
 
-      // زر تسليم
-      const deliveredButton =
-        document.createElement("button");
-
-      deliveredButton.className =
-        "delivered";
-
-      deliveredButton.textContent =
-        "📦 Teslim Edildi";
-
-
-      deliveredButton.style.display =
-        "none";
-
-
-      // بعد الضغط على Hazır
-      // يظهر زر Teslim Edildi
-      readyButton.onclick =
-        async function() {
-
-          readyButton.disabled = true;
-
-          readyButton.textContent =
-            "⏳ Hazırlanıyor...";
-
-
-          try {
-
-            await updateDoc(
-              doc(
-                db,
-                "orders",
-                orderDocId
-              ),
-              {
-                status: "ready"
-              }
-            );
-
-
-            status.textContent =
-              "✅ Hazır";
-
-
-            readyButton.style.display =
-              "none";
-
-
-            deliveredButton.style.display =
-              "block";
-
-
-          } catch (error) {
-
-            console.error(error);
-
-            readyButton.disabled = false;
-
-            readyButton.textContent =
-              "✅ Hazır";
-
-          }
-
-        };
-
-
-      // عند تسليم الطلب
+      // تسليم الطلب
       deliveredButton.onclick =
         async function() {
+
+          const ok =
+            confirm(
+              "Masa " +
+              data.table +
+              " siparişi teslim edildi mi?"
+            );
+
+          if (!ok) return;
+
 
           deliveredButton.disabled =
             true;
 
           deliveredButton.textContent =
-            "⏳ Siliniyor...";
+            "⏳ İşleniyor...";
 
 
           try {
@@ -404,10 +395,9 @@ onSnapshot(
               doc(
                 db,
                 "orders",
-                orderDocId
+                orderId
               )
             );
-
 
           } catch (error) {
 
@@ -418,6 +408,54 @@ onSnapshot(
 
             deliveredButton.textContent =
               "📦 Teslim Edildi";
+
+            alert(
+              "Sipariş silinemedi."
+            );
+
+          }
+
+        };
+
+
+      // حذف الطلب مباشرة
+      deleteButton.onclick =
+        async function() {
+
+          const ok =
+            confirm(
+              "Bu siparişi silmek istediğinize emin misiniz?"
+            );
+
+          if (!ok) return;
+
+
+          deleteButton.disabled =
+            true;
+
+          deleteButton.textContent =
+            "⏳ Siliniyor...";
+
+
+          try {
+
+            await deleteDoc(
+              doc(
+                db,
+                "orders",
+                orderId
+              )
+            );
+
+          } catch (error) {
+
+            console.error(error);
+
+            deleteButton.disabled =
+              false;
+
+            deleteButton.textContent =
+              "🗑️ Sil";
 
             alert(
               "Sipariş silinemedi."
@@ -439,6 +477,8 @@ onSnapshot(
       orderDiv.appendChild(readyButton);
 
       orderDiv.appendChild(deliveredButton);
+
+      orderDiv.appendChild(deleteButton);
 
       ordersDiv.appendChild(orderDiv);
 
