@@ -116,6 +116,19 @@ h2 {
   font-weight: bold;
 }
 
+.empty-table {
+  width: 100%;
+  padding: 15px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 12px;
+  background: #555;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 @media(max-width:500px) {
   .tables {
     grid-template-columns: repeat(2, 1fr);
@@ -178,6 +191,12 @@ h2 {
       Siparişi Gönder 👨‍🍳
     </button>
 
+    <button
+      class="empty-table"
+      onclick="emptyTable()">
+      🧹 Masa Boşalt
+    </button>
+
   </div>
 
 </div>
@@ -194,7 +213,11 @@ import {
   collection,
   addDoc,
   serverTimestamp,
-  onSnapshot
+  onSnapshot,
+  query,
+  where,
+  getDocs,
+  updateDoc
 } from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -221,9 +244,8 @@ const tables =
   document.getElementById("tables");
 
 
-/*
-  إنشاء 15 طاولة
-*/
+/* إنشاء الطاولات */
+
 for (let i = 1; i <= 15; i++) {
 
   const button =
@@ -235,12 +257,14 @@ for (let i = 1; i <= 15; i++) {
 
   button.innerHTML = `
     Masa ${i}
+
     <span class="table-status">
       🟢 Boş
     </span>
 
-    <div class="ready-status"
-         style="display:none;">
+    <div
+      class="ready-status"
+      style="display:none;">
       🟢 Sipariş Hazır
     </div>
   `;
@@ -253,14 +277,17 @@ for (let i = 1; i <= 15; i++) {
 }
 
 
-/*
-  متابعة الطلبات من Firebase
-*/
+/* متابعة الطاولات والطلبات */
+
 onSnapshot(
   collection(db, "orders"),
   (snapshot) => {
 
-    // نرجع كل الطاولات فارغة أولًا
+    /*
+      نعيد كل الطاولات إلى فارغة
+      ثم نفحص الطلبات الموجودة.
+    */
+
     for (let i = 1; i <= 15; i++) {
 
       const table =
@@ -288,9 +315,6 @@ onSnapshot(
     }
 
 
-    /*
-      فحص الطلبات الموجودة
-    */
     snapshot.forEach((orderDoc) => {
 
       const data =
@@ -323,14 +347,20 @@ onSnapshot(
         );
 
 
-      // إذا الطلب موجود = الطاولة مشغولة
+      /*
+        الطلب موجود = الطاولة مشغولة
+      */
+
       table.classList.add("dolu");
 
       status.textContent =
         "🔴 Dolu";
 
 
-      // إذا المطبخ جهز الطلب
+      /*
+        الطلب جاهز من المطبخ
+      */
+
       if (data.status === "ready") {
 
         ready.style.display =
@@ -343,21 +373,12 @@ onSnapshot(
 
     });
 
-  },
-  (error) => {
-
-    console.error(
-      "Firebase error:",
-      error
-    );
-
   }
 );
 
 
-/*
-  فتح الطاولة
-*/
+/* فتح الطاولة */
+
 function openTable(number) {
 
   selectedTable = number;
@@ -384,9 +405,8 @@ function openTable(number) {
 }
 
 
-/*
-  إضافة الطعام
-*/
+/* إضافة الطعام */
+
 window.addItem = function(item) {
 
   order.push(item);
@@ -396,9 +416,8 @@ window.addItem = function(item) {
 };
 
 
-/*
-  تحديث الطلب
-*/
+/* عرض الطلب */
+
 function updateOrder() {
 
   const list =
@@ -429,9 +448,8 @@ function updateOrder() {
 }
 
 
-/*
-  إرسال الطلب للمطبخ
-*/
+/* إرسال الطلب */
+
 window.sendOrder = async function() {
 
   if (!selectedTable) {
@@ -486,6 +504,120 @@ window.sendOrder = async function() {
 
     alert(
       "Sipariş gönderilemedi."
+    );
+
+  }
+
+};
+
+
+/*
+  تفريغ الطاولة
+*/
+
+window.emptyTable = async function() {
+
+  if (!selectedTable) {
+
+    alert(
+      "Lütfen masa seçin."
+    );
+
+    return;
+  }
+
+
+  const ok =
+    confirm(
+      "Masa " +
+      selectedTable +
+      " boşaltılacak. Emin misiniz?"
+    );
+
+
+  if (!ok) {
+    return;
+  }
+
+
+  try {
+
+    /*
+      نبحث عن الطلبات الخاصة
+      بالطاولة المحددة
+    */
+
+    const q =
+      query(
+        collection(db, "orders"),
+        where(
+          "table",
+          "==",
+          selectedTable
+        )
+      );
+
+
+    const snapshot =
+      await getDocs(q);
+
+
+    /*
+      بدل حذف الطلب، نغيّر حالته
+      إلى completed.
+      
+      هكذا يبقى سجل الطلب في
+      Firestore ولا تعود الطاولة
+      مشغولة.
+    */
+
+    for (
+      const orderDoc of snapshot.docs
+    ) {
+
+      await updateDoc(
+        orderDoc.ref,
+        {
+          status: "completed",
+          tableEmpty: true,
+          completedAt:
+            serverTimestamp()
+        }
+      );
+
+    }
+
+
+    alert(
+      "Masa " +
+      selectedTable +
+      " artık boş. 🟢"
+    );
+
+
+    /*
+      إغلاق قائمة الطلب
+    */
+
+    document.getElementById(
+      "menu"
+    ).style.display =
+      "none";
+
+
+    selectedTable = null;
+
+    order = [];
+
+    updateOrder();
+
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Masa boşaltılamadı."
     );
 
   }
