@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
 <title>Ayder Sofra - Mutfak</title>
 
+
 <style>
+
 * {
   box-sizing: border-box;
   font-family: Arial, sans-serif;
@@ -36,6 +44,7 @@ main {
   border-radius: 15px;
   padding: 20px;
   margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .order h2 {
@@ -69,7 +78,7 @@ main {
   margin-top: 10px;
   border: none;
   border-radius: 12px;
-  background: #b3261e;
+  background: #c62828;
   color: white;
   font-size: 17px;
   font-weight: bold;
@@ -82,28 +91,45 @@ main {
   border-radius: 15px;
   text-align: center;
 }
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <header>
-  <h1>👨‍🍳 AYDER SOFRA</h1>
-  <p>Mutfak Siparişleri</p>
+
+<h1>👨‍🍳 AYDER SOFRA</h1>
+
+<p>Mutfak Siparişleri</p>
+
 </header>
+
 
 <main id="orders">
 
-  <div class="empty">
-    Siparişler yükleniyor...
-  </div>
+<div class="empty">
+Siparişler yükleniyor...
+</div>
 
 </main>
 
+
+
 <script type="module">
 
-import { initializeApp } from
+
+/* FIREBASE */
+
+import {
+  initializeApp
+}
+from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
 
 import {
   getFirestore,
@@ -111,214 +137,464 @@ import {
   onSnapshot,
   doc,
   updateDoc,
-  setDoc,
   deleteDoc
-} from
+}
+from
 "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
+
 const firebaseConfig = {
-  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
-  authDomain: "ayder-sofra.firebaseapp.com",
-  projectId: "ayder-sofra",
-  storageBucket: "ayder-sofra.firebasestorage.app",
-  messagingSenderId: "459245770853",
-  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
+
+  apiKey:
+    "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
+
+  authDomain:
+    "ayder-sofra.firebaseapp.com",
+
+  projectId:
+    "ayder-sofra",
+
+  storageBucket:
+    "ayder-sofra.firebasestorage.app",
+
+  messagingSenderId:
+    "459245770853",
+
+  appId:
+    "1:459245770853:web:8d32163fef443a2b7c8e8c"
+
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+
+const app =
+  initializeApp(firebaseConfig);
+
+
+const db =
+  getFirestore(app);
+
 
 const ordersDiv =
-  document.getElementById("orders");
+  document.getElementById(
+    "orders"
+  );
 
+
+
+/* =========================
+   الطلبات
+========================= */
 
 onSnapshot(
+
   collection(db, "orders"),
+
   (snapshot) => {
+
 
     ordersDiv.innerHTML = "";
 
-    const newOrders =
-      snapshot.docs.filter(
-        (orderDoc) =>
-          orderDoc.data().status === "new"
-      );
+
+    const orders = [];
 
 
-    if (newOrders.length === 0) {
+    snapshot.forEach(
+      (orderDoc) => {
 
-      ordersDiv.innerHTML = `
-        <div class="empty">
-          Henüz yeni sipariş yok.
-        </div>
-      `;
+        const data =
+          orderDoc.data();
 
-      return;
-    }
+
+        /*
+          نعرض فقط الطلبات
+          الجديدة أو الجاهزة
+        */
+
+        if (
+          data.status === "new"
+          ||
+          data.status === "ready"
+        ) {
+
+          orders.push({
+
+            id:
+              orderDoc.id,
+
+            data:
+              data
+
+          });
+
+        }
+
+      }
+    );
 
 
     /*
       الأحدث أولًا
     */
 
-    newOrders.reverse();
+    orders.sort(
+      (a, b) => {
+
+        const aTime =
+          a.data.createdAt?.seconds || 0;
+
+        const bTime =
+          b.data.createdAt?.seconds || 0;
+
+        return bTime - aTime;
+
+      }
+    );
 
 
-    newOrders.forEach((orderDoc) => {
+    if (orders.length === 0) {
 
-      const data =
-        orderDoc.data();
+      ordersDiv.innerHTML = `
 
-      const orderDiv =
-        document.createElement("div");
+        <div class="empty">
 
-      orderDiv.className = "order";
+          Henüz sipariş yok.
 
+        </div>
 
-      const title =
-        document.createElement("h2");
+      `;
 
-      title.textContent =
-        "🪑 Masa " + data.table;
+      return;
 
-
-      const list =
-        document.createElement("ul");
+    }
 
 
-      (data.items || []).forEach(
-        (item) => {
 
-          const li =
-            document.createElement("li");
+    orders.forEach(
+      (orderItem) => {
 
-          li.textContent = item;
+        createOrderCard(
+          orderItem.id,
+          orderItem.data
+        );
 
-          list.appendChild(li);
-        }
+      }
+    );
+
+  },
+
+  (error) => {
+
+    console.error(
+      "FIREBASE ERROR:",
+      error
+    );
+
+    ordersDiv.innerHTML = `
+
+      <div class="empty">
+
+        Siparişler yüklenemedi.
+
+      </div>
+
+    `;
+
+  }
+
+);
+
+
+
+/* =========================
+   كرت الطلب
+========================= */
+
+function createOrderCard(
+  orderId,
+  data
+) {
+
+
+  const orderDiv =
+    document.createElement(
+      "div"
+    );
+
+
+  orderDiv.className =
+    "order";
+
+
+
+  /* العنوان */
+
+  const title =
+    document.createElement(
+      "h2"
+    );
+
+
+  title.textContent =
+    "🪑 Masa " +
+    data.table;
+
+
+  orderDiv.appendChild(
+    title
+  );
+
+
+
+  /* الأصناف */
+
+  const list =
+    document.createElement(
+      "ul"
+    );
+
+
+  const items =
+    Array.isArray(data.items)
+      ? data.items
+      : [];
+
+
+  items.forEach(
+    (item) => {
+
+
+      const li =
+        document.createElement(
+          "li"
+        );
+
+
+      /*
+        هذا هو التصحيح المهم:
+        إذا كان item Object
+        نأخذ item.name
+        وليس item كاملًا.
+      */
+
+      if (
+        typeof item ===
+        "object"
+        &&
+        item !== null
+      ) {
+
+        li.textContent =
+          String(
+            item.name || "Ürün"
+          );
+
+      }
+
+      else {
+
+        li.textContent =
+          String(item);
+
+      }
+
+
+      list.appendChild(
+        li
+      );
+
+    }
+  );
+
+
+  orderDiv.appendChild(
+    list
+  );
+
+
+
+  /* الحالة */
+
+  const status =
+    document.createElement(
+      "div"
+    );
+
+
+  status.className =
+    "status";
+
+
+  if (
+    data.status ===
+    "ready"
+  ) {
+
+    status.textContent =
+      "✅ Hazır";
+
+  }
+
+  else {
+
+    status.textContent =
+      "🔴 Yeni Sipariş";
+
+  }
+
+
+  orderDiv.appendChild(
+    status
+  );
+
+
+
+  /* زر جاهز */
+
+  if (
+    data.status !==
+    "ready"
+  ) {
+
+
+    const readyButton =
+      document.createElement(
+        "button"
       );
 
 
-      const status =
-        document.createElement("div");
-
-      status.className = "status";
-
-      status.textContent =
-        "🔴 Yeni Sipariş";
+    readyButton.className =
+      "ready";
 
 
-      const button =
-        document.createElement("button");
-
-      button.className = "ready";
-
-      button.textContent =
-        "✅ Hazır";
+    readyButton.textContent =
+      "✅ Hazır";
 
 
-      button.onclick =
-        async function() {
+    readyButton.addEventListener(
+      "click",
+      async () => {
 
-          try {
+        try {
 
-            /*
-              الطلب أصبح جاهز
-            */
+          await updateDoc(
 
-            await updateDoc(
-              doc(
-                db,
-                "orders",
-                orderDoc.id
-              ),
-              {
-                status: "ready"
-              }
-            );
+            doc(
+              db,
+              "orders",
+              orderId
+            ),
 
+            {
+              status:
+                "ready"
+            }
 
-            /*
-              نخبر صفحة النادل
-              أن الطلب جاهز
-            */
+          );
 
-            await setDoc(
-              doc(
-                db,
-                "tables",
-                String(data.table)
-              ),
-              {
-                status: "occupied",
-                ready: true
-              },
-              { merge: true }
-            );
+        }
 
+        catch (error) {
 
-          } catch (error) {
+          console.error(
+            error
+          );
 
-            console.error(error);
+          alert(
+            "Sipariş durumu değiştirilemedi."
+          );
 
-            alert(
-              "Güncelleme başarısız."
-            );
-          }
+        }
 
-        };
+      }
+    );
 
 
-      const deleteButton =
-        document.createElement("button");
-
-      deleteButton.className =
-        "delete";
-
-      deleteButton.textContent =
-        "🗑️ Sil";
-
-
-      deleteButton.onclick =
-        async function() {
-
-          try {
-
-            await deleteDoc(
-              doc(
-                db,
-                "orders",
-                orderDoc.id
-              )
-            );
-
-          } catch (error) {
-
-            console.error(error);
-
-            alert(
-              "Sipariş silinemedi."
-            );
-          }
-
-        };
-
-
-      orderDiv.appendChild(title);
-      orderDiv.appendChild(list);
-      orderDiv.appendChild(status);
-      orderDiv.appendChild(button);
-      orderDiv.appendChild(deleteButton);
-
-      ordersDiv.appendChild(orderDiv);
-
-    });
+    orderDiv.appendChild(
+      readyButton
+    );
 
   }
-);
+
+
+
+  /* زر حذف */
+
+  const deleteButton =
+    document.createElement(
+      "button"
+    );
+
+
+  deleteButton.className =
+    "delete";
+
+
+  deleteButton.textContent =
+    "🗑️ Sil";
+
+
+  deleteButton.addEventListener(
+    "click",
+    async () => {
+
+
+      const ok =
+        confirm(
+          "Bu sipariş silinsin mi?"
+        );
+
+
+      if (!ok) {
+        return;
+      }
+
+
+      try {
+
+
+        await deleteDoc(
+
+          doc(
+            db,
+            "orders",
+            orderId
+          )
+
+        );
+
+
+      }
+
+      catch (error) {
+
+        console.error(
+          error
+        );
+
+        alert(
+          "Sipariş silinemedi."
+        );
+
+      }
+
+    }
+  );
+
+
+  orderDiv.appendChild(
+    deleteButton
+  );
+
+
+  ordersDiv.appendChild(
+    orderDiv
+  );
+
+}
 
 </script>
 
 </body>
+
 </html>
