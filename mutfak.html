@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ayder Sofra - Mutfak</title>
+<title>Ayder Sofra - Fırın Paneli</title>
 
 <style>
 * {
@@ -13,146 +13,103 @@
 
 body {
   margin: 0;
-  background: #f5f5f5;
-  color: #222;
+  background: #1e1e1e;
+  color: #fff;
+  padding: 15px;
 }
 
 header {
-  background: #222;
+  background: #ef6c00;
   color: white;
   text-align: center;
-  padding: 22px 10px;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 header h1 {
   margin: 0;
+  font-size: 24px;
 }
 
-main {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
 }
 
-.station-filter {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  overflow-x: auto;
-  padding-bottom: 5px;
-}
-
-.filter-btn {
-  flex: 1;
-  background: #e0e0e0;
-  border: none;
-  padding: 12px 10px;
+.order-card {
+  background: #2d2d2d;
+  border-left: 6px solid #ffa726;
   border-radius: 10px;
-  font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  white-space: nowrap;
-  text-align: center;
-}
-
-.filter-btn.active {
-  background: #222;
-  color: white;
-}
-
-.order {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  position: relative;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 12px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.order-header h2 {
-  margin: 0;
-  font-size: 20px;
+.table-badge {
+  background: #ef6c00;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 18px;
+  font-weight: bold;
 }
 
-.station-badge {
-  background: #eee;
-  padding: 5px 10px;
+.order-time {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+
+.item-list li {
+  padding: 6px 0;
+  border-bottom: 1px dashed #444;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-ready {
+  width: 100%;
+  padding: 12px;
+  border: none;
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.station-badge.grill {
-  background: #ffe5d9;
-  color: #d35400;
-}
-
-.station-badge.oven {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.station-badge.kitchen {
-  background: #e2e3e5;
-  color: #383d41;
-}
-
-.order ul {
-  padding-left: 20px;
-  margin: 10px 0 15px 0;
-}
-
-.order li {
-  font-size: 17px;
-  margin-bottom: 6px;
-  font-weight: bold;
-}
-
-.status {
-  font-weight: bold;
-  margin: 15px 0;
-}
-
-.ready {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 12px;
-  background: #16803c;
+  background: #2e7d32;
   color: white;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.delete {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 12px;
-  background: #c62828;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
+.btn-ready:hover {
+  background: #1b5e20;
 }
 
-.empty {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
+.empty-msg {
   text-align: center;
-  color: #666;
+  color: #888;
+  font-size: 18px;
+  grid-column: 1 / -1;
+  padding: 50px 0;
 }
 </style>
 </head>
@@ -160,24 +117,13 @@ main {
 <body>
 
 <header>
-  <h1>👨‍🍳 AYDER SOFRA</h1>
-  <p>Mutfak & İstasyon Sipariş Ekranı</p>
+  <h1>🥖 FIRIN PANELİ</h1>
+  <p style="margin: 5px 0 0 0; font-size: 14px;">Bekleyen Fırın Siparişleri</p>
 </header>
 
-<main>
-
-  <div class="station-filter">
-    <button class="filter-btn active" onclick="setFilter('all')">Tümü</button>
-    <button class="filter-btn" onclick="setFilter('grill')">🔥 Şef Izgara</button>
-    <button class="filter-btn" onclick="setFilter('oven')">🥖 Fırın</button>
-    <button class="filter-btn" onclick="setFilter('kitchen')">👨‍🍳 Mutfak</button>
-  </div>
-
-  <div id="orders">
-    <div class="empty">Siparişler yükleniyor...</div>
-  </div>
-
-</main>
+<div class="orders-grid" id="ordersGrid">
+  <div class="empty-msg">Sipariş bekleniyor... ⏳</div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -185,9 +131,10 @@ import {
   getFirestore,
   collection,
   onSnapshot,
+  query,
+  where,
   doc,
-  updateDoc,
-  deleteDoc
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -201,135 +148,91 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const ordersDiv = document.getElementById("orders");
 
-let rawOrders = [];
-let activeStationFilter = "all";
+const ordersGrid = document.getElementById("ordersGrid");
+let lastOrderCount = 0;
 
-window.setFilter = function(station) {
-  activeStationFilter = station;
-  document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
-  event.target.classList.add("active");
-  renderOrders();
-};
+// صوت تنبيه عند وصول طلب جديد
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep() {
+  try {
+    const osc = audioCtx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+    osc.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+  } catch(e){}
+}
 
-onSnapshot(
+// الاستماع لطلبات الفرن فقط status == "new" و station == "oven"
+const q = query(
   collection(db, "orders"),
-  (snapshot) => {
-    rawOrders = [];
-    snapshot.forEach((orderDoc) => {
-      const data = orderDoc.data();
-      if (data.status === "new" || data.status === "ready") {
-        rawOrders.push({
-          id: orderDoc.id,
-          data: data
-        });
-      }
-    });
-
-    rawOrders.sort((a, b) => {
-      const aTime = a.data.createdAt?.seconds || 0;
-      const bTime = b.data.createdAt?.seconds || 0;
-      return bTime - aTime;
-    });
-
-    renderOrders();
-  },
-  (error) => {
-    console.error("FIREBASE ERROR:", error);
-    ordersDiv.innerHTML = `<div class="empty">Siparişler yüklenemedi.</div>`;
-  }
+  where("station", "==", "oven"),
+  where("status", "==", "new")
 );
 
-function renderOrders() {
-  ordersDiv.innerHTML = "";
+onSnapshot(q, (snapshot) => {
+  ordersGrid.innerHTML = "";
 
-  const filteredOrders = activeStationFilter === "all" 
-    ? rawOrders 
-    : rawOrders.filter(o => o.data.station === activeStationFilter);
-
-  if (filteredOrders.length === 0) {
-    ordersDiv.innerHTML = `<div class="empty">Henüz sipariş yok.</div>`;
+  if (snapshot.empty) {
+    ordersGrid.innerHTML = `<div class="empty-msg">Şu anda bekleyen fırın siparişi yok 😴</div>`;
+    lastOrderCount = 0;
     return;
   }
 
-  filteredOrders.forEach((orderItem) => {
-    createOrderCard(orderItem.id, orderItem.data);
-  });
-}
-
-function createOrderCard(orderId, data) {
-  const orderDiv = document.createElement("div");
-  orderDiv.className = "order";
-
-  const headerDiv = document.createElement("div");
-  headerDiv.className = "order-header";
-
-  const title = document.createElement("h2");
-  title.textContent = "🪑 Masa " + data.table;
-
-  const stationTag = document.createElement("span");
-  const st = data.station || "kitchen";
-  stationTag.className = `station-badge ${st}`;
-  
-  if (st === "grill") stationTag.textContent = "🔥 Izgara";
-  else if (st === "oven") stationTag.textContent = "🥖 Fırın";
-  else stationTag.textContent = "👨‍🍳 Mutfak";
-
-  headerDiv.appendChild(title);
-  headerDiv.appendChild(stationTag);
-  orderDiv.appendChild(headerDiv);
-
-  const list = document.createElement("ul");
-  const items = Array.isArray(data.items) ? data.items : [];
-
-  items.forEach((item) => {
-    const li = document.createElement("li");
-    if (typeof item === "object" && item !== null) {
-      li.textContent = String(item.name || "Ürün");
-    } else {
-      li.textContent = String(item);
-    }
-    list.appendChild(li);
-  });
-  orderDiv.appendChild(list);
-
-  const status = document.createElement("div");
-  status.className = "status";
-  status.textContent = data.status === "ready" ? "✅ Hazır" : "🔴 Yeni Sipariş";
-  orderDiv.appendChild(status);
-
-  if (data.status !== "ready") {
-    const readyButton = document.createElement("button");
-    readyButton.className = "ready";
-    readyButton.textContent = "✅ Hazır";
-    readyButton.addEventListener("click", async () => {
-      try {
-        await updateDoc(doc(db, "orders", orderId), { status: "ready" });
-      } catch (error) {
-        console.error(error);
-        alert("Sipariş durumu değiştirilemedi.");
-      }
-    });
-    orderDiv.appendChild(readyButton);
+  if (snapshot.docs.length > lastOrderCount) {
+    playBeep();
   }
+  lastOrderCount = snapshot.docs.length;
 
-  const deleteButton = document.createElement("button");
-  deleteButton.className = "delete";
-  deleteButton.textContent = "🗑️ Sil";
-  deleteButton.addEventListener("click", async () => {
-    if (!confirm("Bu sipariş silinsin mi?")) return;
-    try {
-      await deleteDoc(doc(db, "orders", orderId));
-    } catch (error) {
-      console.error(error);
-      alert("Sipariş silinemedi.");
+  snapshot.docs.forEach(docSnap => {
+    const data = docSnap.data();
+    const orderId = docSnap.id;
+
+    // تجميع العناصر المكررة
+    const itemCounts = {};
+    if (data.items && Array.isArray(data.items)) {
+      data.items.forEach(it => {
+        const name = typeof it === "string" ? it : it.name;
+        itemCounts[name] = (itemCounts[name] || 0) + 1;
+      });
     }
-  });
-  orderDiv.appendChild(deleteButton);
 
-  ordersDiv.appendChild(orderDiv);
-}
+    let itemsHTML = "";
+    for (const [name, qty] of Object.entries(itemCounts)) {
+      itemsHTML += `<li><span>${name}</span> <strong>x${qty}</strong></li>`;
+    }
+
+    const timeStr = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+
+    const card = document.createElement("div");
+    card.className = "order-card";
+    card.innerHTML = `
+      <div>
+        <div class="order-header">
+          <span class="table-badge">Masa ${data.table}</span>
+          <span class="order-time">${timeStr}</span>
+        </div>
+        <ul class="item-list">
+          ${itemsHTML}
+        </ul>
+      </div>
+      <button class="btn-ready" onclick="markAsReady('${orderId}')">Hazır ✅</button>
+    `;
+
+    ordersGrid.appendChild(card);
+  });
+});
+
+window.markAsReady = async function(id) {
+  try {
+    await updateDoc(doc(db, "orders", id), { status: "ready" });
+  } catch(err) {
+    console.error(err);
+    alert("Hata oluştu!");
+  }
+};
 </script>
 
 </body>
