@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayder Sofra - Fırın İstasyonu</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #fffdf0;
+  color: #222;
+}
+
+header {
+  background: #f39c12;
+  color: white;
+  text-align: center;
+  padding: 22px 10px;
+}
+
+header h1 {
+  margin: 0;
+}
+
+main {
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+}
+
+.order {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border-left: 6px solid #f39c12;
+}
+
+.order h2 {
+  margin-top: 0;
+  color: #d35400;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.order ul {
+  padding-left: 20px;
+  margin: 10px 0 15px 0;
+}
+
+.order li {
+  font-size: 18px;
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.status {
+  font-weight: bold;
+  margin: 15px 0;
+}
+
+.ready {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #16803c;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.delete {
+  width: 100%;
+  padding: 14px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #c62828;
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.empty {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🥖 AYDER SOFRA</h1>
+  <p>Fırın İstasyonu</p>
+</header>
+
+<main id="orders">
+  <div class="empty">Fırın siparişleri yükleniyor...</div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
+  authDomain: "ayder-sofra.firebaseapp.com",
+  projectId: "ayder-sofra",
+  storageBucket: "ayder-sofra.firebasestorage.app",
+  messagingSenderId: "459245770853",
+  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ordersDiv = document.getElementById("orders");
+
+/* الاستماع لطلبات الفرن فقط */
+onSnapshot(
+  collection(db, "orders"),
+  (snapshot) => {
+    ordersDiv.innerHTML = "";
+    const ovenOrders = [];
+
+    snapshot.forEach((orderDoc) => {
+      const data = orderDoc.data();
+      // التصفية الخاصة بقسم الفرن
+      if (data.station === "oven" && (data.status === "new" || data.status === "ready")) {
+        ovenOrders.push({
+          id: orderDoc.id,
+          data: data
+        });
+      }
+    });
+
+    // الترتيب: الأحدث أولاً
+    ovenOrders.sort((a, b) => {
+      const aTime = a.data.createdAt?.seconds || 0;
+      const bTime = b.data.createdAt?.seconds || 0;
+      return bTime - aTime;
+    });
+
+    if (ovenOrders.length === 0) {
+      ordersDiv.innerHTML = `<div class="empty">Henüz fırın siparişi yok. 🥖</div>`;
+      return;
+    }
+
+    ovenOrders.forEach((orderItem) => {
+      createOrderCard(orderItem.id, orderItem.data);
+    });
+  },
+  (error) => {
+    console.error("FIREBASE ERROR:", error);
+    ordersDiv.innerHTML = `<div class="empty">Siparişler yüklenemedi.</div>`;
+  }
+);
+
+function createOrderCard(orderId, data) {
+  const orderDiv = document.createElement("div");
+  orderDiv.className = "order";
+
+  const title = document.createElement("h2");
+  title.textContent = "🪑 Masa " + data.table + " (Fırın)";
+  orderDiv.appendChild(title);
+
+  const list = document.createElement("ul");
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.textContent = typeof item === "object" ? String(item.name || "Ürün") : String(item);
+    list.appendChild(li);
+  });
+  orderDiv.appendChild(list);
+
+  const status = document.createElement("div");
+  status.className = "status";
+  status.textContent = data.status === "ready" ? "✅ Hazır" : "🔴 Hazırlanıyor...";
+  orderDiv.appendChild(status);
+
+  if (data.status !== "ready") {
+    const readyButton = document.createElement("button");
+    readyButton.className = "ready";
+    readyButton.textContent = "✅ Hazır";
+    readyButton.addEventListener("click", async () => {
+      try {
+        await updateDoc(doc(db, "orders", orderId), { status: "ready" });
+      } catch (error) {
+        console.error(error);
+        alert("Sipariş durumu değiştirilemedi.");
+      }
+    });
+    orderDiv.appendChild(readyButton);
+  }
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "delete";
+  deleteButton.textContent = "🗑️ Sil";
+  deleteButton.addEventListener("click", async () => {
+    if (!confirm("Bu fırın siparişi silinsin mi?")) return;
+    try {
+      await deleteDoc(doc(db, "orders", orderId));
+    } catch (error) {
+      console.error(error);
+      alert("Sipariş silinemedi.");
+    }
+  });
+  orderDiv.appendChild(deleteButton);
+
+  ordersDiv.appendChild(orderDiv);
+}
+</script>
+
+</body>
+</html>
