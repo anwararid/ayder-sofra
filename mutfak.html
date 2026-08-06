@@ -1,20 +1,11 @@
 <!DOCTYPE html>
 <html lang="tr">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ayder Sofra - Mutfak</title>
 
-
 <style>
-
 * {
   box-sizing: border-box;
   font-family: Arial, sans-serif;
@@ -33,10 +24,40 @@ header {
   padding: 22px 10px;
 }
 
+header h1 {
+  margin: 0;
+}
+
 main {
   max-width: 700px;
   margin: auto;
   padding: 20px;
+}
+
+.station-filter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.filter-btn {
+  flex: 1;
+  background: #e0e0e0;
+  border: none;
+  padding: 12px 10px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.filter-btn.active {
+  background: #222;
+  color: white;
 }
 
 .order {
@@ -45,14 +66,55 @@ main {
   padding: 20px;
   margin-bottom: 15px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  position: relative;
 }
 
-.order h2 {
-  margin-top: 0;
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+
+.order-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.station-badge {
+  background: #eee;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.station-badge.grill {
+  background: #ffe5d9;
+  color: #d35400;
+}
+
+.station-badge.oven {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.station-badge.kitchen {
+  background: #e2e3e5;
+  color: #383d41;
 }
 
 .order ul {
-  padding-left: 25px;
+  padding-left: 20px;
+  margin: 10px 0 15px 0;
+}
+
+.order li {
+  font-size: 17px;
+  margin-bottom: 6px;
+  font-weight: bold;
 }
 
 .status {
@@ -90,47 +152,35 @@ main {
   padding: 25px;
   border-radius: 15px;
   text-align: center;
+  color: #666;
 }
-
 </style>
-
 </head>
-
 
 <body>
 
-
 <header>
-
-<h1>👨‍🍳 AYDER SOFRA</h1>
-
-<p>Mutfak Siparişleri</p>
-
+  <h1>👨‍🍳 AYDER SOFRA</h1>
+  <p>Mutfak & İstasyon Sipariş Ekranı</p>
 </header>
 
+<main>
 
-<main id="orders">
+  <div class="station-filter">
+    <button class="filter-btn active" onclick="setFilter('all')">Tümü</button>
+    <button class="filter-btn" onclick="setFilter('grill')">🔥 Şef Izgara</button>
+    <button class="filter-btn" onclick="setFilter('oven')">🥖 Fırın</button>
+    <button class="filter-btn" onclick="setFilter('kitchen')">👨‍🍳 Mutfak</button>
+  </div>
 
-<div class="empty">
-Siparişler yükleniyor...
-</div>
+  <div id="orders">
+    <div class="empty">Siparişler yükleniyor...</div>
+  </div>
 
 </main>
 
-
-
 <script type="module">
-
-
-/* FIREBASE */
-
-import {
-  initializeApp
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -138,463 +188,149 @@ import {
   doc,
   updateDoc,
   deleteDoc
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-
-  apiKey:
-    "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
-
-  authDomain:
-    "ayder-sofra.firebaseapp.com",
-
-  projectId:
-    "ayder-sofra",
-
-  storageBucket:
-    "ayder-sofra.firebasestorage.app",
-
-  messagingSenderId:
-    "459245770853",
-
-  appId:
-    "1:459245770853:web:8d32163fef443a2b7c8e8c"
-
+  apiKey: "AIzaSyDhvLb2QMMe7dy-vQ_3bwKtZK5XXy8lbWM",
+  authDomain: "ayder-sofra.firebaseapp.com",
+  projectId: "ayder-sofra",
+  storageBucket: "ayder-sofra.firebasestorage.app",
+  messagingSenderId: "459245770853",
+  appId: "1:459245770853:web:8d32163fef443a2b7c8e8c"
 };
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const ordersDiv = document.getElementById("orders");
 
-const app =
-  initializeApp(firebaseConfig);
+let rawOrders = [];
+let activeStationFilter = "all";
 
-
-const db =
-  getFirestore(app);
-
-
-const ordersDiv =
-  document.getElementById(
-    "orders"
-  );
-
-
-
-/* =========================
-   الطلبات
-========================= */
+window.setFilter = function(station) {
+  activeStationFilter = station;
+  document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+  event.target.classList.add("active");
+  renderOrders();
+};
 
 onSnapshot(
-
   collection(db, "orders"),
-
   (snapshot) => {
-
-
-    ordersDiv.innerHTML = "";
-
-
-    const orders = [];
-
-
-    snapshot.forEach(
-      (orderDoc) => {
-
-        const data =
-          orderDoc.data();
-
-
-        /*
-          نعرض فقط الطلبات
-          الجديدة أو الجاهزة
-        */
-
-        if (
-          data.status === "new"
-          ||
-          data.status === "ready"
-        ) {
-
-          orders.push({
-
-            id:
-              orderDoc.id,
-
-            data:
-              data
-
-          });
-
-        }
-
+    rawOrders = [];
+    snapshot.forEach((orderDoc) => {
+      const data = orderDoc.data();
+      if (data.status === "new" || data.status === "ready") {
+        rawOrders.push({
+          id: orderDoc.id,
+          data: data
+        });
       }
-    );
+    });
 
+    rawOrders.sort((a, b) => {
+      const aTime = a.data.createdAt?.seconds || 0;
+      const bTime = b.data.createdAt?.seconds || 0;
+      return bTime - aTime;
+    });
 
-    /*
-      الأحدث أولًا
-    */
-
-    orders.sort(
-      (a, b) => {
-
-        const aTime =
-          a.data.createdAt?.seconds || 0;
-
-        const bTime =
-          b.data.createdAt?.seconds || 0;
-
-        return bTime - aTime;
-
-      }
-    );
-
-
-    if (orders.length === 0) {
-
-      ordersDiv.innerHTML = `
-
-        <div class="empty">
-
-          Henüz sipariş yok.
-
-        </div>
-
-      `;
-
-      return;
-
-    }
-
-
-
-    orders.forEach(
-      (orderItem) => {
-
-        createOrderCard(
-          orderItem.id,
-          orderItem.data
-        );
-
-      }
-    );
-
+    renderOrders();
   },
-
   (error) => {
-
-    console.error(
-      "FIREBASE ERROR:",
-      error
-    );
-
-    ordersDiv.innerHTML = `
-
-      <div class="empty">
-
-        Siparişler yüklenemedi.
-
-      </div>
-
-    `;
-
+    console.error("FIREBASE ERROR:", error);
+    ordersDiv.innerHTML = `<div class="empty">Siparişler yüklenemedi.</div>`;
   }
-
 );
 
+function renderOrders() {
+  ordersDiv.innerHTML = "";
 
+  const filteredOrders = activeStationFilter === "all" 
+    ? rawOrders 
+    : rawOrders.filter(o => o.data.station === activeStationFilter);
 
-/* =========================
-   كرت الطلب
-========================= */
-
-function createOrderCard(
-  orderId,
-  data
-) {
-
-
-  const orderDiv =
-    document.createElement(
-      "div"
-    );
-
-
-  orderDiv.className =
-    "order";
-
-
-
-  /* العنوان */
-
-  const title =
-    document.createElement(
-      "h2"
-    );
-
-
-  title.textContent =
-    "🪑 Masa " +
-    data.table;
-
-
-  orderDiv.appendChild(
-    title
-  );
-
-
-
-  /* الأصناف */
-
-  const list =
-    document.createElement(
-      "ul"
-    );
-
-
-  const items =
-    Array.isArray(data.items)
-      ? data.items
-      : [];
-
-
-  items.forEach(
-    (item) => {
-
-
-      const li =
-        document.createElement(
-          "li"
-        );
-
-
-      /*
-        هذا هو التصحيح المهم:
-        إذا كان item Object
-        نأخذ item.name
-        وليس item كاملًا.
-      */
-
-      if (
-        typeof item ===
-        "object"
-        &&
-        item !== null
-      ) {
-
-        li.textContent =
-          String(
-            item.name || "Ürün"
-          );
-
-      }
-
-      else {
-
-        li.textContent =
-          String(item);
-
-      }
-
-
-      list.appendChild(
-        li
-      );
-
-    }
-  );
-
-
-  orderDiv.appendChild(
-    list
-  );
-
-
-
-  /* الحالة */
-
-  const status =
-    document.createElement(
-      "div"
-    );
-
-
-  status.className =
-    "status";
-
-
-  if (
-    data.status ===
-    "ready"
-  ) {
-
-    status.textContent =
-      "✅ Hazır";
-
+  if (filteredOrders.length === 0) {
+    ordersDiv.innerHTML = `<div class="empty">Henüz sipariş yok.</div>`;
+    return;
   }
 
-  else {
-
-    status.textContent =
-      "🔴 Yeni Sipariş";
-
-  }
-
-
-  orderDiv.appendChild(
-    status
-  );
-
-
-
-  /* زر جاهز */
-
-  if (
-    data.status !==
-    "ready"
-  ) {
-
-
-    const readyButton =
-      document.createElement(
-        "button"
-      );
-
-
-    readyButton.className =
-      "ready";
-
-
-    readyButton.textContent =
-      "✅ Hazır";
-
-
-    readyButton.addEventListener(
-      "click",
-      async () => {
-
-        try {
-
-          await updateDoc(
-
-            doc(
-              db,
-              "orders",
-              orderId
-            ),
-
-            {
-              status:
-                "ready"
-            }
-
-          );
-
-        }
-
-        catch (error) {
-
-          console.error(
-            error
-          );
-
-          alert(
-            "Sipariş durumu değiştirilemedi."
-          );
-
-        }
-
-      }
-    );
-
-
-    orderDiv.appendChild(
-      readyButton
-    );
-
-  }
-
-
-
-  /* زر حذف */
-
-  const deleteButton =
-    document.createElement(
-      "button"
-    );
-
-
-  deleteButton.className =
-    "delete";
-
-
-  deleteButton.textContent =
-    "🗑️ Sil";
-
-
-  deleteButton.addEventListener(
-    "click",
-    async () => {
-
-
-      const ok =
-        confirm(
-          "Bu sipariş silinsin mi?"
-        );
-
-
-      if (!ok) {
-        return;
-      }
-
-
-      try {
-
-
-        await deleteDoc(
-
-          doc(
-            db,
-            "orders",
-            orderId
-          )
-
-        );
-
-
-      }
-
-      catch (error) {
-
-        console.error(
-          error
-        );
-
-        alert(
-          "Sipariş silinemedi."
-        );
-
-      }
-
-    }
-  );
-
-
-  orderDiv.appendChild(
-    deleteButton
-  );
-
-
-  ordersDiv.appendChild(
-    orderDiv
-  );
-
+  filteredOrders.forEach((orderItem) => {
+    createOrderCard(orderItem.id, orderItem.data);
+  });
 }
 
+function createOrderCard(orderId, data) {
+  const orderDiv = document.createElement("div");
+  orderDiv.className = "order";
+
+  const headerDiv = document.createElement("div");
+  headerDiv.className = "order-header";
+
+  const title = document.createElement("h2");
+  title.textContent = "🪑 Masa " + data.table;
+
+  const stationTag = document.createElement("span");
+  const st = data.station || "kitchen";
+  stationTag.className = `station-badge ${st}`;
+  
+  if (st === "grill") stationTag.textContent = "🔥 Izgara";
+  else if (st === "oven") stationTag.textContent = "🥖 Fırın";
+  else stationTag.textContent = "👨‍🍳 Mutfak";
+
+  headerDiv.appendChild(title);
+  headerDiv.appendChild(stationTag);
+  orderDiv.appendChild(headerDiv);
+
+  const list = document.createElement("ul");
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    if (typeof item === "object" && item !== null) {
+      li.textContent = String(item.name || "Ürün");
+    } else {
+      li.textContent = String(item);
+    }
+    list.appendChild(li);
+  });
+  orderDiv.appendChild(list);
+
+  const status = document.createElement("div");
+  status.className = "status";
+  status.textContent = data.status === "ready" ? "✅ Hazır" : "🔴 Yeni Sipariş";
+  orderDiv.appendChild(status);
+
+  if (data.status !== "ready") {
+    const readyButton = document.createElement("button");
+    readyButton.className = "ready";
+    readyButton.textContent = "✅ Hazır";
+    readyButton.addEventListener("click", async () => {
+      try {
+        await updateDoc(doc(db, "orders", orderId), { status: "ready" });
+      } catch (error) {
+        console.error(error);
+        alert("Sipariş durumu değiştirilemedi.");
+      }
+    });
+    orderDiv.appendChild(readyButton);
+  }
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "delete";
+  deleteButton.textContent = "🗑️ Sil";
+  deleteButton.addEventListener("click", async () => {
+    if (!confirm("Bu sipariş silinsin mi?")) return;
+    try {
+      await deleteDoc(doc(db, "orders", orderId));
+    } catch (error) {
+      console.error(error);
+      alert("Sipariş silinemedi.");
+    }
+  });
+  orderDiv.appendChild(deleteButton);
+
+  ordersDiv.appendChild(orderDiv);
+}
 </script>
 
 </body>
-
 </html>
