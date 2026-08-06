@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ayder Sofra - Şef Izgara</title>
+<title>Ayder Sofra - Şef Izgara Paneli</title>
 
 <style>
 * {
@@ -13,90 +13,103 @@
 
 body {
   margin: 0;
-  background: #fff5f0;
-  color: #222;
+  background: #1e1e1e;
+  color: #fff;
+  padding: 15px;
 }
 
 header {
-  background: #d35400;
+  background: #d84315;
   color: white;
   text-align: center;
-  padding: 22px 10px;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
 header h1 {
   margin: 0;
+  font-size: 24px;
 }
 
-main {
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
+.orders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
 }
 
-.order {
-  background: white;
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border-left: 6px solid #d35400;
+.order-card {
+  background: #2d2d2d;
+  border-left: 6px solid #ff7043;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.order h2 {
-  margin-top: 0;
-  color: #d35400;
-  border-bottom: 1px solid #eee;
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #444;
   padding-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.order ul {
-  padding-left: 20px;
-  margin: 10px 0 15px 0;
-}
-
-.order li {
+.table-badge {
+  background: #d84315;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
   font-size: 18px;
-  margin-bottom: 6px;
   font-weight: bold;
 }
 
-.status {
-  font-weight: bold;
-  margin: 15px 0;
+.order-time {
+  font-size: 12px;
+  color: #aaa;
 }
 
-.ready {
+.item-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 15px 0;
+}
+
+.item-list li {
+  padding: 6px 0;
+  border-bottom: 1px dashed #444;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn-ready {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border: none;
-  border-radius: 12px;
-  background: #16803c;
+  border-radius: 8px;
+  background: #2e7d32;
   color: white;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
-.delete {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 12px;
-  background: #c62828;
-  color: white;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
+.btn-ready:hover {
+  background: #1b5e20;
 }
 
-.empty {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
+.empty-msg {
   text-align: center;
-  color: #666;
+  color: #888;
+  font-size: 18px;
+  grid-column: 1 / -1;
+  padding: 50px 0;
 }
 </style>
 </head>
@@ -104,13 +117,13 @@ main {
 <body>
 
 <header>
-  <h1>🔥 AYDER SOFRA</h1>
-  <p>Şef Izgara İstasyonu</p>
+  <h1>🔥 ŞEF IZGARA PANELİ</h1>
+  <p style="margin: 5px 0 0 0; font-size: 14px;">Bekleyen Izgara Siparişleri</p>
 </header>
 
-<main id="orders">
-  <div class="empty">Izgara siparişleri yükleniyor...</div>
-</main>
+<div class="orders-grid" id="ordersGrid">
+  <div class="empty-msg">Sipariş bekleniyor... ⏳</div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -118,9 +131,10 @@ import {
   getFirestore,
   collection,
   onSnapshot,
+  query,
+  where,
   doc,
-  updateDoc,
-  deleteDoc
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -134,102 +148,91 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const ordersDiv = document.getElementById("orders");
 
-/* الاستماع لطلبات الشواية فقط */
-onSnapshot(
+const ordersGrid = document.getElementById("ordersGrid");
+let lastOrderCount = 0;
+
+// صوت تنبيه عند وصول طلب جديد
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep() {
+  try {
+    const osc = audioCtx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+    osc.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.3);
+  } catch(e){}
+}
+
+// الاستماع لطلبات الشواية فقط status == "new" و station == "grill"
+const q = query(
   collection(db, "orders"),
-  (snapshot) => {
-    ordersDiv.innerHTML = "";
-    const grillOrders = [];
-
-    snapshot.forEach((orderDoc) => {
-      const data = orderDoc.data();
-      // التصفية الخاصة بقسم الشواية
-      if (data.station === "grill" && (data.status === "new" || data.status === "ready")) {
-        grillOrders.push({
-          id: orderDoc.id,
-          data: data
-        });
-      }
-    });
-
-    // الترتيب: الأحدث أولاً
-    grillOrders.sort((a, b) => {
-      const aTime = a.data.createdAt?.seconds || 0;
-      const bTime = b.data.createdAt?.seconds || 0;
-      return bTime - aTime;
-    });
-
-    if (grillOrders.length === 0) {
-      ordersDiv.innerHTML = `<div class="empty">Henüz izgara siparişi yok. 🔥</div>`;
-      return;
-    }
-
-    grillOrders.forEach((orderItem) => {
-      createOrderCard(orderItem.id, orderItem.data);
-    });
-  },
-  (error) => {
-    console.error("FIREBASE ERROR:", error);
-    ordersDiv.innerHTML = `<div class="empty">Siparişler yüklenemedi.</div>`;
-  }
+  where("station", "==", "grill"),
+  where("status", "==", "new")
 );
 
-function createOrderCard(orderId, data) {
-  const orderDiv = document.createElement("div");
-  orderDiv.className = "order";
+onSnapshot(q, (snapshot) => {
+  ordersGrid.innerHTML = "";
 
-  const title = document.createElement("h2");
-  title.textContent = "🪑 Masa " + data.table + " (Izgara)";
-  orderDiv.appendChild(title);
-
-  const list = document.createElement("ul");
-  const items = Array.isArray(data.items) ? data.items : [];
-
-  items.forEach((item) => {
-    const li = document.createElement("li");
-    li.textContent = typeof item === "object" ? String(item.name || "Ürün") : String(item);
-    list.appendChild(li);
-  });
-  orderDiv.appendChild(list);
-
-  const status = document.createElement("div");
-  status.className = "status";
-  status.textContent = data.status === "ready" ? "✅ Hazır" : "🔴 Hazırlanıyor...";
-  orderDiv.appendChild(status);
-
-  if (data.status !== "ready") {
-    const readyButton = document.createElement("button");
-    readyButton.className = "ready";
-    readyButton.textContent = "✅ Hazır";
-    readyButton.addEventListener("click", async () => {
-      try {
-        await updateDoc(doc(db, "orders", orderId), { status: "ready" });
-      } catch (error) {
-        console.error(error);
-        alert("Sipariş durumu değiştirilemedi.");
-      }
-    });
-    orderDiv.appendChild(readyButton);
+  if (snapshot.empty) {
+    ordersGrid.innerHTML = `<div class="empty-msg">Şu anda bekleyen ızgara siparişi yok 😴</div>`;
+    lastOrderCount = 0;
+    return;
   }
 
-  const deleteButton = document.createElement("button");
-  deleteButton.className = "delete";
-  deleteButton.textContent = "🗑️ Sil";
-  deleteButton.addEventListener("click", async () => {
-    if (!confirm("Bu izgara siparişi silinsin mi?")) return;
-    try {
-      await deleteDoc(doc(db, "orders", orderId));
-    } catch (error) {
-      console.error(error);
-      alert("Sipariş silinemedi.");
-    }
-  });
-  orderDiv.appendChild(deleteButton);
+  if (snapshot.docs.length > lastOrderCount) {
+    playBeep();
+  }
+  lastOrderCount = snapshot.docs.length;
 
-  ordersDiv.appendChild(orderDiv);
-}
+  snapshot.docs.forEach(docSnap => {
+    const data = docSnap.data();
+    const orderId = docSnap.id;
+
+    // تجميع العناصر المكررة لسهولة القراءة
+    const itemCounts = {};
+    if (data.items && Array.isArray(data.items)) {
+      data.items.forEach(it => {
+        const name = typeof it === "string" ? it : it.name;
+        itemCounts[name] = (itemCounts[name] || 0) + 1;
+      });
+    }
+
+    let itemsHTML = "";
+    for (const [name, qty] of Object.entries(itemCounts)) {
+      itemsHTML += `<li><span>${name}</span> <strong>x${qty}</strong></li>`;
+    }
+
+    const timeStr = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+
+    const card = document.createElement("div");
+    card.className = "order-card";
+    card.innerHTML = `
+      <div>
+        <div class="order-header">
+          <span class="table-badge">Masa ${data.table}</span>
+          <span class="order-time">${timeStr}</span>
+        </div>
+        <ul class="item-list">
+          ${itemsHTML}
+        </ul>
+      </div>
+      <button class="btn-ready" onclick="markAsReady('${orderId}')">Hazır ✅</button>
+    `;
+
+    ordersGrid.appendChild(card);
+  });
+});
+
+window.markAsReady = async function(id) {
+  try {
+    await updateDoc(doc(db, "orders", id), { status: "ready" });
+  } catch(err) {
+    console.error(err);
+    alert("Hata oluştu!");
+  }
+};
 </script>
 
 </body>
