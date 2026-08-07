@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayder Sofra - Garson Paneli</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    body { padding: 15px; background-color: #f4f6f8; }
+    header { text-align: center; margin-bottom: 20px; }
+    h1 { color: #2c3e50; font-size: 24px; }
+    
+    /* Masa Listesi */
+    .section-title { margin-top: 15px; margin-bottom: 10px; color: #333; }
+    .tables-grid { display: grid; grid-template-columns: repeat( auto-fit, minmax(100px, 1fr) ); gap: 10px; }
+    .table-card { padding: 15px; border-radius: 8px; text-align: center; font-weight: bold; cursor: pointer; color: white; }
+    .table-card.free { background-color: #2ecc71; }
+    .table-card.occupied { background-color: #e74c3c; }
 
+    /* Menü ve Sipariş */
+    .order-panel { margin-top: 25px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: none; }
+    .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .btn { padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+    .btn-add { background-color: #3498db; color: white; }
+    .btn-send { background-color: #e67e22; color: white; width: 100%; margin-top: 15px; padding: 12px; font-size: 16px; }
+    .btn-clear { background-color: #7f8c8d; color: white; width: 100%; margin-top: 10px; padding: 12px; font-size: 16px; }
+    
+    /* Sipariş Özet ve Bildirimler */
+    .order-summary { margin-top: 15px; background: #fafafa; padding: 10px; border-radius: 6px; }
+    .item-ready { color: #27ae60; font-weight: bold; }
+    .item-pending { color: #e67e22; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Ayder Sofra</h1>
+    <p>Garson Sipariş Paneli</p>
+  </header>
+
+  <h2 class="section-title">Masalar</h2>
+  <div class="tables-grid" id="tablesContainer">
+    <!-- Masalar Dinamik Gelecek -->
+  </div>
+
+  <div class="order-panel" id="orderPanel">
+    <h2 id="selectedTableTitle">Masa Seçilmedi</h2>
+    
+    <div class="order-summary" id="activeOrderSummary">
+      <!-- Mevcut Sipariş Durumu -->
+    </div>
+
+    <h3 class="section-title">Menü</h3>
+    <div id="menuContainer">
+      <div class="menu-item">
+        <span>Peynirli Pide (Fırın) - 120 TL</span>
+        <button class="btn btn-add" onclick="addItem('Peynirli Pide', 'firin', 120)">Ekle</button>
+      </div>
+      <div class="menu-item">
+        <span>Pilav (Mutfak) - 60 TL</span>
+        <button class="btn btn-add" onclick="addItem('Pilav', 'mutfak', 60)">Ekle</button>
+      </div>
+      <div class="menu-item">
+        <span>Adana Kebap (Izgara) - 220 TL</span>
+        <button class="btn btn-add" onclick="addItem('Adana Kebap', 'izgara', 220)">Ekle</button>
+      </div>
+    </div>
+
+    <button class="btn btn-send" onclick="sendOrder()">Siparişi Gönder</button>
+    <button class="btn btn-clear" onclick="clearTable()">Masayı Boşalt ve Hesabı Kapat</button>
+  </div>
+
+  <script type="module">
+    import { db, collection, addDoc, updateDoc, doc, onSnapshot, query, where, getDoc } from './firebase-config.js';
+
+    let currentTable = null;
+    let selectedItems = [];
+    let currentOrderId = null;
+
+    // Masaları Oluştur (1'den 6'ya kadar örnek)
+    const tablesContainer = document.getElementById('tablesContainer');
+    for (let i = 1; i <= 6; i++) {
+      const card = document.createElement('div');
+      card.id = `table-card-${i}`;
+      card.className = 'table-card free';
+      card.innerText = `Masa ${i}\n(Boş)`;
+      card.onclick = () => selectTable(i);
+      tablesContainer.appendChild(card);
+    }
+
+    // Masaları Dinleme
+    onSnapshot(collection(db, "tables"), (snapshot) => {
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const tableCard = document.getElementById(`table-card-${data.tableNo}`);
+        if (tableCard) {
+          if (data.status === 'occupied') {
+            tableCard.className = 'table-card occupied';
+            tableCard.innerText = `Masa ${data.tableNo}\n(Dolu)`;
+          } else {
+            tableCard.className = 'table-card free';
+            tableCard.innerText = `Masa ${data.tableNo}\n(Boş)`;
+          }
+        }
+      });
+    });
+
+    window.selectTable = async (tableNo) => {
+      currentTable = tableNo;
+      selectedItems = [];
+      document.getElementById('orderPanel').style.display = 'block';
+      document.getElementById('selectedTableTitle').innerText = `Masa ${tableNo} Sipariş Detayı`;
+      
+      listenToActiveOrder(tableNo);
+    };
+
+    function listenToActiveOrder(tableNo) {
+      const q = query(collection(db, "orders"), where("tableNo", "==", tableNo), where("status", "==", "active"));
+      onSnapshot(q, (snapshot) => {
+        const summaryDiv = document.getElementById('activeOrderSummary');
+        summaryDiv.innerHTML = "";
+        
+        if (!snapshot.empty) {
+          const orderDoc = snapshot.docs[0];
+          currentOrderId = orderDoc.id;
+          const order = orderDoc.data();
+          
+          let html = `<strong>Mevcut Sipariş Durumu:</strong><br>`;
+          order.items.forEach(item => {
+            const statusText = item.status === 'ready' ? '<span class="item-ready"> [HAZIR]</span>' : '<span class="item-pending"> [Hazırlanıyor]</span>';
+            html += `- ${item.name} (${item.category}): ${statusText}<br>`;
+          });
+          html += `<br><strong>Toplam: ${order.totalPrice} TL</strong>`;
+          summaryDiv.innerHTML = html;
+        } else {
+          currentOrderId = null;
+          summaryDiv.innerHTML = "<em>Bu masada henüz aktif sipariş yok.</em>";
+        }
+      });
+    }
+
+    window.addItem = (name, category, price) => {
+      selectedItems.push({ name, category, price, status: 'pending' });
+      alert(`${name} eklendi.`);
+    };
+
+    window.sendOrder = async () => {
+      if (!currentTable) return alert("Lütfen önce bir masa seçin!");
+      if (selectedItems.length === 0) return alert("Lütfen en az bir ürün seçin!");
+
+      let total = selectedItems.reduce((sum, item) => sum + item.price, 0);
+
+      // Yeni Sipariş Ekle
+      const orderRef = await addDoc(collection(db, "orders"), {
+        tableNo: currentTable,
+        items: selectedItems,
+        totalPrice: total,
+        status: "active",
+        createdAt: new Date()
+      });
+
+      // Masa Durumunu Güncelle
+      await updateDoc(doc(db, "tables", `table_${currentTable}`), {
+        tableNo: currentTable,
+        status: "occupied",
+        currentOrderId: orderRef.id
+      });
+
+      selectedItems = [];
+      alert("Sipariş başarıyla gönderildi!");
+    };
+
+    window.clearTable = async () => {
+      if (!currentTable) return;
+      
+      if (confirm(`Masa ${currentTable} boşaltılıp hesap kapatılsın mı?`)) {
+        // Masa Durumunu Boş Yap
+        await updateDoc(doc(db, "tables", `table_${currentTable}`), {
+          status: "free",
+          currentOrderId: null
+        });
+
+        // Siparişi Tamamlandı Olarak İşaretle
+        if (currentOrderId) {
+          await updateDoc(doc(db, "orders", currentOrderId), {
+            status: "completed"
+          });
+        }
+
+        document.getElementById('orderPanel').style.display = 'none';
+        alert("Masa boşaltıldı ve hesap kapatıldı.");
+      }
+    };
+  </script>
+</body>
+</html>
