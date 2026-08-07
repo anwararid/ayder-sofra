@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayder Sofra - Izgara Paneli</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 15px; background: #ffebee; }
+    h1 { text-align: center; color: #c62828; margin-bottom: 20px; }
+    .card { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .btn-ready { background: #2e7d32; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-top: 8px; width: 100%; }
+    .empty-msg { text-align: center; color: #666; margin-top: 30px; }
+  </style>
+</head>
+<body>
+
+  <h1>Ayder Sofra - Izgara Paneli</h1>
+  <div id="izgaraOrders"></div>
+
+  <script type="module">
+    import { db, collection, onSnapshot, query, where, updateDoc, doc } from './firebase-config.js';
+
+    const q = query(collection(db, "orders"), where("status", "==", "active"));
+
+    onSnapshot(q, (snapshot) => {
+      const container = document.getElementById("izgaraOrders");
+      container.innerHTML = "";
+      let count = 0;
+
+      snapshot.forEach((orderDoc) => {
+        const order = orderDoc.data();
+        
+        order.items.forEach((item, index) => {
+          // Sadece Izgara ürünlerini ve henüz hazır olmayanları göster
+          if (item.category === "izgara" && item.status !== "ready") {
+            count++;
+            const card = document.createElement("div");
+            card.className = "card";
+            card.innerHTML = `
+              <h3>Masa ${order.tableNo}</h3>
+              <p>Ürün: <strong>${item.name}</strong></p>
+              <button class="btn-ready" onclick="markReady('${orderDoc.id}', ${index}, ${JSON.stringify(order.items).replace(/"/g, '&quot;')})">Hazır</button>
+            `;
+            container.appendChild(card);
+          }
+        });
+      });
+
+      if (count === 0) {
+        container.innerHTML = `<p class="empty-msg">Şu anda bekleyen ızgara siparişi yok.</p>`;
+      }
+    });
+
+    window.markReady = async (orderId, itemIndex, items) => {
+      items[itemIndex].status = 'ready';
+      await updateDoc(doc(db, "orders", orderId), { items: items });
+    };
+  </script>
+</body>
+</html>
