@@ -1,100 +1,66 @@
-import {
-  auth,
-  db,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  doc,
-  getDoc
-} from "./firebase.js";
+<!doctype html>
+<html lang="tr">
 
-const form = document.querySelector("#form");
-const msg = document.querySelector("#msg");
-const button = form.querySelector("button");
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-function message(text) {
-  msg.innerHTML = `<div class="error">${text}</div>`;
-}
+  <title>Ayder Sofra | Giriş</title>
 
-function goToDashboard(role) {
-  const pages = {
-    admin: "admin.html",
-    garson: "waiter.html",
-    mutfak: "kitchen.html",
-    firin: "oven.html",
-    izgara: "grill.html"
-  };
+  <link rel="stylesheet" href="styles.css">
+</head>
 
-  if (!pages[role]) {
-    message("Kullanıcı rolü bulunamadı: " + role);
-    button.disabled = false;
-    button.textContent = "Giriş Yap";
-    return;
-  }
+<body class="auth">
 
-  window.location.href = pages[role];
-}
+  <main class="login-card">
 
-onAuthStateChanged(auth, async (user) => {
+    <div class="logo">
+      AS
+    </div>
 
-  if (!user) return;
+    <h1>Ayder Sofra</h1>
 
-  try {
+    <p>Restoran yönetim sistemi</p>
 
-    const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
+    <div id="msg"></div>
 
-    if (!userSnap.exists()) {
-      message("Personel hesabı Firestore'da bulunamadı.");
-      button.disabled = false;
-      button.textContent = "Giriş Yap";
-      return;
-    }
+    <form id="form">
 
-    const data = userSnap.data();
+      <label>
+        E-posta
 
-    goToDashboard(data.role);
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          required
+        >
+      </label>
 
-  } catch (error) {
+      <label>
+        Şifre
 
-    console.error(error);
+        <input
+          id="pass"
+          type="password"
+          autocomplete="current-password"
+          required
+        >
+      </label>
 
-    message(
-      "Kullanıcı bilgileri alınamadı: " + error.message
-    );
+      <button
+        type="submit"
+        class="btn primary"
+      >
+        Giriş Yap
+      </button>
 
-    button.disabled = false;
-    button.textContent = "Giriş Yap";
-  }
-});
+    </form>
 
-form.addEventListener("submit", async (event) => {
+  </main>
 
-  event.preventDefault();
+  <script type="module" src="./login.js"></script>
 
-  const email = document.querySelector("#email").value.trim();
-  const password = document.querySelector("#pass").value;
+</body>
 
-  button.disabled = true;
-  button.textContent = "Giriş yapılıyor...";
-  msg.innerHTML = "";
-
-  try {
-
-    await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-  } catch (error) {
-
-    console.error(error);
-
-    message(
-      "Giriş başarısız: " + error.message
-    );
-
-    button.disabled = false;
-    button.textContent = "Giriş Yap";
-  }
-});
+</html>
