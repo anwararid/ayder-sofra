@@ -15,15 +15,30 @@ form.addEventListener("submit", async (event) => {
 
   button.disabled = true;
   button.textContent = "Giriş yapılıyor...";
+
   msg.innerHTML = "";
 
   try {
-
-    const result = await signInWithEmailAndPassword(
+    const loginPromise = signInWithEmailAndPassword(
       auth,
       email,
       password
     );
+
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            "Firebase bağlantısı 15 saniye içinde yanıt vermedi."
+          )
+        );
+      }, 15000);
+    });
+
+    const result = await Promise.race([
+      loginPromise,
+      timeoutPromise
+    ]);
 
     msg.innerHTML = `
       <div class="notice">
@@ -33,16 +48,16 @@ form.addEventListener("submit", async (event) => {
 
     button.textContent = "Başarılı";
 
-    console.log("Firebase giriş başarılı:", result.user.uid);
+    console.log("Firebase UID:", result.user.uid);
 
   } catch (error) {
 
-    console.error("Firebase Login Error:", error);
+    console.error("LOGIN ERROR:", error);
 
     msg.innerHTML = `
       <div class="error">
-        <b>Hata:</b><br>
-        ${error.code}<br>
+        <b>Giriş hatası</b><br><br>
+        ${error.code || "unknown"}<br>
         ${error.message}
       </div>
     `;
