@@ -1,11 +1,70 @@
 import {
   auth,
-  signInWithEmailAndPassword
+  db,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  doc,
+  getDoc
 } from "./firebase.js";
 
 const form = document.querySelector("#form");
 const msg = document.querySelector("#msg");
 const button = form.querySelector("button");
+
+function showMessage(text) {
+  msg.innerHTML = `<div class="error">${text}</div>`;
+}
+
+function goToDashboard(role) {
+  const pages = {
+    admin: "admin.html",
+    garson: "waiter.html",
+    mutfak: "kitchen.html",
+    firin: "oven.html",
+    izgara: "grill.html"
+  };
+
+  const page = pages[role];
+
+  if (!page) {
+    showMessage("Kullanıcı rolü bulunamadı: " + role);
+    button.disabled = false;
+    button.textContent = "Giriş Yap";
+    return;
+  }
+
+  window.location.href = page;
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return;
+
+  try {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      showMessage("Personel hesabı Firestore'da bulunamadı.");
+      button.disabled = false;
+      button.textContent = "Giriş Yap";
+      return;
+    }
+
+    const userData = userSnap.data();
+
+    goToDashboard(userData.role);
+
+  } catch (error) {
+    console.error(error);
+
+    showMessage(
+      "Kullanıcı bilgileri alınamadı: " + error.message
+    );
+
+    button.disabled = false;
+    button.textContent = "Giriş Yap";
+  }
+});
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -15,52 +74,21 @@ form.addEventListener("submit", async (event) => {
 
   button.disabled = true;
   button.textContent = "Giriş yapılıyor...";
-
   msg.innerHTML = "";
 
   try {
-    const loginPromise = signInWithEmailAndPassword(
+    await signInWithEmailAndPassword(
       auth,
       email,
       password
     );
 
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        reject(
-          new Error(
-            "Firebase bağlantısı 15 saniye içinde yanıt vermedi."
-          )
-        );
-      }, 15000);
-    });
-
-    const result = await Promise.race([
-      loginPromise,
-      timeoutPromise
-    ]);
-
-    msg.innerHTML = `
-      <div class="notice">
-        Giriş başarılı!
-      </div>
-    `;
-
-    button.textContent = "Başarılı";
-
-    console.log("Firebase UID:", result.user.uid);
-
   } catch (error) {
+    console.error(error);
 
-    console.error("LOGIN ERROR:", error);
-
-    msg.innerHTML = `
-      <div class="error">
-        <b>Giriş hatası</b><br><br>
-        ${error.code || "unknown"}<br>
-        ${error.message}
-      </div>
-    `;
+    showMessage(
+      "Giriş başarısız: " + error.message
+    );
 
     button.disabled = false;
     button.textContent = "Giriş Yap";
