@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayder Sofra - Yönetici Paneli</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 15px; background: #f4f6f8; }
+    h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+    .stats-container { display: flex; gap: 10px; margin-bottom: 20px; }
+    .stat-box { flex: 1; background: white; padding: 15px; border-radius: 8px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .stat-box h3 { margin-bottom: 5px; color: #7f8c8d; font-size: 14px; }
+    .stat-box p { font-size: 20px; font-weight: bold; color: #2c3e50; }
+    
+    .section-title { margin-bottom: 10px; color: #34495e; }
+    .order-card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .order-header { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 8px; font-weight: bold; }
+    .item-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; color: #555; }
+    .total-row { border-top: 1px solid #eee; margin-top: 8px; padding-top: 8px; text-align: right; font-weight: bold; color: #27ae60; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+  <h1>Ayder Sofra - Yönetim & Adisyon</h1>
+
+  <div class="stats-container">
+    <div class="stat-box">
+      <h3>Aktif Masa Siparişi</h3>
+      <p id="activeOrdersCount">0</p>
+    </div>
+    <div class="stat-box">
+      <h3>Toplam Ciro (Tamamlanan)</h3>
+      <p id="totalRevenue">0 TL</p>
+    </div>
+  </div>
+
+  <h2 class="section-title">Aktif Masa Adisyonları</h2>
+  <div id="activeBills"></div>
+
+  <script type="module">
+    import { db, collection, onSnapshot, query, where } from './firebase-config.js';
+
+    // 1. Aktif Siparişleri (Adisyonları) Dinle
+    const activeQuery = query(collection(db, "orders"), where("status", "==", "active"));
+    
+    onSnapshot(activeQuery, (snapshot) => {
+      const container = document.getElementById("activeBills");
+      document.getElementById("activeOrdersCount").innerText = snapshot.size;
+      container.innerHTML = "";
+
+      if (snapshot.empty) {
+        container.innerHTML = "<p>Şu anda aktif bir adisyon bulunmuyor.</p>";
+        return;
+      }
+
+      snapshot.forEach((docSnap) => {
+        const order = docSnap.data();
+        const card = document.createElement("div");
+        card.className = "order-card";
+
+        let itemsHtml = "";
+        order.items.forEach(item => {
+          itemsHtml += `
+            <div class="item-row">
+              <span>${item.name} (${item.category})</span>
+              <span>${item.price} TL</span>
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="order-header">
+            <span>Masa ${order.tableNo}</span>
+            <span style="color: #e67e22;">Aktif Sipariş</span>
+          </div>
+          ${itemsHtml}
+          <div class="total-row">
+            Masa Toplamı: ${order.totalPrice} TL
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    });
+
+    // 2. Tamamlanan Siparişleri ve Toplam Ciro Hesabını Dinle
+    const completedQuery = query(collection(db, "orders"), where("status", "==", "completed"));
+    
+    onSnapshot(completedQuery, (snapshot) => {
+      let revenue = 0;
+      snapshot.forEach((docSnap) => {
+        revenue += docSnap.data().totalPrice || 0;
+      });
+      document.getElementById("totalRevenue").innerText = `${revenue} TL`;
+    });
+  </script>
+</body>
+</html>
