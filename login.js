@@ -2,7 +2,6 @@ import {
   auth,
   db,
   signInWithEmailAndPassword,
-  onAuthStateChanged,
   doc,
   getDoc
 } from "./firebase.js";
@@ -11,12 +10,8 @@ const form = document.querySelector("#form");
 const msg = document.querySelector("#msg");
 const button = form.querySelector("button");
 
-function show(text) {
-  msg.innerHTML = `<div class="error">${text}</div>`;
-}
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
   button.disabled = true;
   button.textContent = "Giriş yapılıyor...";
@@ -34,22 +29,19 @@ form.addEventListener("submit", async (e) => {
 
     const uid = result.user.uid;
 
-    msg.innerHTML = `
-      <div class="notice">
-        Firebase giriş başarılı.<br>
-        UID: ${uid}<br>
-        Firestore kontrol ediliyor...
-      </div>
-    `;
+    console.log("LOGIN UID:", uid);
 
     const userRef = doc(db, "users", uid);
     const userSnap = await getDoc(userRef);
 
+    console.log("DOCUMENT EXISTS:", userSnap.exists());
+
     if (!userSnap.exists()) {
-      show(
-        "Firebase girişi başarılı fakat users kaydı bulunamadı.<br>" +
-        "Aranan UID: " + uid
-      );
+      msg.innerHTML = `
+        <div class="error">
+          Kullanıcı kaydı bulunamadı.
+        </div>
+      `;
       button.disabled = false;
       button.textContent = "Giriş Yap";
       return;
@@ -57,41 +49,42 @@ form.addEventListener("submit", async (e) => {
 
     const data = userSnap.data();
 
+    console.log("FIRESTORE DATA:", data);
+    console.log("ROLE:", data.role);
+
+    if (data.role === "admin") {
+      msg.innerHTML = `
+        <div class="notice">
+          Admin girişi başarılı. Yönlendiriliyor...
+        </div>
+      `;
+
+      setTimeout(() => {
+        window.location.href = "admin.html";
+      }, 500);
+
+      return;
+    }
+
     msg.innerHTML = `
-      <div class="notice">
-        Kullanıcı bulundu.<br>
-        Rol: ${data.role}
+      <div class="error">
+        Geçersiz kullanıcı rolü: ${data.role}
       </div>
     `;
 
-    setTimeout(() => {
-      if (data.role === "admin") {
-        window.location.href = "./admin.html";
-      } else if (data.role === "garson") {
-        window.location.href = "./waiter.html";
-      } else if (data.role === "mutfak") {
-        window.location.href = "./kitchen.html";
-      } else if (data.role === "firin") {
-        window.location.href = "./oven.html";
-      } else if (data.role === "izgara") {
-        window.location.href = "./grill.html";
-      } else {
-        show("Geçersiz kullanıcı rolü: " + data.role);
-        button.disabled = false;
-        button.textContent = "Giriş Yap";
-      }
-    }, 1000);
+    button.disabled = false;
+    button.textContent = "Giriş Yap";
 
   } catch (error) {
 
-    console.error(error);
+    console.error("LOGIN ERROR:", error);
 
-    show(
-      "Hata:<br>" +
-      error.code +
-      "<br>" +
-      error.message
-    );
+    msg.innerHTML = `
+      <div class="error">
+        ${error.code || "Hata"}<br>
+        ${error.message}
+      </div>
+    `;
 
     button.disabled = false;
     button.textContent = "Giriş Yap";
