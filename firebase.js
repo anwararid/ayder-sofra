@@ -27,6 +27,9 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const app = initializeApp(firebaseConfig);
 
+console.log("FIREBASE PROJECT:", firebaseConfig.projectId);
+console.log("FIREBASE AUTH:", firebaseConfig.authDomain);
+
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
