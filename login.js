@@ -6,9 +6,12 @@ import {
   getDoc
 } from "./firebase.js";
 
+import { firebaseConfig } from "./firebase-config.js";
+
 const form = document.querySelector("#form");
 const msg = document.querySelector("#msg");
 const button = form.querySelector("button");
+
 
 function showMessage(text, type = "error") {
   msg.innerHTML = `
@@ -17,6 +20,7 @@ function showMessage(text, type = "error") {
     </div>
   `;
 }
+
 
 function goToDashboard(role) {
 
@@ -31,6 +35,7 @@ function goToDashboard(role) {
   const page = pages[role];
 
   if (!page) {
+
     showMessage(
       `Geçersiz kullanıcı rolü: ${role || "tanımsız"}`,
       "error"
@@ -38,17 +43,23 @@ function goToDashboard(role) {
 
     button.disabled = false;
     button.textContent = "Giriş Yap";
+
     return;
   }
+
 
   showMessage(
     "Giriş başarılı. Yönlendiriliyor...",
     "notice"
   );
 
+
   setTimeout(() => {
+
     window.location.href = page;
-  }, 500);
+
+  }, 700);
+
 }
 
 
@@ -60,6 +71,7 @@ form.addEventListener("submit", async (event) => {
   button.textContent = "Giriş yapılıyor...";
   msg.innerHTML = "";
 
+
   try {
 
     const email =
@@ -68,11 +80,15 @@ form.addEventListener("submit", async (event) => {
         .value
         .trim();
 
+
     const password =
       document.querySelector("#pass").value;
 
 
-    // Firebase Authentication
+    /*
+      1. FIREBASE AUTHENTICATION
+    */
+
     const result =
       await signInWithEmailAndPassword(
         auth,
@@ -84,30 +100,102 @@ form.addEventListener("submit", async (event) => {
     const user = result.user;
     const uid = user.uid;
 
-    console.log("LOGIN EMAIL:", user.email);
-    console.log("LOGIN UID:", uid);
-
-
-    // Firestore users/{uid}
-    const userRef =
-      doc(db, "users", uid);
-
-    const userSnap =
-      await getDoc(userRef);
-
 
     console.log(
-      "DOCUMENT EXISTS:",
-      userSnap.exists()
+      "=== AUTHENTICATION ==="
+    );
+
+    console.log(
+      "Email:",
+      user.email
+    );
+
+    console.log(
+      "UID:",
+      uid
     );
 
 
-    if (!userSnap.exists()) {
+    /*
+      2. FIREBASE PROJECT
+    */
+
+    console.log(
+      "=== FIREBASE PROJECT ==="
+    );
+
+    console.log(
+      "Project ID:",
+      firebaseConfig.projectId
+    );
+
+    console.log(
+      "Auth Domain:",
+      firebaseConfig.authDomain
+    );
+
+
+    /*
+      3. FIRESTORE DOCUMENT
+    */
+
+    const path =
+      `users/${uid}`;
+
+
+    console.log(
+      "=== FIRESTORE ==="
+    );
+
+    console.log(
+      "Path:",
+      path
+    );
+
+
+    const userRef =
+      doc(
+        db,
+        "users",
+        uid
+      );
+
+
+    let userSnap;
+
+
+    try {
+
+      userSnap =
+        await getDoc(userRef);
+
+    } catch (firestoreError) {
+
+      console.error(
+        "FIRESTORE READ ERROR:",
+        firestoreError
+      );
+
 
       showMessage(`
-        Kullanıcı kaydı bulunamadı.<br><br>
-        UID: ${uid}
+        <strong>Firestore okuma hatası</strong><br><br>
+
+        Kod:
+        ${firestoreError.code || "bilinmiyor"}
+        <br><br>
+
+        Mesaj:
+        ${firestoreError.message || "bilinmiyor"}
+        <br><br>
+
+        UID:
+        ${uid}
+        <br><br>
+
+        Project:
+        ${firebaseConfig.projectId}
       `);
+
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
@@ -116,12 +204,68 @@ form.addEventListener("submit", async (event) => {
     }
 
 
+    console.log(
+      "Document exists:",
+      userSnap.exists()
+    );
+
+
+    /*
+      4. DOCUMENT YOK
+    */
+
+    if (!userSnap.exists()) {
+
+      showMessage(`
+        <strong>Kullanıcı kaydı bulunamadı.</strong>
+        <br><br>
+
+        UID:
+        ${uid}
+
+        <br><br>
+
+        Firestore:
+        users/${uid}
+
+        <br><br>
+
+        Firebase Project:
+        ${firebaseConfig.projectId}
+      `);
+
+
+      button.disabled = false;
+      button.textContent = "Giriş Yap";
+
+      return;
+    }
+
+
+    /*
+      5. USER DATA
+    */
+
     const data =
       userSnap.data();
 
+
     console.log(
-      "FIRESTORE DATA:",
+      "=== FIRESTORE DATA ==="
+    );
+
+    console.log(
       data
+    );
+
+    console.log(
+      "NAME:",
+      data.name
+    );
+
+    console.log(
+      "EMAIL:",
+      data.email
     );
 
     console.log(
@@ -130,8 +274,44 @@ form.addEventListener("submit", async (event) => {
     );
 
 
-    // Role kontrolü
-    goToDashboard(data.role);
+    /*
+      6. ROLE
+    */
+
+    if (!data.role) {
+
+      showMessage(`
+        <strong>Rol bulunamadı.</strong>
+        <br><br>
+
+        UID:
+        ${uid}
+
+        <br><br>
+
+        Firestore belgesinde
+        <strong>role</strong>
+        alanı bulunmuyor.
+      `);
+
+
+      button.disabled = false;
+      button.textContent = "Giriş Yap";
+
+      return;
+    }
+
+
+    /*
+      7. DASHBOARD
+    */
+
+    goToDashboard(
+      String(data.role)
+        .trim()
+        .toLowerCase()
+    );
+
 
   } catch (error) {
 
@@ -142,9 +322,17 @@ form.addEventListener("submit", async (event) => {
 
 
     showMessage(`
-      ${error.code || "Hata"}<br>
-      ${error.message}
+      <strong>Giriş başarısız</strong>
+      <br><br>
+
+      Kod:
+      ${error.code || "Hata"}
+
+      <br><br>
+
+      ${error.message || ""}
     `);
+
 
     button.disabled = false;
     button.textContent = "Giriş Yap";
