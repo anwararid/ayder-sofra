@@ -3,11 +3,7 @@ import {
   db,
   signInWithEmailAndPassword,
   doc,
-  getDoc,
-  collection,
-  query,
-  where,
-  getDocs
+  getDoc
 } from "./firebase.js";
 
 const form = document.querySelector("#form");
@@ -22,41 +18,7 @@ function showMessage(text, type = "error") {
   `;
 }
 
-function goToDashboard(role) {
-
-  const pages = {
-    admin: "admin.html",
-    garson: "index.html",
-    mutfak: "kitchen.html",
-    firin: "oven.html",
-    izgara: "grill.html"
-  };
-
-  const page = pages[role];
-
-  if (!page) {
-    showMessage(
-      `Geçersiz kullanıcı rolü: ${role || "tanımsız"}`,
-      "error"
-    );
-
-    button.disabled = false;
-    button.textContent = "Giriş Yap";
-    return;
-  }
-
-  showMessage(
-    "Giriş başarılı. Yönlendiriliyor...",
-    "notice"
-  );
-
-  setTimeout(() => {
-    window.location.href = page;
-  }, 500);
-}
-
 form.addEventListener("submit", async (event) => {
-
   event.preventDefault();
 
   button.disabled = true;
@@ -64,16 +26,10 @@ form.addEventListener("submit", async (event) => {
   msg.innerHTML = "";
 
   try {
-
-    const email = document
-      .querySelector("#email")
-      .value
-      .trim()
-      .toLowerCase();
-
+    const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#pass").value;
 
-    // 1. Firebase Authentication
+    // Firebase Authentication
     const result = await signInWithEmailAndPassword(
       auth,
       email,
@@ -86,100 +42,117 @@ form.addEventListener("submit", async (event) => {
     console.log("LOGIN EMAIL:", user.email);
     console.log("LOGIN UID:", uid);
 
-    let data = null;
+    // Firestore users/{UID}
+    const userRef = doc(db, "users", uid);
 
-    // ------------------------------------------------
-    // 2. أولاً: البحث بواسطة UID
-    // users/{uid}
-    // ------------------------------------------------
+    console.log("FIRESTORE PATH:", "users/" + uid);
 
-    const uidRef = doc(db, "users", uid);
-    const uidSnap = await getDoc(uidRef);
+    const userSnap = await getDoc(userRef);
 
-    if (uidSnap.exists()) {
+    console.log("DOCUMENT EXISTS:", userSnap.exists());
 
-      data = uidSnap.data();
-
-      console.log("FOUND USER BY UID");
-      console.log("FIRESTORE DATA:", data);
-
-    } else {
-
-      console.log("USER NOT FOUND BY UID");
-      console.log("TRYING EMAIL SEARCH...");
-
-      // ------------------------------------------------
-      // 3. إذا لم نجد UID، نبحث بواسطة البريد الإلكتروني
-      // ------------------------------------------------
-
-      const usersRef = collection(db, "users");
-
-      const emailQuery = query(
-        usersRef,
-        where("email", "==", user.email)
-      );
-
-      const emailSnap = await getDocs(emailQuery);
-
-      if (!emailSnap.empty) {
-
-        const userDoc = emailSnap.docs[0];
-
-        data = userDoc.data();
-
-        console.log("FOUND USER BY EMAIL");
-        console.log("DOCUMENT ID:", userDoc.id);
-        console.log("FIRESTORE DATA:", data);
-
-      }
-    }
-
-    // ------------------------------------------------
-    // 4. لا يوجد مستخدم
-    // ------------------------------------------------
-
-    if (!data) {
+    // إذا لم يوجد المستند
+    if (!userSnap.exists()) {
 
       showMessage(`
         Kullanıcı kaydı bulunamadı.<br><br>
         UID: ${uid}<br>
-        E-posta: ${user.email}
+        Firestore: users/${uid}
       `);
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
-
       return;
     }
 
-    // ------------------------------------------------
-    // 5. قراءة الدور
-    // ------------------------------------------------
+    // قراءة بيانات المستخدم
+    const data = userSnap.data();
 
-    const role = String(data.role || "")
-      .trim()
-      .toLowerCase();
+    console.log("FIRESTORE DATA:", data);
+    console.log("ROLE:", data.role);
 
-    console.log("USER ROLE:", role);
-
-    if (!role) {
+    // Garson
+    if (data.role === "garson") {
 
       showMessage(
-        "Kullanıcı rolü bulunamadı.",
-        "error"
+        "Garson girişi başarılı. Yönlendiriliyor...",
+        "notice"
       );
 
-      button.disabled = false;
-      button.textContent = "Giriş Yap";
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 500);
 
       return;
     }
 
-    // ------------------------------------------------
-    // 6. تحويل المستخدم حسب الدور
-    // ------------------------------------------------
+    // Admin
+    if (data.role === "admin") {
 
-    goToDashboard(role);
+      showMessage(
+        "Admin girişi başarılı. Yönlendiriliyor...",
+        "notice"
+      );
+
+      setTimeout(() => {
+        window.location.href = "admin.html";
+      }, 500);
+
+      return;
+    }
+
+    // Mutfak
+    if (data.role === "mutfak") {
+
+      showMessage(
+        "Mutfak girişi başarılı. Yönlendiriliyor...",
+        "notice"
+      );
+
+      setTimeout(() => {
+        window.location.href = "kitchen.html";
+      }, 500);
+
+      return;
+    }
+
+    // Fırın
+    if (data.role === "firin") {
+
+      showMessage(
+        "Fırın girişi başarılı. Yönlendiriliyor...",
+        "notice"
+      );
+
+      setTimeout(() => {
+        window.location.href = "oven.html";
+      }, 500);
+
+      return;
+    }
+
+    // Izgara
+    if (data.role === "izgara") {
+
+      showMessage(
+        "Izgara girişi başarılı. Yönlendiriliyor...",
+        "notice"
+      );
+
+      setTimeout(() => {
+        window.location.href = "grill.html";
+      }, 500);
+
+      return;
+    }
+
+    // Role غير معروف
+    showMessage(`
+      Geçersiz kullanıcı rolü: ${data.role || "tanımsız"}
+    `);
+
+    button.disabled = false;
+    button.textContent = "Giriş Yap";
 
   } catch (error) {
 
@@ -193,5 +166,4 @@ form.addEventListener("submit", async (event) => {
     button.disabled = false;
     button.textContent = "Giriş Yap";
   }
-
 });
