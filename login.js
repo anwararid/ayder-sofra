@@ -139,8 +139,14 @@ form.addEventListener("submit", async (event) => {
       3. FIRESTORE DOCUMENT
     */
 
-    const path =
-      `users/${uid}`;
+    const path = `users/${uid}`;
+
+showMessage(`
+  <strong>Firebase Test</strong><br><br>
+  Project: ${firebaseConfig.projectId}<br>
+  UID: ${uid}<br>
+  Path: ${path}
+`, "notice");
 
 
     console.log(
