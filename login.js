@@ -23,6 +23,7 @@ function showMessage(text, type = "error") {
 }
 
 function goToDashboard(role) {
+
   const pages = {
     admin: "admin.html",
     garson: "index.html",
@@ -31,7 +32,7 @@ function goToDashboard(role) {
     izgara: "grill.html"
   };
 
-  const page = pages[String(role).trim().toLowerCase()];
+  const page = pages[role];
 
   if (!page) {
     showMessage(
@@ -51,10 +52,11 @@ function goToDashboard(role) {
 
   setTimeout(() => {
     window.location.href = page;
-  }, 700);
+  }, 500);
 }
 
 form.addEventListener("submit", async (event) => {
+
   event.preventDefault();
 
   button.disabled = true;
@@ -62,6 +64,7 @@ form.addEventListener("submit", async (event) => {
   msg.innerHTML = "";
 
   try {
+
     const email = document
       .querySelector("#email")
       .value
@@ -80,101 +83,115 @@ form.addEventListener("submit", async (event) => {
     const user = result.user;
     const uid = user.uid;
 
-    console.log("AUTH EMAIL:", user.email);
-    console.log("AUTH UID:", uid);
-
-    // 2. Önce UID ile ara
-    const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-
-    console.log("UID DOCUMENT EXISTS:", userSnap.exists());
+    console.log("LOGIN EMAIL:", user.email);
+    console.log("LOGIN UID:", uid);
 
     let data = null;
 
-    if (userSnap.exists()) {
-      data = userSnap.data();
-      console.log("USER FOUND BY UID:", data);
-    }
+    // ------------------------------------------------
+    // 2. أولاً: البحث بواسطة UID
+    // users/{uid}
+    // ------------------------------------------------
 
-    // 3. UID ile bulunamadıysa email ile ara
-    if (!data) {
-      console.log("UID ile bulunamadı. Email ile aranıyor...");
+    const uidRef = doc(db, "users", uid);
+    const uidSnap = await getDoc(uidRef);
+
+    if (uidSnap.exists()) {
+
+      data = uidSnap.data();
+
+      console.log("FOUND USER BY UID");
+      console.log("FIRESTORE DATA:", data);
+
+    } else {
+
+      console.log("USER NOT FOUND BY UID");
+      console.log("TRYING EMAIL SEARCH...");
+
+      // ------------------------------------------------
+      // 3. إذا لم نجد UID، نبحث بواسطة البريد الإلكتروني
+      // ------------------------------------------------
 
       const usersRef = collection(db, "users");
 
-      const q = query(
+      const emailQuery = query(
         usersRef,
         where("email", "==", user.email)
       );
 
-      const querySnap = await getDocs(q);
+      const emailSnap = await getDocs(emailQuery);
 
-      console.log(
-        "EMAIL SEARCH COUNT:",
-        querySnap.size
-      );
+      if (!emailSnap.empty) {
 
-      if (!querySnap.empty) {
-        data = querySnap.docs[0].data();
+        const userDoc = emailSnap.docs[0];
 
-        console.log(
-          "USER FOUND BY EMAIL:",
-          data
-        );
+        data = userDoc.data();
+
+        console.log("FOUND USER BY EMAIL");
+        console.log("DOCUMENT ID:", userDoc.id);
+        console.log("FIRESTORE DATA:", data);
+
       }
     }
 
-    // 4. Hiçbir şekilde bulunamadı
+    // ------------------------------------------------
+    // 4. لا يوجد مستخدم
+    // ------------------------------------------------
+
     if (!data) {
+
       showMessage(`
-        <strong>Kullanıcı kaydı bulunamadı.</strong>
-        <br><br>
-        UID: ${uid}
-        <br>
-        Email: ${user.email}
-        <br>
-        Firestore: users/${uid}
+        Kullanıcı kaydı bulunamadı.<br><br>
+        UID: ${uid}<br>
+        E-posta: ${user.email}
       `);
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
+
       return;
     }
 
-    // 5. Role
+    // ------------------------------------------------
+    // 5. قراءة الدور
+    // ------------------------------------------------
+
     const role = String(data.role || "")
       .trim()
       .toLowerCase();
 
-    console.log("FINAL ROLE:", role);
+    console.log("USER ROLE:", role);
 
     if (!role) {
-      showMessage(`
-        Kullanıcı bulundu fakat role alanı yok.
-        <br><br>
-        UID: ${uid}
-      `);
+
+      showMessage(
+        "Kullanıcı rolü bulunamadı.",
+        "error"
+      );
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
+
       return;
     }
 
-    // 6. Dashboard
+    // ------------------------------------------------
+    // 6. تحويل المستخدم حسب الدور
+    // ------------------------------------------------
+
     goToDashboard(role);
 
   } catch (error) {
+
     console.error("LOGIN ERROR:", error);
 
     showMessage(`
-      <strong>Giriş başarısız</strong>
-      <br><br>
-      Kod: ${error.code || "Hata"}
-      <br>
-      ${error.message || ""}
+      ${error.code || "Hata"}<br>
+      ${error.message}
     `);
 
     button.disabled = false;
     button.textContent = "Giriş Yap";
   }
+
 });
