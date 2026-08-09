@@ -50,5 +50,6 @@ export {
   onSnapshot,
   query,
   orderBy,
+  where,
   serverTimestamp
 };
