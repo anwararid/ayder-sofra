@@ -13,14 +13,12 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
   setDoc,
   addDoc,
   updateDoc,
   deleteDoc,
   onSnapshot,
   query,
-  where,
   orderBy,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -41,14 +39,12 @@ export {
   collection,
   doc,
   getDoc,
-  getDocs,
   setDoc,
   addDoc,
   updateDoc,
   deleteDoc,
   onSnapshot,
   query,
-  where,
   orderBy,
   serverTimestamp
 };
