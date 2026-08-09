@@ -12,7 +12,6 @@ const form = document.querySelector("#form");
 const msg = document.querySelector("#msg");
 const button = form.querySelector("button");
 
-
 function showMessage(text, type = "error") {
   msg.innerHTML = `
     <div class="${type}">
@@ -21,9 +20,7 @@ function showMessage(text, type = "error") {
   `;
 }
 
-
 function goToDashboard(role) {
-
   const pages = {
     admin: "admin.html",
     garson: "index.html",
@@ -32,317 +29,111 @@ function goToDashboard(role) {
     izgara: "grill.html"
   };
 
-  const page = pages[role];
+  const page = pages[String(role).trim().toLowerCase()];
 
   if (!page) {
-
     showMessage(
       `Geçersiz kullanıcı rolü: ${role || "tanımsız"}`,
       "error"
     );
-
     button.disabled = false;
     button.textContent = "Giriş Yap";
-
     return;
   }
-
 
   showMessage(
     "Giriş başarılı. Yönlendiriliyor...",
     "notice"
   );
 
-
   setTimeout(() => {
-
     window.location.href = page;
-
   }, 700);
-
 }
 
-
 form.addEventListener("submit", async (event) => {
-
   event.preventDefault();
 
   button.disabled = true;
   button.textContent = "Giriş yapılıyor...";
   msg.innerHTML = "";
 
-
   try {
+    const email = document.querySelector("#email").value.trim();
+    const password = document.querySelector("#pass").value;
 
-    const email =
-      document
-        .querySelector("#email")
-        .value
-        .trim();
-
-
-    const password =
-      document.querySelector("#pass").value;
-
-
-    /*
-      1. FIREBASE AUTHENTICATION
-    */
-
-    const result =
-      await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-
+    // Firebase Authentication
+    const result = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
     const user = result.user;
     const uid = user.uid;
 
+    console.log("AUTH UID:", uid);
+    console.log("PROJECT:", firebaseConfig.projectId);
 
-    console.log(
-      "=== AUTHENTICATION ==="
-    );
+    // Firestore
+    const userRef = doc(db, "users", uid);
 
-    console.log(
-      "Email:",
-      user.email
-    );
+    console.log("FIRESTORE PATH:", `users/${uid}`);
 
-    console.log(
-      "UID:",
-      uid
-    );
+    const userSnap = await getDoc(userRef);
 
-
-    /*
-      2. FIREBASE PROJECT
-    */
-
-    console.log(
-      "=== FIREBASE PROJECT ==="
-    );
-
-    console.log(
-      "Project ID:",
-      firebaseConfig.projectId
-    );
-
-    console.log(
-      "Auth Domain:",
-      firebaseConfig.authDomain
-    );
-
-
-    /*
-      3. FIRESTORE DOCUMENT
-    */
-
-    const path = `users/${uid}`;
-
-showMessage(`
-  <strong>Firebase Test</strong><br><br>
-  Project: ${firebaseConfig.projectId}<br>
-  UID: ${uid}<br>
-  Path: ${path}
-`, "notice");
-
-
-    console.log(
-      "=== FIRESTORE ==="
-    );
-
-    console.log(
-      "Path:",
-      path
-    );
-
-
-    const userRef =
-      doc(
-        db,
-        "users",
-        uid
-      );
-
-
-    let userSnap;
-
-
-    try {
-
-      userSnap =
-        await getDoc(userRef);
-
-    } catch (firestoreError) {
-
-      console.error(
-        "FIRESTORE READ ERROR:",
-        firestoreError
-      );
-
-
-      showMessage(`
-        <strong>Firestore okuma hatası</strong><br><br>
-
-        Kod:
-        ${firestoreError.code || "bilinmiyor"}
-        <br><br>
-
-        Mesaj:
-        ${firestoreError.message || "bilinmiyor"}
-        <br><br>
-
-        UID:
-        ${uid}
-        <br><br>
-
-        Project:
-        ${firebaseConfig.projectId}
-      `);
-
-
-      button.disabled = false;
-      button.textContent = "Giriş Yap";
-
-      return;
-    }
-
-
-    console.log(
-      "Document exists:",
-      userSnap.exists()
-    );
-
-
-    /*
-      4. DOCUMENT YOK
-    */
+    console.log("EXISTS:", userSnap.exists());
 
     if (!userSnap.exists()) {
-
       showMessage(`
         <strong>Kullanıcı kaydı bulunamadı.</strong>
         <br><br>
-
-        UID:
-        ${uid}
-
-        <br><br>
-
-        Firestore:
-        users/${uid}
-
-        <br><br>
-
-        Firebase Project:
-        ${firebaseConfig.projectId}
+        UID: ${uid}
+        <br>
+        Firestore: users/${uid}
+        <br>
+        Firebase Project: ${firebaseConfig.projectId}
       `);
-
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
-
       return;
     }
 
+    const data = userSnap.data();
 
-    /*
-      5. USER DATA
-    */
+    console.log("USER DATA:", data);
 
-    const data =
-      userSnap.data();
+    const role = String(data.role || "")
+      .trim()
+      .toLowerCase();
 
-
-    console.log(
-      "=== FIRESTORE DATA ==="
-    );
-
-    console.log(
-      data
-    );
-
-    console.log(
-      "NAME:",
-      data.name
-    );
-
-    console.log(
-      "EMAIL:",
-      data.email
-    );
-
-    console.log(
-      "ROLE:",
-      data.role
-    );
-
-
-    /*
-      6. ROLE
-    */
-
-    if (!data.role) {
-
+    if (!role) {
       showMessage(`
-        <strong>Rol bulunamadı.</strong>
+        <strong>Kullanıcı rolü bulunamadı.</strong>
         <br><br>
-
-        UID:
-        ${uid}
-
-        <br><br>
-
-        Firestore belgesinde
-        <strong>role</strong>
-        alanı bulunmuyor.
+        UID: ${uid}
       `);
-
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
-
       return;
     }
 
-
-    /*
-      7. DASHBOARD
-    */
-
-    goToDashboard(
-      String(data.role)
-        .trim()
-        .toLowerCase()
-    );
-
+    goToDashboard(role);
 
   } catch (error) {
-
-    console.error(
-      "LOGIN ERROR:",
-      error
-    );
-
+    console.error("LOGIN ERROR:", error);
 
     showMessage(`
       <strong>Giriş başarısız</strong>
       <br><br>
-
-      Kod:
-      ${error.code || "Hata"}
-
+      Kod: ${error.code || "Hata"}
       <br><br>
-
       ${error.message || ""}
     `);
 
-
     button.disabled = false;
     button.textContent = "Giriş Yap";
-
   }
-
 });
