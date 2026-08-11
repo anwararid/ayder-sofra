@@ -1,5 +1,417 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sipariş</title><link rel="stylesheet" href="styles.css"></head><body><script type="module">
-import{guard,shell,listenMenu,createOrder,money,esc,toast}from"./app.js";
-guard(["garson"],u=>{const c=shell(u,"Yeni Sipariş","Masa seçin ve ürünleri sepete ekleyin.");c.innerHTML=`<div class="toolbar"><select id="table"><option value="">Masa seçin</option>${Array.from({length:20},(_,i)=>`<option>${i+1}</option>`).join("")}</select><input id="search" placeholder="Ürün ara"></div><div class="split"><section id="menu" class="grid"></section><aside class="card"><h2>Sepet</h2><div id="cart"></div><hr><div class="row"><b>Toplam</b><b id="total">0 ₺</b></div><button id="send" class="btn primary wide">Siparişi Gönder</button></aside></div>`;
-let menu=[],cart=[];const render=()=>{let q=search.value.toLowerCase();menuEl.innerHTML=menu.filter(x=>x.active!==false&&x.name.toLowerCase().includes(q)).map(x=>`<button class="card product" data-id="${x.id}"><span><b>${esc(x.name)}</b><small>${esc(x.category||"")}</small></span><b>${money(x.price)}</b></button>`).join("");cartEl.innerHTML=cart.map(x=>`<div class="row">${x.qty} × ${esc(x.name)}<b>${money(x.price*x.qty)}</b></div>`).join("")||"<p class=muted>Sepet boş</p>";total.textContent=money(cart.reduce((s,x)=>s+x.price*x.qty,0))};const menuEl=c.querySelector("#menu"),cartEl=c.querySelector("#cart");listenMenu(x=>{menu=x;render()});search.oninput=render;c.onclick=e=>{let b=e.target.closest(".product");if(!b)return;let x=menu.find(m=>m.id===b.dataset.id),old=cart.find(i=>i.id===x.id);old?old.qty++:cart.push({...x,qty:1});render()};send.onclick=async()=>{if(!table.value||!cart.length)return toast("Masa ve ürün seçin","error");await createOrder({table:Number(table.value),waiterId:u.auth.uid,waiterName:u.name||u.auth.email,items:cart.map(({id,name,price,department,qty})=>({id,name,price,department,qty})),total:cart.reduce((s,x)=>s+x.price*x.qty,0)});cart=[];render();toast("Sipariş gönderildi")};render()});
-</script></body></html>
+<!doctype html>
+
+<html lang="tr">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>Ayder Sofra | Garson</title>
+
+<link
+  rel="stylesheet"
+  href="styles.css"
+>
+
+</head>
+
+<body>
+
+<script type="module">
+
+import {
+  shell,
+  listenMenu,
+  createOrder,
+  money,
+  esc,
+  toast
+} from "./app.js";
+
+
+const content =
+  shell(
+    "Garson",
+    "Masa seçin ve ürünleri sepete ekleyin."
+  );
+
+
+content.innerHTML = `
+
+<div class="toolbar">
+
+  <select id="table">
+
+    <option value="">
+      Masa seçin
+    </option>
+
+    ${Array.from(
+      { length: 20 },
+      (_, i) =>
+        `<option value="${i + 1}">
+          Masa ${i + 1}
+        </option>`
+    ).join("")}
+
+  </select>
+
+
+  <input
+    id="search"
+    type="search"
+    placeholder="Ürün ara..."
+  >
+
+</div>
+
+
+<div class="split">
+
+  <section
+    id="menu"
+    class="grid"
+  ></section>
+
+
+  <aside class="card">
+
+    <h2>Sepet</h2>
+
+    <div id="cart"></div>
+
+    <hr>
+
+    <div class="row">
+
+      <b>Toplam</b>
+
+      <b id="total">
+        0.00 ₺
+      </b>
+
+    </div>
+
+    <br>
+
+    <button
+      id="send"
+      class="btn primary wide"
+    >
+      Siparişi Gönder
+    </button>
+
+  </aside>
+
+</div>
+
+`;
+
+
+const table =
+  content.querySelector("#table");
+
+const search =
+  content.querySelector("#search");
+
+const menuEl =
+  content.querySelector("#menu");
+
+const cartEl =
+  content.querySelector("#cart");
+
+const total =
+  content.querySelector("#total");
+
+const send =
+  content.querySelector("#send");
+
+
+let menu = [];
+
+let cart = [];
+
+
+/* =========================
+   RENDER
+========================= */
+
+function render() {
+
+  const q =
+    search.value
+      .trim()
+      .toLowerCase();
+
+
+  const filtered =
+    menu.filter(item => {
+
+      const active =
+        item.active !== false;
+
+      const matches =
+        String(item.name || "")
+          .toLowerCase()
+          .includes(q);
+
+      return active && matches;
+
+    });
+
+
+  menuEl.innerHTML =
+    filtered.map(item => `
+
+      <button
+        class="card product"
+        data-id="${item.id}"
+      >
+
+        <span>
+
+          <b>
+            ${esc(item.name)}
+          </b>
+
+          <small>
+            ${esc(item.category || "")}
+          </small>
+
+        </span>
+
+        <b>
+          ${money(item.price)}
+        </b>
+
+      </button>
+
+    `).join("");
+
+
+  if (!cart.length) {
+
+    cartEl.innerHTML = `
+      <p class="muted">
+        Sepet boş
+      </p>
+    `;
+
+  } else {
+
+    cartEl.innerHTML =
+      cart.map(item => `
+
+        <div class="row">
+
+          <span>
+            ${item.qty} ×
+            ${esc(item.name)}
+          </span>
+
+          <b>
+            ${money(
+              item.price * item.qty
+            )}
+          </b>
+
+        </div>
+
+      `).join("");
+
+  }
+
+
+  const sum =
+    cart.reduce(
+      (total, item) =>
+        total +
+        Number(item.price || 0) *
+        Number(item.qty || 0),
+      0
+    );
+
+
+  total.textContent =
+    money(sum);
+
+}
+
+
+/* =========================
+   MENU
+========================= */
+
+listenMenu(items => {
+
+  menu = items;
+
+  render();
+
+});
+
+
+/* =========================
+   SEARCH
+========================= */
+
+search.oninput =
+  render;
+
+
+/* =========================
+   ADD PRODUCT
+========================= */
+
+menuEl.addEventListener(
+  "click",
+  event => {
+
+    const button =
+      event.target.closest(
+        "[data-id]"
+      );
+
+    if (!button) return;
+
+
+    const item =
+      menu.find(
+        x => x.id === button.dataset.id
+      );
+
+    if (!item) return;
+
+
+    const old =
+      cart.find(
+        x => x.id === item.id
+      );
+
+
+    if (old) {
+
+      old.qty++;
+
+    } else {
+
+      cart.push({
+        id: item.id,
+        name: item.name,
+        price: Number(item.price || 0),
+        department:
+          item.department || "",
+        qty: 1
+      });
+
+    }
+
+
+    render();
+
+  }
+);
+
+
+/* =========================
+   SEND ORDER
+========================= */
+
+send.onclick =
+  async () => {
+
+    if (!table.value) {
+
+      toast(
+        "Lütfen masa seçin.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if (!cart.length) {
+
+      toast(
+        "Sepet boş.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    const totalValue =
+      cart.reduce(
+        (sum, item) =>
+          sum +
+          item.price *
+          item.qty,
+        0
+      );
+
+
+    try {
+
+      await createOrder({
+
+        table:
+          Number(table.value),
+
+        waiterName:
+          "Garson",
+
+        items:
+          cart.map(item => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            department:
+              item.department,
+            qty: item.qty
+          })),
+
+        total:
+          totalValue
+
+      });
+
+
+      cart = [];
+
+      render();
+
+      toast(
+        "Sipariş gönderildi."
+      );
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast(
+        "Sipariş gönderilemedi.",
+        "error"
+      );
+
+    }
+
+  };
+
+
+render();
+
+</script>
+
+</body>
+
+</html>
