@@ -3,27 +3,14 @@ import {
   db,
   signInWithEmailAndPassword,
   doc,
-  getDoc,
-  signOut
+  getDoc
 } from "./firebase.js";
 
 const form = document.querySelector("#form");
 const msg = document.querySelector("#msg");
-const button = form.querySelector("button");
-
-function showMessage(text, type = "error") {
-  msg.innerHTML = `
-    <div class="${type}">
-      ${text}
-    </div>
-  `;
-}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  button.disabled = true;
-  button.textContent = "Giriş yapılıyor...";
   msg.innerHTML = "";
 
   try {
@@ -31,87 +18,90 @@ form.addEventListener("submit", async (e) => {
     const password = document.querySelector("#pass").value;
 
     // تسجيل الدخول
-    const result = await signInWithEmailAndPassword(
+    const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
       password
     );
 
-    const user = result.user;
+    const user = userCredential.user;
 
-    console.log("LOGIN EMAIL:", user.email);
-    console.log("LOGIN UID:", user.uid);
+    console.log("========== LOGIN DEBUG ==========");
+    console.log("EMAIL:", user.email);
+    console.log("UID:", user.uid);
+    console.log("PROJECT:", "ayder-sofra");
 
-    // قراءة users/{UID}
+    // قراءة users/{uid}
     const userRef = doc(db, "users", user.uid);
-    const userSnap = await getDoc(userRef);
 
-    console.log("DOCUMENT EXISTS:", userSnap.exists());
+    console.log("FIRESTORE PATH:", `users/${user.uid}`);
 
-    if (!userSnap.exists()) {
-      showMessage(`
+    const userDoc = await getDoc(userRef);
+
+    console.log("DOCUMENT EXISTS:", userDoc.exists());
+
+    if (!userDoc.exists()) {
+      msg.innerHTML = `
         Kullanıcı kaydı bulunamadı.<br><br>
         UID: ${user.uid}<br>
         Firestore: users/${user.uid}
-      `);
-
-      await signOut(auth);
-
-      button.disabled = false;
-      button.textContent = "Giriş Yap";
+      `;
       return;
     }
 
-    const data = userSnap.data();
-    const role = String(data.role || "").trim().toLowerCase();
+    const data = userDoc.data();
 
     console.log("FIRESTORE DATA:", data);
-    console.log("USER ROLE:", role);
-    alert("ROLE = " + role);
+    console.log("RAW ROLE:", data.role);
 
-    // التوجيه حسب الدور
-    const pages = {
-      admin: "admin.html",
-      garson: "index.html",
-      mutfak: "kitchen.html",
-      firin: "oven.html",
-      izgara: "grill.html"
-    };
+    const role = String(data.role || "")
+      .trim()
+      .toLowerCase();
 
-    const page = pages[role];
+    console.log("FINAL ROLE:", role);
 
-    if (!page) {
-      showMessage(`
-        Geçersiz kullanıcı rolü: ${role || "tanımsız"}
-      `);
+    alert(
+      "EMAIL: " + user.email +
+      "\nUID: " + user.uid +
+      "\nROLE: " + role
+    );
 
-      await signOut(auth);
-
-      button.disabled = false;
-      button.textContent = "Giriş Yap";
+    // التوجيه
+    if (role === "admin") {
+      window.location.href = "admin.html";
       return;
     }
 
-    console.log("REDIRECT TO:", page);
+    if (role === "garson") {
+      window.location.href = "waiter.html";
+      return;
+    }
 
-    showMessage(
-      `Giriş başarılı. ${role} paneline yönlendiriliyorsunuz...`,
-      "notice"
-    );
+    if (role === "mutfak") {
+      window.location.href = "kitchen.html";
+      return;
+    }
 
-    setTimeout(() => {
-      window.location.replace(page);
-    }, 300);
+    if (role === "firin") {
+      window.location.href = "oven.html";
+      return;
+    }
+
+    if (role === "izgara") {
+      window.location.href = "grill.html";
+      return;
+    }
+
+    msg.innerHTML = `
+      Kullanıcı rolü geçersiz: ${role || "tanımsız"}
+    `;
 
   } catch (error) {
     console.error("LOGIN ERROR:", error);
 
-    showMessage(`
+    msg.innerHTML = `
       ${error.code || "Hata"}<br>
       ${error.message}
-    `);
-
-    button.disabled = false;
-    button.textContent = "Giriş Yap";
+    `;
   }
 });
