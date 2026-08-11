@@ -17,6 +17,7 @@
 
     <div>
       <strong>Ayder Sofra</strong>
+
       <div style="font-size:12px;opacity:.75">
         Yönetim Paneli
       </div>
@@ -32,63 +33,123 @@
 <main class="page">
 
   <div class="row">
+
     <div>
       <h1>Yönetim Paneli</h1>
+
       <p class="muted">
         Restoran operasyonlarını buradan yönetin.
       </p>
     </div>
+
   </div>
 
 
-  <!-- İSTATİSTİKLER -->
+  <!-- =========================
+       İSTATİSTİKLER
+  ========================== -->
 
-  <section class="grid" style="margin-top:20px">
+  <section
+    class="grid"
+    style="margin-top:20px"
+  >
 
     <div class="card">
-      <div class="muted">Toplam Masa</div>
-      <h2 id="totalTables">0</h2>
+
+      <div class="muted">
+        Toplam Masa
+      </div>
+
+      <h2 id="totalTables">
+        0
+      </h2>
+
     </div>
 
-    <div class="card">
-      <div class="muted">Müsait Masa</div>
-      <h2 id="availableTables">0</h2>
-    </div>
 
     <div class="card">
-      <div class="muted">Dolu Masa</div>
-      <h2 id="busyTables">0</h2>
+
+      <div class="muted">
+        Müsait Masa
+      </div>
+
+      <h2 id="availableTables">
+        0
+      </h2>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Dolu Masa
+      </div>
+
+      <h2 id="busyTables">
+        0
+      </h2>
+
     </div>
 
   </section>
 
 
-  <!-- MASALAR -->
+  <!-- =========================
+       MASALAR
+  ========================== -->
 
-  <section class="card" style="margin-top:18px">
+  <section
+    class="card"
+    style="margin-top:18px"
+  >
 
     <div class="row">
+
       <div>
-        <h2 style="margin:0">Masalar</h2>
+
+        <h2 style="margin:0">
+          Masalar
+        </h2>
 
         <p class="muted">
           Restorandaki masa durumlarını yönetin.
         </p>
+
       </div>
 
-      <button id="addTableBtn" class="btn primary">
+
+      <button
+        id="addTableBtn"
+        class="btn primary"
+      >
         + Masa Ekle
       </button>
+
     </div>
 
 
-    <div class="toolbar" style="margin-top:18px">
+    <div
+      class="toolbar"
+      style="margin-top:18px"
+    >
 
       <select id="tableFilter">
-        <option value="all">Tüm Masalar</option>
-        <option value="available">Müsait</option>
-        <option value="busy">Dolu</option>
+
+        <option value="all">
+          Tüm Masalar
+        </option>
+
+        <option value="available">
+          Müsait
+        </option>
+
+        <option value="busy">
+          Dolu
+        </option>
+
       </select>
+
 
       <input
         id="tableSearch"
@@ -99,18 +160,27 @@
     </div>
 
 
-    <div id="tablesGrid" class="grid"></div>
+    <div
+      id="tablesGrid"
+      class="grid"
+    ></div>
 
   </section>
 
 
-  <!-- PERSONEL -->
+  <!-- =========================
+       PERSONEL
+  ========================== -->
 
-  <section class="card" style="margin-top:18px">
+  <section
+    class="card"
+    style="margin-top:18px"
+  >
 
     <div class="row">
 
       <div>
+
         <h2 style="margin:0">
           Personel Yönetimi
         </h2>
@@ -118,9 +188,14 @@
         <p class="muted">
           Restoran çalışanlarını yönetin.
         </p>
+
       </div>
 
-      <button id="addStaffBtn" class="btn primary">
+
+      <button
+        id="addStaffBtn"
+        class="btn primary"
+      >
         + Personel Ekle
       </button>
 
@@ -143,39 +218,76 @@
   </section>
 
 
-  <!-- HIZLI ERİŞİM -->
+  <!-- =========================
+       HIZLI ERİŞİM
+  ========================== -->
 
   <section
     class="grid"
     style="margin-top:18px"
   >
 
-    <a href="garson.html" class="card link">
-      <h3>🧑‍💼 Garson</h3>
+    <a
+      href="garson.html"
+      class="card link"
+    >
+
+      <h3>
+        🧑‍💼 Garson
+      </h3>
+
       <p class="muted">
         Garson ekranı
       </p>
+
     </a>
 
-    <a href="mutfak.html" class="card link">
-      <h3>👨‍🍳 Mutfak</h3>
+
+    <a
+      href="mutfak.html"
+      class="card link"
+    >
+
+      <h3>
+        👨‍🍳 Mutfak
+      </h3>
+
       <p class="muted">
         Mutfak ekranı
       </p>
+
     </a>
 
-    <a href="firin.html" class="card link">
-      <h3>🔥 Fırın</h3>
+
+    <a
+      href="firin.html"
+      class="card link"
+    >
+
+      <h3>
+        🔥 Fırın
+      </h3>
+
       <p class="muted">
         Fırın ekranı
       </p>
+
     </a>
 
-    <a href="izgara.html" class="card link">
-      <h3>🥩 Izgara</h3>
+
+    <a
+      href="izgara.html"
+      class="card link"
+    >
+
+      <h3>
+        🍖 Izgara
+      </h3>
+
       <p class="muted">
         Izgara ekranı
       </p>
+
     </a>
 
   </section>
@@ -183,7 +295,9 @@
 </main>
 
 
-<!-- MASA MODAL -->
+<!-- =========================
+     MASA MODAL
+========================== -->
 
 <div
   id="tableModal"
@@ -205,7 +319,9 @@
 
     <div class="row">
 
-      <h2>Yeni Masa</h2>
+      <h2>
+        Yeni Masa
+      </h2>
 
       <button
         id="closeTableModal"
@@ -219,10 +335,15 @@
 
     <form
       id="tableForm"
-      style="display:grid;gap:12px;margin-top:15px"
+      style="
+        display:grid;
+        gap:12px;
+        margin-top:15px
+      "
     >
 
       <label>
+
         Masa Adı
 
         <input
@@ -230,10 +351,12 @@
           placeholder="Masa 17"
           required
         >
+
       </label>
 
 
       <label>
+
         Kapasite
 
         <input
@@ -243,10 +366,14 @@
           value="4"
           required
         >
+
       </label>
 
 
-      <button class="btn primary">
+      <button
+        type="submit"
+        class="btn primary"
+      >
         Masa Ekle
       </button>
 
@@ -257,7 +384,9 @@
 </div>
 
 
-<!-- PERSONEL MODAL -->
+<!-- =========================
+     PERSONEL MODAL
+========================== -->
 
 <div
   id="staffModal"
@@ -279,7 +408,9 @@
 
     <div class="row">
 
-      <h2>Personel Ekle</h2>
+      <h2>
+        Personel Ekle
+      </h2>
 
       <button
         id="closeStaffModal"
@@ -295,18 +426,25 @@
       class="error"
       style="margin-top:15px"
     >
-      Personel hesabı oluşturma özelliğini
-      güvenli Firebase sunucu bağlantısı
-      ile etkinleştireceğiz.
+
+      Personel hesabı oluşturma özelliği
+      Firebase Authentication bağlantısı
+      ile etkinleştirilecek.
+
     </div>
 
 
     <form
       id="staffForm"
-      style="display:grid;gap:12px;margin-top:15px"
+      style="
+        display:grid;
+        gap:12px;
+        margin-top:15px
+      "
     >
 
       <label>
+
         Ad Soyad
 
         <input
@@ -314,10 +452,12 @@
           placeholder="Örn. Ahmet Yılmaz"
           required
         >
+
       </label>
 
 
       <label>
+
         E-posta
 
         <input
@@ -326,13 +466,18 @@
           placeholder="personel@example.com"
           required
         >
+
       </label>
 
 
       <label>
+
         Görev
 
-        <select id="staffRole" required>
+        <select
+          id="staffRole"
+          required
+        >
 
           <option value="">
             Görev seçin
@@ -390,6 +535,10 @@ import {
 } from "./firebase.js";
 
 
+/* =========================
+   ELEMENTLER
+========================= */
+
 const tablesGrid =
   document.querySelector("#tablesGrid");
 
@@ -433,13 +582,19 @@ let staff = [];
 function showToast(text, error = false) {
 
   toast.className =
-    error ? "toast error" : "toast";
+    error
+      ? "toast error"
+      : "toast";
 
   toast.textContent = text;
 
+
   setTimeout(() => {
+
     toast.className = "";
+
     toast.textContent = "";
+
   }, 3000);
 
 }
@@ -451,19 +606,34 @@ function showToast(text, error = false) {
 
 async function createDefaultTables() {
 
-  for (let i = 1; i <= 16; i++) {
+  for (
+    let i = 1;
+    i <= 16;
+    i++
+  ) {
 
     await setDoc(
-      doc(db, "tables", `masa-${i}`),
+
+      doc(
+        db,
+        "tables",
+        `masa-${i}`
+      ),
+
       {
         name: `Masa ${i}`,
+
         capacity: 4,
+
         status: "available",
+
         orderCount: 0
       },
+
       {
         merge: true
       }
+
     );
 
   }
@@ -489,19 +659,44 @@ function renderTables() {
         filter === "all" ||
         table.status === filter;
 
+
       const matchesSearch =
         !search ||
         String(table.name)
           .toLowerCase()
           .includes(search);
 
-      return matchesFilter &&
-             matchesSearch;
+
+      return (
+        matchesFilter &&
+        matchesSearch
+      );
 
     });
 
 
   tablesGrid.innerHTML = "";
+
+
+  if (filtered.length === 0) {
+
+    tablesGrid.innerHTML = `
+
+      <div class="card">
+
+        <strong>
+          Masa bulunamadı.
+        </strong>
+
+        <p class="muted">
+          Arama veya filtreyi değiştirin.
+        </p>
+
+      </div>
+
+    `;
+
+  }
 
 
   filtered.forEach(table => {
@@ -513,7 +708,9 @@ function renderTables() {
     const card =
       document.createElement("div");
 
-    card.className = "card";
+
+    card.className =
+      "card";
 
 
     card.innerHTML = `
@@ -521,7 +718,7 @@ function renderTables() {
       <div class="row">
 
         <strong>
-          🪑 ${table.name}
+          🪑 ${escapeHtml(table.name)}
         </strong>
 
         <span class="badge">
@@ -532,15 +729,19 @@ function renderTables() {
 
 
       <p class="muted">
-        Kapasite: ${table.capacity} kişi
+        Kapasite:
+        ${Number(table.capacity || 4)}
+        kişi
       </p>
 
 
       <p>
         Aktif sipariş:
+
         <strong>
-          ${table.orderCount || 0}
+          ${Number(table.orderCount || 0)}
         </strong>
+
       </p>
 
 
@@ -550,8 +751,15 @@ function renderTables() {
           class="btn ${busy ? "ghost" : "primary"}"
           data-toggle="${table.id}"
         >
-          ${busy ? "Müsait Yap" : "Dolu Yap"}
+
+          ${
+            busy
+              ? "Müsait Yap"
+              : "Dolu Yap"
+          }
+
         </button>
+
 
         <button
           class="btn danger"
@@ -573,10 +781,12 @@ function renderTables() {
   totalTables.textContent =
     tables.length;
 
+
   availableTables.textContent =
     tables.filter(
       t => t.status === "available"
     ).length;
+
 
   busyTables.textContent =
     tables.filter(
@@ -586,15 +796,46 @@ function renderTables() {
 }
 
 
+/* =========================
+   HTML GÜVENLİĞİ
+========================= */
+
+function escapeHtml(value) {
+
+  return String(value ?? "")
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#039;");
+
+}
+
+
+/* =========================
+   MASA LISTENER
+========================= */
+
 onSnapshot(
+
   collection(db, "tables"),
+
   snapshot => {
 
     tables =
       snapshot.docs.map(item => ({
+
         id: item.id,
+
         ...item.data()
+
       }));
+
 
     tables.sort((a, b) => {
 
@@ -604,11 +845,13 @@ onSnapshot(
             .replace(/\D/g, "")
         ) || 0;
 
+
       const bNum =
         parseInt(
           String(b.name)
             .replace(/\D/g, "")
         ) || 0;
+
 
       return aNum - bNum;
 
@@ -618,9 +861,15 @@ onSnapshot(
     renderTables();
 
   },
+
+
   error => {
 
-    console.error(error);
+    console.error(
+      "Tables error:",
+      error
+    );
+
 
     showToast(
       "Masalar yüklenemedi.",
@@ -628,13 +877,23 @@ onSnapshot(
     );
 
   }
+
 );
 
 
+/* =========================
+   MASALARI OTOMATİK OLUŞTUR
+========================= */
+
 createDefaultTables()
+
   .catch(error => {
 
-    console.error(error);
+    console.error(
+      "Default tables error:",
+      error
+    );
+
 
     showToast(
       "Masalar oluşturulamadı.",
@@ -644,8 +903,14 @@ createDefaultTables()
   });
 
 
+/* =========================
+   MASA BUTONLARI
+========================= */
+
 tablesGrid.addEventListener(
+
   "click",
+
   async event => {
 
     const toggle =
@@ -653,21 +918,26 @@ tablesGrid.addEventListener(
         "[data-toggle]"
       );
 
+
     const remove =
       event.target.closest(
         "[data-delete]"
       );
 
 
+    /* DOLU / MÜSAİT */
+
     if (toggle) {
 
       const id =
         toggle.dataset.toggle;
 
+
       const table =
         tables.find(
           t => t.id === id
         );
+
 
       if (!table) return;
 
@@ -675,21 +945,33 @@ tablesGrid.addEventListener(
       try {
 
         await setDoc(
-          doc(db, "tables", id),
+
+          doc(
+            db,
+            "tables",
+            id
+          ),
+
           {
+
             status:
               table.status === "busy"
                 ? "available"
                 : "busy"
+
           },
+
           {
             merge: true
           }
+
         );
+
 
       } catch (error) {
 
         console.error(error);
+
 
         showToast(
           "Masa durumu değiştirilemedi.",
@@ -701,15 +983,19 @@ tablesGrid.addEventListener(
     }
 
 
+    /* SİL */
+
     if (remove) {
 
       const id =
         remove.dataset.delete;
 
+
       const table =
         tables.find(
           t => t.id === id
         );
+
 
       if (!table) return;
 
@@ -718,18 +1004,35 @@ tablesGrid.addEventListener(
         !confirm(
           `${table.name} silinsin mi?`
         )
-      ) return;
+      ) {
+
+        return;
+
+      }
 
 
       try {
 
         await deleteDoc(
-          doc(db, "tables", id)
+
+          doc(
+            db,
+            "tables",
+            id
+          )
+
         );
+
+
+        showToast(
+          "Masa silindi."
+        );
+
 
       } catch (error) {
 
         console.error(error);
+
 
         showToast(
           "Masa silinemedi.",
@@ -741,6 +1044,7 @@ tablesGrid.addEventListener(
     }
 
   }
+
 );
 
 
@@ -771,7 +1075,9 @@ document
 document
   .querySelector("#tableForm")
   .addEventListener(
+
     "submit",
+
     async event => {
 
       event.preventDefault();
@@ -783,6 +1089,7 @@ document
           .value
           .trim();
 
+
       const capacity =
         Number(
           document
@@ -791,31 +1098,67 @@ document
         );
 
 
-      if (!name) return;
+      if (!name) {
+
+        showToast(
+          "Masa adı girin.",
+          true
+        );
+
+        return;
+
+      }
+
+
+      if (
+        !Number.isFinite(capacity) ||
+        capacity < 1
+      ) {
+
+        showToast(
+          "Kapasite hatalı.",
+          true
+        );
+
+        return;
+
+      }
 
 
       try {
 
         await setDoc(
+
           doc(
             db,
             "tables",
             `masa-${Date.now()}`
           ),
+
           {
+
             name,
+
             capacity,
+
             status: "available",
+
             orderCount: 0
+
           }
+
         );
 
 
         event.target.reset();
 
+
         document
-          .querySelector("#tableCapacity")
+          .querySelector(
+            "#tableCapacity"
+          )
           .value = 4;
+
 
         tableModal.style.display =
           "none";
@@ -825,9 +1168,11 @@ document
           "Masa başarıyla eklendi."
         );
 
+
       } catch (error) {
 
         console.error(error);
+
 
         showToast(
           "Masa eklenemedi.",
@@ -837,11 +1182,13 @@ document
       }
 
     }
+
   );
 
 
 tableFilter.onchange =
   renderTables;
+
 
 tableSearch.oninput =
   renderTables;
@@ -865,7 +1212,12 @@ function roleName(role) {
 
   };
 
-  return names[role] || role;
+
+  return (
+    names[role] ||
+    role ||
+    "Personel"
+  );
 
 }
 
@@ -878,13 +1230,21 @@ function renderStaff() {
   if (staff.length === 0) {
 
     staffList.innerHTML = `
+
       <div class="card">
-        <strong>Henüz personel yok.</strong>
+
+        <strong>
+          Henüz personel yok.
+        </strong>
+
         <p class="muted">
           Personel eklemek için
-          "+ Personel Ekle" butonunu kullanın.
+          "+ Personel Ekle"
+          butonunu kullanın.
         </p>
+
       </div>
+
     `;
 
     return;
@@ -897,7 +1257,9 @@ function renderStaff() {
     const card =
       document.createElement("div");
 
-    card.className = "card";
+
+    card.className =
+      "card";
 
 
     card.innerHTML = `
@@ -907,17 +1269,30 @@ function renderStaff() {
         <div>
 
           <strong>
-            ${person.name || "Personel"}
+            ${escapeHtml(
+              person.name ||
+              "Personel"
+            )}
           </strong>
 
+
           <div class="muted">
-            ${person.email || ""}
+
+            ${escapeHtml(
+              person.email || ""
+            )}
+
           </div>
 
         </div>
 
+
         <span class="badge">
-          ${roleName(person.role)}
+
+          ${escapeHtml(
+            roleName(person.role)
+          )}
+
         </span>
 
       </div>
@@ -932,29 +1307,51 @@ function renderStaff() {
 }
 
 
+/* =========================
+   PERSONEL LISTENER
+========================= */
+
 onSnapshot(
+
   collection(db, "users"),
+
   snapshot => {
 
     staff =
+
       snapshot.docs
+
         .map(item => ({
+
           id: item.id,
+
           ...item.data()
+
         }))
+
         .filter(
+
           person =>
+
             person.role &&
+
             person.role !== "admin"
+
         );
 
 
     renderStaff();
 
   },
+
+
   error => {
 
-    console.error(error);
+    console.error(
+      "Staff error:",
+      error
+    );
+
 
     showToast(
       "Personel listesi alınamadı.",
@@ -962,6 +1359,7 @@ onSnapshot(
     );
 
   }
+
 );
 
 
@@ -992,16 +1390,20 @@ document
 document
   .querySelector("#staffForm")
   .addEventListener(
+
     "submit",
+
     event => {
 
       event.preventDefault();
 
+
       showToast(
-        "Personel oluşturma sistemi bir sonraki adımda etkinleştirilecek."
+        "Personel hesabı oluşturma sistemi henüz etkin değil."
       );
 
     }
+
   );
 
 
@@ -1017,12 +1419,18 @@ document
 
       await signOut(auth);
 
-      window.location.href =
-        "login.html";
+      showToast(
+        "Çıkış yapıldı."
+      );
 
     } catch (error) {
 
       console.error(error);
+
+      showToast(
+        "Çıkış yapılamadı.",
+        true
+      );
 
     }
 
