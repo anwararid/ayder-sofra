@@ -1,1 +1,223 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fırın</title><link rel="stylesheet" href="styles.css"></head><body><script type="module">import{guard,shell,listenOrders,card,setStatus,toast}from"./app.js";guard(["firin"],u=>{let c=shell(u,"Fırın İş Emirleri");listenOrders(os=>{let a=os.filter(o=>["pending","preparing"].includes(o.status)&&(o.items||[]).some(i=>i.department==="firin"));c.innerHTML=`<div class="grid">${a.map(card).join("")||"<div class=card>Bekleyen sipariş yok.</div>"}</div>`;c.querySelectorAll(".action").forEach(b=>b.onclick=async()=>{await setStatus(b.dataset.id,b.dataset.s);toast("Sipariş güncellendi")})})});</script></body></html>
+<!doctype html>
+
+<html lang="tr">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1"
+>
+
+<title>Ayder Sofra | Fırın</title>
+
+<link
+  rel="stylesheet"
+  href="styles.css"
+>
+
+</head>
+
+<body>
+
+<script type="module">
+
+import {
+  shell,
+  listenOrders,
+  setStatus,
+  esc,
+  toast
+} from "./app.js";
+
+
+const content =
+  shell(
+    "Fırın",
+    "Fırın siparişlerini takip edin."
+  );
+
+
+content.innerHTML = `
+  <div
+    id="orders"
+    class="grid"
+  ></div>
+`;
+
+
+const ordersEl =
+  content.querySelector("#orders");
+
+
+function render(orders) {
+
+  const active =
+    orders.filter(order =>
+      ["pending","preparing","ready"]
+        .includes(order.status)
+    );
+
+
+  ordersEl.innerHTML =
+    active.map(order => {
+
+      const items =
+        (order.items || [])
+          .filter(item =>
+            item.department === "firin"
+          );
+
+
+      if (!items.length) return "";
+
+
+      return `
+
+        <article class="card order-card">
+
+          <div class="row">
+
+            <h2>
+              Masa ${esc(order.table)}
+            </h2>
+
+            <span class="badge">
+              ${esc(order.status)}
+            </span>
+
+          </div>
+
+          <hr>
+
+          ${items.map(item => `
+
+            <div class="row">
+
+              <span>
+                ${item.qty} ×
+                ${esc(item.name)}
+              </span>
+
+            </div>
+
+          `).join("")}
+
+          <hr>
+
+          <div class="actions">
+
+            ${
+              order.status === "pending"
+                ? `
+                  <button
+                    class="btn primary"
+                    data-id="${order.id}"
+                    data-status="preparing"
+                  >
+                    Hazırlamaya Al
+                  </button>
+                `
+                : ""
+            }
+
+            ${
+              order.status === "preparing"
+                ? `
+                  <button
+                    class="btn primary"
+                    data-id="${order.id}"
+                    data-status="ready"
+                  >
+                    Hazır
+                  </button>
+                `
+                : ""
+            }
+
+            ${
+              order.status === "ready"
+                ? `
+                  <button
+                    class="btn primary"
+                    data-id="${order.id}"
+                    data-status="served"
+                  >
+                    Servis Edildi
+                  </button>
+                `
+                : ""
+            }
+
+          </div>
+
+        </article>
+
+      `;
+
+    }).join("");
+
+
+  if (!ordersEl.innerHTML.trim()) {
+
+    ordersEl.innerHTML = `
+      <div class="card">
+        <h3>Sipariş yok</h3>
+        <p class="muted">
+          Fırın siparişi bulunmuyor.
+        </p>
+      </div>
+    `;
+
+  }
+
+}
+
+
+listenOrders(render);
+
+
+ordersEl.addEventListener(
+  "click",
+  async event => {
+
+    const button =
+      event.target.closest(
+        "[data-status]"
+      );
+
+    if (!button) return;
+
+
+    try {
+
+      await setStatus(
+        button.dataset.id,
+        button.dataset.status
+      );
+
+      toast(
+        "Sipariş güncellendi."
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      toast(
+        "Hata oluştu.",
+        "error"
+      );
+
+    }
+
+  }
+);
+
+</script>
+
+</body>
+
+</html>
