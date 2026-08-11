@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ayder Sofra | Yönetim Paneli</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo small">AS</div>
+    <div>
+      <strong>Ayder Sofra</strong>
+      <div style="font-size:12px;opacity:.75">Yönetim Paneli</div>
+    </div>
+  </div>
+  <button id="logoutBtn" class="btn ghost" type="button">Çıkış Yap</button>
+</header>
+
+<main class="page">
+
+  <div class="row">
+    <div>
+      <h1>Yönetim Paneli</h1>
+      <p class="muted">Restoran operasyonlarını buradan yönetin.</p>
+    </div>
+  </div>
+
+  <section class="grid" style="margin-top:20px">
+    <div class="card"><div class="muted">Toplam Masa</div><h2 id="totalTables">0</h2></div>
+    <div class="card"><div class="muted">Müsait Masa</div><h2 id="availableTables">0</h2></div>
+    <div class="card"><div class="muted">Dolu Masa</div><h2 id="busyTables">0</h2></div>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <div class="row">
+      <div>
+        <h2 style="margin:0">Masalar</h2>
+        <p class="muted">Restorandaki masa durumlarını yönetin.</p>
+      </div>
+      <button id="addTableBtn" class="btn primary" type="button">+ Masa Ekle</button>
+    </div>
+
+    <div class="toolbar" style="margin-top:18px">
+      <select id="tableFilter">
+        <option value="all">Tüm Masalar</option>
+        <option value="available">Müsait</option>
+        <option value="busy">Dolu</option>
+      </select>
+      <input id="tableSearch" type="search" placeholder="Masa ara...">
+    </div>
+
+    <div id="tablesGrid" class="grid" style="margin-top:18px"></div>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <div class="row">
+      <div>
+        <h2 style="margin:0">Ürün Yönetimi</h2>
+        <p class="muted">Menü ürünlerini ve hangi bölüme gideceğini yönetin.</p>
+      </div>
+      <button id="addProductBtn" class="btn primary" type="button">+ Ürün Ekle</button>
+    </div>
+
+    <div class="toolbar" style="margin-top:18px">
+      <select id="productDepartmentFilter">
+        <option value="all">Tüm Bölümler</option>
+        <option value="mutfak">Mutfak</option>
+        <option value="firin">Fırın</option>
+        <option value="izgara">Izgara</option>
+      </select>
+      <input id="productSearch" type="search" placeholder="Ürün ara...">
+    </div>
+
+    <div id="productsList" class="list" style="margin-top:18px"></div>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <div class="row">
+      <div>
+        <h2 style="margin:0">Personel Yönetimi</h2>
+        <p class="muted">Restoran çalışanlarını görüntüleyin.</p>
+      </div>
+      <button id="addStaffBtn" class="btn primary" type="button">+ Personel Ekle</button>
+    </div>
+    <div id="staffList" class="list" style="margin-top:18px"></div>
+  </section>
+
+  <section class="grid" style="margin-top:18px">
+    <a href="garson.html" class="card link"><h3>🧑‍💼 Garson</h3><p class="muted">Garson ekranı</p></a>
+    <a href="mutfak.html" class="card link"><h3>👨‍🍳 Mutfak</h3><p class="muted">Mutfak ekranı</p></a>
+    <a href="firin.html" class="card link"><h3>🔥 Fırın</h3><p class="muted">Fırın ekranı</p></a>
+    <a href="izgara.html" class="card link"><h3>🍖 Izgara</h3><p class="muted">Izgara ekranı</p></a>
+  </section>
+
+</main>
+
+<!-- MASA MODAL -->
+<div id="tableModal" class="modal">
+  <div class="card modal-card">
+    <div class="row">
+      <h2>Yeni Masa</h2>
+      <button id="closeTableModal" class="btn ghost" type="button">✕</button>
+    </div>
+    <form id="tableForm" class="form">
+      <label>Masa Adı<input id="tableName" placeholder="Masa 17" required></label>
+      <label>Kapasite<input id="tableCapacity" type="number" min="1" value="4" required></label>
+      <button type="submit" class="btn primary">Masa Ekle</button>
+    </form>
+  </div>
+</div>
+
+<!-- ÜRÜN MODAL -->
+<div id="productModal" class="modal">
+  <div class="card modal-card">
+    <div class="row">
+      <h2 id="productModalTitle">Yeni Ürün</h2>
+      <button id="closeProductModal" class="btn ghost" type="button">✕</button>
+    </div>
+    <form id="productForm" class="form">
+      <label>Ürün Adı<input id="productName" placeholder="Örn. Adana Kebap" required></label>
+      <label>Fiyat<input id="productPrice" type="number" min="0" step="0.01" placeholder="300" required></label>
+      <label>Kategori<input id="productCategory" placeholder="Örn. Kebap" required></label>
+      <label>Bölüm
+        <select id="productDepartment" required>
+          <option value="">Bölüm seçin</option>
+          <option value="mutfak">Mutfak</option>
+          <option value="firin">Fırın</option>
+          <option value="izgara">Izgara</option>
+        </select>
+      </label>
+      <label class="check"><input id="productActive" type="checkbox" checked> Ürün aktif</label>
+      <button id="saveProductBtn" type="submit" class="btn primary">Ürünü Kaydet</button>
+    </form>
+  </div>
+</div>
+
+<!-- PERSONEL MODAL -->
+<div id="staffModal" class="modal">
+  <div class="card modal-card">
+    <div class="row">
+      <h2>Personel</h2>
+      <button id="closeStaffModal" class="btn ghost" type="button">✕</button>
+    </div>
+    <p class="muted">Personel hesabı oluşturma işlemi Firebase Authentication sunucu tarafı gerektirir. Bu pencereden mevcut personel kayıtlarını yönetebilirsiniz.</p>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<style>
+.modal{display:none;position:fixed;inset:0;background:#0007;z-index:100;place-items:center;padding:16px}
+.modal-card{width:min(500px,100%)}
+.form{display:grid;gap:12px;margin-top:15px}
+.check{display:flex;align-items:center;gap:8px}
+.check input{width:auto}
+.product-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+</style>
+
+<script type="module">
+import {
+  auth,
+  db,
+  signOut,
+  collection,
+  doc,
+  setDoc,
+  deleteDoc,
+  onSnapshot
+} from "./firebase.js";
+
+/* =========================
+   ELEMENTLER
+========================= */
+const $ = id => document.querySelector(id);
+
+const tablesGrid = $("#tablesGrid");
+const totalTables = $("#totalTables");
+const availableTables = $("#availableTables");
+const busyTables = $("#busyTables");
+const tableFilter = $("#tableFilter");
+const tableSearch = $("#tableSearch");
+const tableModal = $("#tableModal");
+const tableForm = $("#tableForm");
+
+const productModal = $("#productModal");
+const productModalTitle = $("#productModalTitle");
+const productForm = $("#productForm");
+const productName = $("#productName");
+const productPrice = $("#productPrice");
+const productCategory = $("#productCategory");
+const productDepartment = $("#productDepartment");
+const productActive = $("#productActive");
+const productsList = $("#productsList");
+const productSearch = $("#productSearch");
+const productDepartmentFilter = $("#productDepartmentFilter");
+const saveProductBtn = $("#saveProductBtn");
+
+const staffModal = $("#staffModal");
+const staffList = $("#staffList");
+const toast = $("#toast");
+
+let tables = [];
+let products = [];
+let staff = [];
+let editingProductId = null;
+let defaultTablesRestored = false;
+
+/* =========================
+   YARDIMCILAR
+========================= */
+function showToast(text, error = false) {
+  toast.className = error ? "toast error" : "toast";
+  toast.textContent = text;
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => {
+    toast.className = "";
+    toast.textContent = "";
+  }, 3000);
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function departmentName(department) {
+  return {mutfak:"Mutfak",firin:"Fırın",izgara:"Izgara"}[department] || "Bölüm yok";
+}
+
+function productId() {
+  return `urun-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+}
+
+function tableId() {
+  return `masa-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+}
+
+/* =========================
+   MASALAR
+========================= */
+function renderTables() {
+  const filter = tableFilter.value;
+  const search = tableSearch.value.trim().toLowerCase();
+
+  const filtered = tables.filter(table => {
+    const matchesFilter = filter === "all" || (table.status || "available") === filter;
+    const matchesSearch = !search || String(table.name || "").toLowerCase().includes(search);
+    return matchesFilter && matchesSearch;
+  });
+
+  tablesGrid.innerHTML = "";
+
+  if (!filtered.length) {
+    tablesGrid.innerHTML = `
+      <div class="card">
+        <strong>Masa bulunamadı.</strong>
+        <p class="muted">"+ Masa Ekle" butonunu kullanabilirsiniz.</p>
+      </div>`;
+  }
+
+  filtered.forEach(table => {
+    const busy = table.status === "busy";
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="row">
+        <strong>🪑 ${escapeHtml(table.name || "Masa")}</strong>
+        <span class="badge">${busy ? "Dolu" : "Müsait"}</span>
+      </div>
+      <p class="muted">Kapasite: ${Number(table.capacity || 4)} kişi</p>
+      <p>Aktif sipariş: <strong>${Number(table.orderCount || 0)}</strong></p>
+      <div class="actions">
+        <button type="button" class="btn ${busy ? "ghost" : "primary"}" data-toggle-table="${escapeHtml(table.id)}">
+          ${busy ? "Müsait Yap" : "Dolu Yap"}
+        </button>
+        <button type="button" class="btn danger" data-delete-table="${escapeHtml(table.id)}">Sil</button>
+      </div>`;
+    tablesGrid.appendChild(card);
+  });
+
+  totalTables.textContent = tables.length;
+  availableTables.textContent = tables.filter(t => (t.status || "available") === "available").length;
+  busyTables.textContent = tables.filter(t => t.status === "busy").length;
+}
+
+async function restoreDefaultTablesIfEmpty() {
+  if (defaultTablesRestored || tables.length > 0) return;
+  defaultTablesRestored = true;
+
+  try {
+    const writes = [];
+    for (let i = 1; i <= 16; i++) {
+      writes.push(setDoc(doc(db, "tables", `masa-${i}`), {
+        name: `Masa ${i}`,
+        capacity: 4,
+        status: "available",
+        orderCount: 0
+      }, { merge: true }));
+    }
+    await Promise.all(writes);
+    showToast("16 varsayılan masa oluşturuldu.");
+  } catch (error) {
+    defaultTablesRestored = false;
+    console.error("Default tables error:", error);
+    showToast("Varsayılan masalar oluşturulamadı.", true);
+  }
+}
+
+onSnapshot(collection(db, "tables"), async snapshot => {
+  tables = snapshot.docs.map(item => ({id:item.id, ...item.data()}));
+
+  tables.sort((a,b) => {
+    const aNum = parseInt(String(a.name || "").replace(/\D/g,"")) || 0;
+    const bNum = parseInt(String(b.name || "").replace(/\D/g,"")) || 0;
+    return aNum - bNum;
+  });
+
+  renderTables();
+
+  /* Sadece koleksiyon gerçekten boşsa geri yükler.
+     Her silme işleminden sonra masaları geri getirmez. */
+  if (tables.length === 0) await restoreDefaultTablesIfEmpty();
+}, error => {
+  console.error("Tables error:", error);
+  showToast("Masalar yüklenemedi.", true);
+});
+
+tablesGrid.addEventListener("click", async event => {
+  const toggle = event.target.closest("[data-toggle-table]");
+  const remove = event.target.closest("[data-delete-table]");
+
+  if (toggle) {
+    const id = toggle.dataset.toggleTable;
+    const table = tables.find(t => t.id === id);
+    if (!table) return;
+
+    try {
+      await setDoc(doc(db,"tables",id), {
+        status: table.status === "busy" ? "available" : "busy"
+      }, {merge:true});
+      showToast("Masa durumu güncellendi.");
+    } catch (error) {
+      console.error(error);
+      showToast("Masa durumu değiştirilemedi.", true);
+    }
+    return;
+  }
+
+  if (remove) {
+    const id = remove.dataset.deleteTable;
+    const table = tables.find(t => t.id === id);
+    if (!table) return;
+
+    if (!confirm(`${table.name} silinsin mi?`)) return;
+
+    try {
+      await deleteDoc(doc(db,"tables",id));
+      showToast("Masa silindi.");
+    } catch (error) {
+      console.error(error);
+      showToast("Masa silinemedi.", true);
+    }
+  }
+});
+
+$("#addTableBtn").addEventListener("click", () => {
+  tableForm.reset();
+  $("#tableCapacity").value = 4;
+  tableModal.style.display = "grid";
+});
+
+$("#closeTableModal").addEventListener("click", () => {
+  tableModal.style.display = "none";
+});
+
+tableModal.addEventListener("click", event => {
+  if (event.target === tableModal) tableModal.style.display = "none";
+});
+
+tableForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const name = $("#tableName").value.trim();
+  const capacity = Number($("#tableCapacity").value);
+
+  if (!name) return showToast("Masa adı girin.", true);
+  if (!Number.isFinite(capacity) || capacity < 1) return showToast("Kapasite hatalı.", true);
+
+  try {
+    await setDoc(doc(db,"tables",tableId()), {
+      name,
+      capacity,
+      status: "available",
+      orderCount: 0
+    });
+
+    tableForm.reset();
+    $("#tableCapacity").value = 4;
+    tableModal.style.display = "none";
+    showToast("Masa başarıyla eklendi.");
+  } catch (error) {
+    console.error("Create table error:", error);
+    showToast("Masa eklenemedi.", true);
+  }
+});
+
+tableFilter.addEventListener("change", renderTables);
+tableSearch.addEventListener("input", renderTables);
+
+/* =========================
+   ÜRÜNLER
+========================= */
+function renderProducts() {
+  const search = productSearch.value.trim().toLowerCase();
+  const department = productDepartmentFilter.value;
+
+  const filtered = products.filter(product => {
+    const name = String(product.name || "").toLowerCase();
+    const category = String(product.category || "").toLowerCase();
+    const matchesSearch = !search || name.includes(search) || category.includes(search);
+    const matchesDepartment = department === "all" || product.department === department;
+    return matchesSearch && matchesDepartment;
+  });
+
+  productsList.innerHTML = "";
+
+  if (!filtered.length) {
+    productsList.innerHTML = `
+      <div class="card">
+        <strong>Ürün bulunamadı.</strong>
+        <p class="muted">Yeni ürün eklemek için "+ Ürün Ekle" butonunu kullanın.</p>
+      </div>`;
+    return;
+  }
+
+  filtered.forEach(product => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    card.innerHTML = `
+      <div class="row">
+        <div>
+          <strong>${escapeHtml(product.name)}</strong>
+          <div class="muted">${escapeHtml(product.category || "")}</div>
+        </div>
+        <span class="badge">${escapeHtml(departmentName(product.department))}</span>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <strong>${Number(product.price || 0).toFixed(2)} ₺</strong>
+        <span class="badge">${product.active === false ? "Pasif" : "Aktif"}</span>
+      </div>
+
+      <div class="product-actions">
+        <button type="button" class="btn primary" data-edit-product="${escapeHtml(product.id)}">Düzenle</button>
+        <button type="button" class="btn ${product.active === false ? "primary" : "ghost"}" data-toggle-product="${escapeHtml(product.id)}">
+          ${product.active === false ? "Aktif Yap" : "Pasif Yap"}
+        </button>
+        <button type="button" class="btn danger" data-delete-product="${escapeHtml(product.id)}">Sil</button>
+      </div>`;
+
+    productsList.appendChild(card);
+  });
+}
+
+onSnapshot(collection(db,"products"), snapshot => {
+  products = snapshot.docs.map(item => ({id:item.id, ...item.data()}));
+  products.sort((a,b) => String(a.name || "").localeCompare(String(b.name || ""), "tr"));
+  renderProducts();
+}, error => {
+  console.error("Products error:", error);
+  showToast("Ürünler yüklenemedi.", true);
+});
+
+function openProductModal(product = null) {
+  if (product) {
+    editingProductId = product.id;
+    productModalTitle.textContent = "Ürünü Düzenle";
+    saveProductBtn.textContent = "Değişiklikleri Kaydet";
+    productName.value = product.name || "";
+    productPrice.value = Number(product.price || 0);
+    productCategory.value = product.category || "";
+    productDepartment.value = product.department || "";
+    productActive.checked = product.active !== false;
+  } else {
+    editingProductId = null;
+    productModalTitle.textContent = "Yeni Ürün";
+    saveProductBtn.textContent = "Ürünü Kaydet";
+    productForm.reset();
+    productActive.checked = true;
+  }
+
+  productModal.style.display = "grid";
+}
+
+$("#addProductBtn").addEventListener("click", () => openProductModal());
+
+$("#closeProductModal").addEventListener("click", () => {
+  productModal.style.display = "none";
+});
+
+productModal.addEventListener("click", event => {
+  if (event.target === productModal) productModal.style.display = "none";
+});
+
+productForm.addEventListener("submit", async event => {
+  event.preventDefault();
+
+  const name = productName.value.trim();
+  const price = Number(productPrice.value);
+  const category = productCategory.value.trim();
+  const department = productDepartment.value;
+  const active = productActive.checked;
+
+  if (!name) return showToast("Ürün adı girin.", true);
+  if (!Number.isFinite(price) || price < 0) return showToast("Fiyat hatalı.", true);
+  if (!category) return showToast("Kategori girin.", true);
+  if (!department) return showToast("Bölüm seçin.", true);
+
+  const id = editingProductId || productId();
+
+  try {
+    await setDoc(doc(db,"products",id), {
+      name,
+      price,
+      category,
+      department,
+      active,
+      updatedAt: new Date().toISOString()
+    }, {merge:true});
+
+    productForm.reset();
+    productActive.checked = true;
+    editingProductId = null;
+    productModal.style.display = "none";
+    showToast("Ürün başarıyla kaydedildi.");
+  } catch (error) {
+    console.error("Save product error:", error);
+    showToast("Ürün kaydedilemedi.", true);
+  }
+});
+
+productsList.addEventListener("click", async event => {
+  const edit = event.target.closest("[data-edit-product]");
+  const toggle = event.target.closest("[data-toggle-product]");
+  const remove = event.target.closest("[data-delete-product]");
+
+  if (edit) {
+    const product = products.find(p => p.id === edit.dataset.editProduct);
+    if (product) openProductModal(product);
+    return;
+  }
+
+  if (toggle) {
+    const product = products.find(p => p.id === toggle.dataset.toggleProduct);
+    if (!product) return;
+
+    try {
+      await setDoc(doc(db,"products",product.id), {
+        active: product.active === false
+      }, {merge:true});
+      showToast(product.active === false ? "Ürün aktif edildi." : "Ürün pasif edildi.");
+    } catch (error) {
+      console.error(error);
+      showToast("Ürün durumu değiştirilemedi.", true);
+    }
+    return;
+  }
+
+  if (remove) {
+    const id = remove.dataset.deleteProduct;
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+
+    if (!confirm(`${product.name} silinsin mi?`)) return;
+
+    try {
+      await deleteDoc(doc(db,"products",id));
+      showToast("Ürün silindi.");
+    } catch (error) {
+      console.error(error);
+      showToast("Ürün silinemedi.", true);
+    }
+  }
+});
+
+productSearch.addEventListener("input", renderProducts);
+productDepartmentFilter.addEventListener("change", renderProducts);
+
+/* =========================
+   PERSONEL
+========================= */
+function renderStaff() {
+  staffList.innerHTML = "";
+
+  if (!staff.length) {
+    staffList.innerHTML = `
+      <div class="card">
+        <strong>Personel kaydı bulunamadı.</strong>
+        <p class="muted">Personel hesapları Firebase Authentication + güvenli sunucu işlemi gerektirir.</p>
+      </div>`;
+    return;
+  }
+
+  staff.forEach(person => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="row">
+        <strong>${escapeHtml(person.name || person.email || "Personel")}</strong>
+        <span class="badge">${escapeHtml(person.role || "Personel")}</span>
+      </div>
+      <p class="muted">${escapeHtml(person.email || "")}</p>`;
+    staffList.appendChild(card);
+  });
+}
+
+onSnapshot(collection(db,"staff"), snapshot => {
+  staff = snapshot.docs.map(item => ({id:item.id, ...item.data()}));
+  renderStaff();
+}, error => {
+  console.error("Staff error:", error);
+  staff = [];
+  renderStaff();
+});
+
+$("#addStaffBtn").addEventListener("click", () => {
+  staffModal.style.display = "grid";
+});
+
+$("#closeStaffModal").addEventListener("click", () => {
+  staffModal.style.display = "none";
+});
+
+staffModal.addEventListener("click", event => {
+  if (event.target === staffModal) staffModal.style.display = "none";
+});
+
+/* =========================
+   ÇIKIŞ
+========================= */
+$("#logoutBtn").addEventListener("click", async () => {
+  try {
+    await signOut(auth);
+    window.location.href = "login.html";
+  } catch (error) {
+    console.error(error);
+    showToast("Çıkış yapılamadı.", true);
+  }
+});
+</script>
+
+</body>
+</html>
