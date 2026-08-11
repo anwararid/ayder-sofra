@@ -1,98 +1,183 @@
 <!doctype html>
 <html lang="tr">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Ayder Sofra | Yönetim Paneli</title>
+
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
 <header>
+
   <div class="brand">
-    <div class="logo small">AS</div>
+
+    <div class="logo small">
+      AS
+    </div>
 
     <div>
-      <strong>Ayder Sofra</strong>
+
+      <strong>
+        Ayder Sofra
+      </strong>
+
       <div style="font-size:12px;opacity:.75">
         Yönetim Paneli
       </div>
+
     </div>
+
   </div>
 
-  <button id="logoutBtn" class="btn ghost">
+
+  <button
+    id="logoutBtn"
+    class="btn ghost"
+    type="button"
+  >
     Çıkış Yap
   </button>
+
 </header>
 
 
 <main class="page">
 
+
+  <!-- =========================
+       BAŞLIK
+  ========================== -->
+
   <div class="row">
+
     <div>
-      <h1>Yönetim Paneli</h1>
+
+      <h1>
+        Yönetim Paneli
+      </h1>
+
       <p class="muted">
         Restoran operasyonlarını buradan yönetin.
       </p>
+
     </div>
+
   </div>
+
 
 
   <!-- =========================
        İSTATİSTİKLER
   ========================== -->
 
-  <section class="grid" style="margin-top:20px">
+  <section
+    class="grid"
+    style="margin-top:20px"
+  >
 
     <div class="card">
-      <div class="muted">Toplam Masa</div>
-      <h2 id="totalTables">0</h2>
+
+      <div class="muted">
+        Toplam Masa
+      </div>
+
+      <h2 id="totalTables">
+        0
+      </h2>
+
     </div>
 
-    <div class="card">
-      <div class="muted">Müsait Masa</div>
-      <h2 id="availableTables">0</h2>
-    </div>
 
     <div class="card">
-      <div class="muted">Dolu Masa</div>
-      <h2 id="busyTables">0</h2>
+
+      <div class="muted">
+        Müsait Masa
+      </div>
+
+      <h2 id="availableTables">
+        0
+      </h2>
+
+    </div>
+
+
+    <div class="card">
+
+      <div class="muted">
+        Dolu Masa
+      </div>
+
+      <h2 id="busyTables">
+        0
+      </h2>
+
     </div>
 
   </section>
+
 
 
   <!-- =========================
        MASALAR
   ========================== -->
 
-  <section class="card" style="margin-top:18px">
+  <section
+    class="card"
+    style="margin-top:18px"
+  >
 
     <div class="row">
 
       <div>
-        <h2 style="margin:0">Masalar</h2>
+
+        <h2 style="margin:0">
+          Masalar
+        </h2>
 
         <p class="muted">
           Restorandaki masa durumlarını yönetin.
         </p>
+
       </div>
 
-      <button id="addTableBtn" class="btn primary">
+
+      <button
+        id="addTableBtn"
+        class="btn primary"
+        type="button"
+      >
         + Masa Ekle
       </button>
 
     </div>
 
 
-    <div class="toolbar" style="margin-top:18px">
+    <div
+      class="toolbar"
+      style="margin-top:18px"
+    >
 
       <select id="tableFilter">
-        <option value="all">Tüm Masalar</option>
-        <option value="available">Müsait</option>
-        <option value="busy">Dolu</option>
+
+        <option value="all">
+          Tüm Masalar
+        </option>
+
+        <option value="available">
+          Müsait
+        </option>
+
+        <option value="busy">
+          Dolu
+        </option>
+
       </select>
+
 
       <input
         id="tableSearch"
@@ -103,20 +188,28 @@
     </div>
 
 
-    <div id="tablesGrid" class="grid"></div>
+    <div
+      id="tablesGrid"
+      class="grid"
+    ></div>
 
   </section>
 
 
+
   <!-- =========================
-       ÜRÜNLER / MENÜ
+       ÜRÜNLER
   ========================== -->
 
-  <section class="card" style="margin-top:18px">
+  <section
+    class="card"
+    style="margin-top:18px"
+  >
 
     <div class="row">
 
       <div>
+
         <h2 style="margin:0">
           Ürün Yönetimi
         </h2>
@@ -124,9 +217,15 @@
         <p class="muted">
           Menü ürünlerini ve hangi bölüme gideceğini yönetin.
         </p>
+
       </div>
 
-      <button id="addProductBtn" class="btn primary">
+
+      <button
+        id="addProductBtn"
+        class="btn primary"
+        type="button"
+      >
         + Ürün Ekle
       </button>
 
@@ -171,41 +270,46 @@
     <div
       id="productsList"
       class="list"
+      style="margin-top:18px"
     ></div>
 
   </section>
+
 
 
   <!-- =========================
        PERSONEL
   ========================== -->
 
-  <section class="card" style="margin-top:18px">
+  <section
+    class="card"
+    style="margin-top:18px"
+  >
 
     <div class="row">
 
       <div>
+
         <h2 style="margin:0">
           Personel Yönetimi
         </h2>
 
         <p class="muted">
-          Restoran çalışanlarını yönetin.
+          Restoran çalışanlarını görüntüleyin.
         </p>
+
       </div>
 
-      <button id="addStaffBtn" class="btn primary">
+
+      <button
+        id="addStaffBtn"
+        class="btn primary"
+        type="button"
+      >
         + Personel Ekle
       </button>
 
     </div>
-
-
-    <div
-      id="staffNotice"
-      class="error"
-      style="display:none"
-    ></div>
 
 
     <div
@@ -215,70 +319,85 @@
     ></div>
 
   </section>
-  <!-- =========================
-     ÜRÜN YÖNETİMİ
-  ========================= -->
 
-   <section class="card" style="margin-top:18px">
 
-    <div class="row">
-
-      <div>
-      <h2 style="margin:0">
-        Ürün Yönetimi
-       </h2>
-
-      <p class="muted">
-        Menü ürünlerini buradan ekleyin.
-      </p>
-    </div>
-
-    <button
-      id="addProductBtn"
-      class="btn primary"
-    >
-      + Ürün Ekle
-    </button>
-
-  </div>
-
-  <div
-    id="productsGrid"
-    class="grid"
-    style="margin-top:18px"
-  ></div>
-
-  </section>
 
   <!-- =========================
        HIZLI ERİŞİM
   ========================== -->
 
-  <section class="grid" style="margin-top:18px">
+  <section
+    class="grid"
+    style="margin-top:18px"
+  >
 
-    <a href="garson.html" class="card link">
-      <h3>🧑‍💼 Garson</h3>
-      <p class="muted">Garson ekranı</p>
+    <a
+      href="garson.html"
+      class="card link"
+    >
+
+      <h3>
+        🧑‍💼 Garson
+      </h3>
+
+      <p class="muted">
+        Garson ekranı
+      </p>
+
     </a>
 
-    <a href="mutfak.html" class="card link">
-      <h3>👨‍🍳 Mutfak</h3>
-      <p class="muted">Mutfak ekranı</p>
+
+    <a
+      href="mutfak.html"
+      class="card link"
+    >
+
+      <h3>
+        👨‍🍳 Mutfak
+      </h3>
+
+      <p class="muted">
+        Mutfak ekranı
+      </p>
+
     </a>
 
-    <a href="firin.html" class="card link">
-      <h3>🔥 Fırın</h3>
-      <p class="muted">Fırın ekranı</p>
+
+    <a
+      href="firin.html"
+      class="card link"
+    >
+
+      <h3>
+        🔥 Fırın
+      </h3>
+
+      <p class="muted">
+        Fırın ekranı
+      </p>
+
     </a>
 
-    <a href="izgara.html" class="card link">
-      <h3>🍖 Izgara</h3>
-      <p class="muted">Izgara ekranı</p>
+
+    <a
+      href="izgara.html"
+      class="card link"
+    >
+
+      <h3>
+        🍖 Izgara
+      </h3>
+
+      <p class="muted">
+        Izgara ekranı
+      </p>
+
     </a>
 
   </section>
 
 </main>
+
 
 
 <!-- =========================
@@ -298,15 +417,22 @@
   "
 >
 
-  <div class="card" style="width:min(430px,100%)">
+  <div
+    class="card"
+    style="width:min(430px,100%)"
+  >
 
     <div class="row">
 
-      <h2>Yeni Masa</h2>
+      <h2>
+        Yeni Masa
+      </h2>
+
 
       <button
         id="closeTableModal"
         class="btn ghost"
+        type="button"
       >
         ✕
       </button>
@@ -316,10 +442,15 @@
 
     <form
       id="tableForm"
-      style="display:grid;gap:12px;margin-top:15px"
+      style="
+        display:grid;
+        gap:12px;
+        margin-top:15px
+      "
     >
 
       <label>
+
         Masa Adı
 
         <input
@@ -327,10 +458,12 @@
           placeholder="Masa 17"
           required
         >
+
       </label>
 
 
       <label>
+
         Kapasite
 
         <input
@@ -340,6 +473,7 @@
           value="4"
           required
         >
+
       </label>
 
 
@@ -355,6 +489,7 @@
   </div>
 
 </div>
+
 
 
 <!-- =========================
@@ -385,6 +520,7 @@
         Yeni Ürün
       </h2>
 
+
       <button
         id="closeProductModal"
         class="btn ghost"
@@ -406,6 +542,7 @@
     >
 
       <label>
+
         Ürün Adı
 
         <input
@@ -413,10 +550,12 @@
           placeholder="Örn. Adana Kebap"
           required
         >
+
       </label>
 
 
       <label>
+
         Fiyat
 
         <input
@@ -427,10 +566,12 @@
           placeholder="300"
           required
         >
+
       </label>
 
 
       <label>
+
         Kategori
 
         <input
@@ -438,10 +579,12 @@
           placeholder="Örn. Kebap"
           required
         >
+
       </label>
 
 
       <label>
+
         Bölüm
 
         <select
@@ -491,6 +634,7 @@
 
 
       <button
+        id="saveProductBtn"
         type="submit"
         class="btn primary"
       >
@@ -504,6 +648,7 @@
 </div>
 
 
+
 <!-- =========================
      PERSONEL MODAL
 ========================== -->
@@ -515,7 +660,7 @@
     position:fixed;
     inset:0;
     background:#0007;
-    z-index:100;
+    z-index:120;
     place-items:center;
     padding:16px;
   "
@@ -528,7 +673,10 @@
 
     <div class="row">
 
-      <h2>Personel Ekle</h2>
+      <h2>
+        Personel
+      </h2>
+
 
       <button
         id="closeStaffModal"
@@ -545,87 +693,26 @@
       class="error"
       style="margin-top:15px"
     >
-      Personel hesabı oluşturma sistemi henüz etkin değil.
+
+      Personel hesabı oluşturmak için
+      Firebase Authentication tarafında
+      kullanıcı oluşturma sistemi gerekir.
+
     </div>
 
 
-    <form
-      id="staffForm"
-      style="
-        display:grid;
-        gap:12px;
-        margin-top:15px
-      "
-    >
-
-      <label>
-        Ad Soyad
-
-        <input
-          id="staffName"
-          placeholder="Örn. Ahmet Yılmaz"
-          required
-        >
-      </label>
-
-
-      <label>
-        E-posta
-
-        <input
-          id="staffEmail"
-          type="email"
-          placeholder="personel@example.com"
-          required
-        >
-      </label>
-
-
-      <label>
-        Görev
-
-        <select id="staffRole" required>
-
-          <option value="">
-            Görev seçin
-          </option>
-
-          <option value="garson">
-            Garson
-          </option>
-
-          <option value="mutfak">
-            Mutfak
-          </option>
-
-          <option value="firin">
-            Fırın
-          </option>
-
-          <option value="izgara">
-            Izgara
-          </option>
-
-        </select>
-
-      </label>
-
-
-      <button
-        type="submit"
-        class="btn primary"
-      >
-        Personel Kaydet
-      </button>
-
-    </form>
+    <p class="muted">
+      Bu bölüm şimdilik mevcut personelleri gösterir.
+    </p>
 
   </div>
 
 </div>
 
 
+
 <div id="toast"></div>
+
 
 
 <script type="module">
@@ -667,11 +754,9 @@ const tableSearch =
 const tableModal =
   document.querySelector("#tableModal");
 
-const staffModal =
-  document.querySelector("#staffModal");
+const tableForm =
+  document.querySelector("#tableForm");
 
-const staffList =
-  document.querySelector("#staffList");
 
 const productModal =
   document.querySelector("#productModal");
@@ -681,6 +766,21 @@ const productModalTitle =
 
 const productForm =
   document.querySelector("#productForm");
+
+const productName =
+  document.querySelector("#productName");
+
+const productPrice =
+  document.querySelector("#productPrice");
+
+const productCategory =
+  document.querySelector("#productCategory");
+
+const productDepartment =
+  document.querySelector("#productDepartment");
+
+const productActive =
+  document.querySelector("#productActive");
 
 const productsList =
   document.querySelector("#productsList");
@@ -693,39 +793,56 @@ const productDepartmentFilter =
     "#productDepartmentFilter"
   );
 
+
+const staffModal =
+  document.querySelector("#staffModal");
+
+const staffList =
+  document.querySelector("#staffList");
+
+
 const toast =
   document.querySelector("#toast");
 
 
 let tables = [];
-let staff = [];
+
 let products = [];
 
+let staff = [];
+
 let editingProductId = null;
+
 
 
 /* =========================
    TOAST
 ========================= */
 
-function showToast(text, error = false) {
+function showToast(
+  text,
+  error = false
+) {
 
   toast.className =
     error
       ? "toast error"
       : "toast";
 
-  toast.textContent = text;
+  toast.textContent =
+    text;
 
 
   setTimeout(() => {
 
     toast.className = "";
+
     toast.textContent = "";
 
   }, 3000);
 
 }
+
 
 
 /* =========================
@@ -735,20 +852,43 @@ function showToast(text, error = false) {
 function escapeHtml(value) {
 
   return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
 
 }
+
 
 
 /* =========================
    BÖLÜM ADI
 ========================= */
 
-function departmentName(department) {
+function departmentName(
+  department
+) {
 
   const names = {
 
@@ -760,36 +900,24 @@ function departmentName(department) {
 
   };
 
-  return names[department] || "Bölüm yok";
+
+  return (
+    names[department] ||
+    "Bölüm yok"
+  );
 
 }
+
+
+
+/* ==================================================
+   MASALAR
+================================================== */
 
 
 /* =========================
-   MASALAR
+   MASALARI RENDER
 ========================= */
-
-async function createDefaultTables() {
-
-  for (let i = 1; i <= 16; i++) {
-
-    await setDoc(
-      doc(db, "tables", `masa-${i}`),
-      {
-        name: `Masa ${i}`,
-        capacity: 4,
-        status: "available",
-        orderCount: 0
-      },
-      {
-        merge: true
-      }
-    );
-
-  }
-
-}
-
 
 function renderTables() {
 
@@ -812,12 +940,17 @@ function renderTables() {
 
       const matchesSearch =
         !search ||
-        String(table.name)
+        String(
+          table.name || ""
+        )
           .toLowerCase()
           .includes(search);
 
 
-      return matchesFilter && matchesSearch;
+      return (
+        matchesFilter &&
+        matchesSearch
+      );
 
     });
 
@@ -828,9 +961,19 @@ function renderTables() {
   if (!filtered.length) {
 
     tablesGrid.innerHTML = `
+
       <div class="card">
-        <strong>Masa bulunamadı.</strong>
+
+        <strong>
+          Masa bulunamadı.
+        </strong>
+
+        <p class="muted">
+          "+ Masa Ekle" butonunu kullanabilirsiniz.
+        </p>
+
       </div>
+
     `;
 
   }
@@ -845,7 +988,9 @@ function renderTables() {
     const card =
       document.createElement("div");
 
-    card.className = "card";
+
+    card.className =
+      "card";
 
 
     card.innerHTML = `
@@ -853,53 +998,102 @@ function renderTables() {
       <div class="row">
 
         <strong>
-          🪑 ${escapeHtml(table.name)}
+
+          🪑
+
+          ${escapeHtml(
+            table.name || "Masa"
+          )}
+
         </strong>
 
+
         <span class="badge">
-          ${busy ? "Dolu" : "Müsait"}
+
+          ${
+            busy
+              ? "Dolu"
+              : "Müsait"
+          }
+
         </span>
 
       </div>
 
 
       <p class="muted">
+
         Kapasite:
-        ${Number(table.capacity || 4)}
+
+        ${Number(
+          table.capacity || 4
+        )}
+
         kişi
+
       </p>
 
 
       <p>
+
         Aktif sipariş:
+
         <strong>
-          ${Number(table.orderCount || 0)}
+
+          ${Number(
+            table.orderCount || 0
+          )}
+
         </strong>
+
       </p>
 
 
       <div class="actions">
 
-        <button
-          class="btn ${busy ? "ghost" : "primary"}"
-          data-toggle="${table.id}"
-        >
-          ${busy ? "Müsait Yap" : "Dolu Yap"}
-        </button>
 
         <button
-          class="btn danger"
-          data-delete="${table.id}"
+          type="button"
+          class="btn ${
+            busy
+              ? "ghost"
+              : "primary"
+          }"
+          data-toggle-table="${escapeHtml(
+            table.id
+          )}"
         >
-          Sil
+
+          ${
+            busy
+              ? "Müsait Yap"
+              : "Dolu Yap"
+          }
+
         </button>
+
+
+        <button
+          type="button"
+          class="btn danger"
+          data-delete-table="${escapeHtml(
+            table.id
+          )}"
+        >
+
+          Sil
+
+        </button>
+
 
       </div>
 
     `;
 
 
-    tablesGrid.appendChild(card);
+    tablesGrid.appendChild(
+      card
+    );
 
   });
 
@@ -907,45 +1101,78 @@ function renderTables() {
   totalTables.textContent =
     tables.length;
 
+
   availableTables.textContent =
     tables.filter(
-      t => t.status === "available"
+      table =>
+        table.status === "available"
     ).length;
+
 
   busyTables.textContent =
     tables.filter(
-      t => t.status === "busy"
+      table =>
+        table.status === "busy"
     ).length;
 
 }
 
 
+
+/* =========================
+   MASA LISTENER
+========================= */
+
 onSnapshot(
-  collection(db, "tables"),
+
+  collection(
+    db,
+    "tables"
+  ),
+
   snapshot => {
 
     tables =
-      snapshot.docs.map(item => ({
-        id: item.id,
-        ...item.data()
-      }));
+      snapshot.docs.map(
+        item => ({
+
+          id: item.id,
+
+          ...item.data()
+
+        })
+      );
 
 
-    tables.sort((a, b) => {
+    tables.sort(
+      (a, b) => {
 
-      const aNum =
-        parseInt(
-          String(a.name).replace(/\D/g, "")
-        ) || 0;
+        const aNum =
+          parseInt(
+            String(
+              a.name || ""
+            ).replace(
+              /\D/g,
+              ""
+            )
+          ) || 0;
 
-      const bNum =
-        parseInt(
-          String(b.name).replace(/\D/g, "")
-        ) || 0;
 
-      return aNum - bNum;
+        const bNum =
+          parseInt(
+            String(
+              b.name || ""
+            ).replace(
+              /\D/g,
+              ""
+            )
+          ) || 0;
 
-    });
+
+        return aNum - bNum;
+
+      }
+    );
 
 
     renderTables();
@@ -959,74 +1186,101 @@ onSnapshot(
       error
     );
 
+
     showToast(
       "Masalar yüklenemedi.",
       true
     );
 
   }
+
 );
 
 
-createDefaultTables()
-  .catch(error => {
 
-    console.error(error);
-
-    showToast(
-      "Masalar oluşturulamadı.",
-      true
-    );
-
-  });
-
+/* =========================
+   MASA BUTONLARI
+========================= */
 
 tablesGrid.addEventListener(
+
   "click",
+
   async event => {
+
 
     const toggle =
       event.target.closest(
-        "[data-toggle]"
+        "[data-toggle-table]"
       );
+
 
     const remove =
       event.target.closest(
-        "[data-delete]"
+        "[data-delete-table]"
       );
 
+
+
+    /* DOLU / MÜSAİT */
 
     if (toggle) {
 
       const id =
-        toggle.dataset.toggle;
+        toggle.dataset.toggleTable;
+
 
       const table =
         tables.find(
-          t => t.id === id
+          item =>
+            item.id === id
         );
 
-      if (!table) return;
+
+      if (!table) {
+
+        return;
+
+      }
 
 
       try {
 
         await setDoc(
-          doc(db, "tables", id),
+
+          doc(
+            db,
+            "tables",
+            id
+          ),
+
           {
+
             status:
               table.status === "busy"
                 ? "available"
                 : "busy"
+
           },
+
           {
             merge: true
           }
+
         );
+
+
+        showToast(
+          "Masa durumu güncellendi."
+        );
+
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
+
 
         showToast(
           "Masa durumu değiştirilemedi.",
@@ -1035,42 +1289,72 @@ tablesGrid.addEventListener(
 
       }
 
+
+      return;
+
     }
 
+
+
+    /* SİL */
 
     if (remove) {
 
       const id =
-        remove.dataset.delete;
+        remove.dataset.deleteTable;
+
 
       const table =
         tables.find(
-          t => t.id === id
+          item =>
+            item.id === id
         );
 
-      if (!table) return;
+
+      if (!table) {
+
+        return;
+
+      }
 
 
-      if (
-        !confirm(
+      const confirmed =
+        confirm(
           `${table.name} silinsin mi?`
-        )
-      ) return;
+        );
+
+
+      if (!confirmed) {
+
+        return;
+
+      }
 
 
       try {
 
         await deleteDoc(
-          doc(db, "tables", id)
+
+          doc(
+            db,
+            "tables",
+            id
+          )
+
         );
+
 
         showToast(
           "Masa silindi."
         );
 
+
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
+
 
         showToast(
           "Masa silinemedi.",
@@ -1082,7 +1366,9 @@ tablesGrid.addEventListener(
     }
 
   }
+
 );
+
 
 
 /* =========================
@@ -1090,128 +1376,195 @@ tablesGrid.addEventListener(
 ========================= */
 
 document
-  .querySelector("#addTableBtn")
-  .onclick = () => {
-
-    tableModal.style.display = "grid";
-
-  };
-
-
-document
-  .querySelector("#closeTableModal")
-  .onclick = () => {
-
-    tableModal.style.display = "none";
-
-  };
-
-
-document
-  .querySelector("#tableForm")
+  .querySelector(
+    "#addTableBtn"
+  )
   .addEventListener(
-    "submit",
-    async event => {
+    "click",
+    () => {
 
-      event.preventDefault();
+      tableForm.reset();
 
-
-      const name =
-        document
-          .querySelector("#tableName")
-          .value
-          .trim();
-
-
-      const capacity =
-        Number(
-          document
-            .querySelector("#tableCapacity")
-            .value
-        );
+      document
+        .querySelector(
+          "#tableCapacity"
+        )
+        .value = 4;
 
 
-      if (!name) {
-
-        showToast(
-          "Masa adı girin.",
-          true
-        );
-
-        return;
-
-      }
-
-
-      if (
-        !Number.isFinite(capacity) ||
-        capacity < 1
-      ) {
-
-        showToast(
-          "Kapasite hatalı.",
-          true
-        );
-
-        return;
-
-      }
-
-
-      try {
-
-        await setDoc(
-          doc(
-            db,
-            "tables",
-            `masa-${Date.now()}`
-          ),
-          {
-            name,
-            capacity,
-            status: "available",
-            orderCount: 0
-          }
-        );
-
-
-        event.target.reset();
-
-        document
-          .querySelector("#tableCapacity")
-          .value = 4;
-
-        tableModal.style.display = "none";
-
-
-        showToast(
-          "Masa başarıyla eklendi."
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        showToast(
-          "Masa eklenemedi.",
-          true
-        );
-
-      }
+      tableModal.style.display =
+        "grid";
 
     }
   );
 
 
-tableFilter.onchange =
-  renderTables;
 
-tableSearch.oninput =
-  renderTables;
+document
+  .querySelector(
+    "#closeTableModal"
+  )
+  .addEventListener(
+    "click",
+    () => {
+
+      tableModal.style.display =
+        "none";
+
+    }
+  );
+
+
+
+tableForm.addEventListener(
+
+  "submit",
+
+  async event => {
+
+    event.preventDefault();
+
+
+    const name =
+      document
+        .querySelector(
+          "#tableName"
+        )
+        .value
+        .trim();
+
+
+    const capacity =
+      Number(
+        document
+          .querySelector(
+            "#tableCapacity"
+          )
+          .value
+      );
+
+
+    if (!name) {
+
+      showToast(
+        "Masa adı girin.",
+        true
+      );
+
+      return;
+
+    }
+
+
+    if (
+      !Number.isFinite(
+        capacity
+      ) ||
+      capacity < 1
+    ) {
+
+      showToast(
+        "Kapasite hatalı.",
+        true
+      );
+
+      return;
+
+    }
+
+
+    try {
+
+      const id =
+        `masa-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
+
+
+      await setDoc(
+
+        doc(
+          db,
+          "tables",
+          id
+        ),
+
+        {
+
+          name,
+
+          capacity,
+
+          status: "available",
+
+          orderCount: 0
+
+        }
+
+      );
+
+
+      tableForm.reset();
+
+
+      document
+        .querySelector(
+          "#tableCapacity"
+        )
+        .value = 4;
+
+
+      tableModal.style.display =
+        "none";
+
+
+      showToast(
+        "Masa başarıyla eklendi."
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Create table error:",
+        error
+      );
+
+
+      showToast(
+        "Masa eklenemedi.",
+        true
+      );
+
+    }
+
+  }
+
+);
+
+
+
+tableFilter.addEventListener(
+  "change",
+  renderTables
+);
+
+
+tableSearch.addEventListener(
+  "input",
+  renderTables
+);
+
+
+
+
+/* ==================================================
+   ÜRÜNLER
+================================================== */
 
 
 /* =========================
-   ÜRÜNLER
+   ÜRÜNLERİ RENDER
 ========================= */
 
 function renderProducts() {
@@ -1227,147 +1580,7 @@ function renderProducts() {
 
 
   const filtered =
-    products.filter(product => {
+    products.filter(
+      product => {
 
-      const name =
-        String(product.name || "")
-          .toLowerCase();
-
-
-      const category =
-        String(product.category || "")
-          .toLowerCase();
-
-
-      const matchesSearch =
-        !search ||
-        name.includes(search) ||
-        category.includes(search);
-
-
-      const matchesDepartment =
-        department === "all" ||
-        product.department === department;
-
-
-      return (
-        matchesSearch &&
-        matchesDepartment
-      );
-
-    });
-
-
-  productsList.innerHTML = "";
-
-
-  if (!filtered.length) {
-
-    productsList.innerHTML = `
-
-      <div class="card">
-
-        <strong>
-          Ürün bulunamadı.
-        </strong>
-
-        <p class="muted">
-          Yeni ürün eklemek için
-          "+ Ürün Ekle" butonunu kullanın.
-        </p>
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  filtered.forEach(product => {
-
-    const card =
-      document.createElement("div");
-
-    card.className = "card";
-
-
-    card.innerHTML = `
-
-      <div class="row">
-
-        <div>
-
-          <strong>
-            ${escapeHtml(product.name)}
-          </strong>
-
-          <div class="muted">
-
-            ${escapeHtml(
-              product.category || ""
-            )}
-
-          </div>
-
-        </div>
-
-
-        <span class="badge">
-
-          ${escapeHtml(
-            departmentName(
-              product.department
-            )
-          )}
-
-        </span>
-
-      </div>
-
-
-      <div
-        class="row"
-        style="margin-top:12px"
-      >
-
-        <strong>
-          ${Number(product.price || 0).toFixed(2)} ₺
-        </strong>
-
-
-        <span class="badge">
-
-          ${
-            product.active === false
-              ? "Pasif"
-              : "Aktif"
-          }
-
-        </span>
-
-      </div>
-
-
-      <div class="actions">
-
-        <button
-          class="btn primary"
-          data-edit-product="${product.id}"
-        >
-          Düzenle
-        </button>
-
-
-        <button
-          class="btn ${
-            product.active === false
-              ? "primary"
-              : "ghost"
-          }"
-          data-toggle-product="${product.id}"
-        >
-
-          ${
-  
+      
