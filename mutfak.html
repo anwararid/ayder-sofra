@@ -1,23 +1,20 @@
 <!doctype html>
-
 <html lang="tr">
 
 <head>
+  <meta charset="utf-8">
 
-<meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1"
->
+  <title>Ayder Sofra | Mutfak</title>
 
-<title>Ayder Sofra | Mutfak</title>
-
-<link
-  rel="stylesheet"
-  href="styles.css"
->
-
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
 </head>
 
 <body>
@@ -42,12 +39,10 @@ const content =
 
 
 content.innerHTML = `
-
-<div
-  id="orders"
-  class="grid"
-></div>
-
+  <div
+    id="orders"
+    class="grid"
+  ></div>
 `;
 
 
@@ -58,25 +53,41 @@ const ordersEl =
 function render(orders) {
 
   const kitchenOrders =
-    orders.filter(order => {
+    orders
+      .filter(order =>
+        ["pending", "preparing", "ready"].includes(
+          order.status
+        )
+      )
+      .map(order => {
 
-      return (
-        order.status === "pending" ||
-        order.status === "preparing" ||
-        order.status === "ready"
+        const kitchenItems =
+          (order.items || []).filter(
+            item => item.department === "mutfak"
+          );
+
+        return {
+          ...order,
+          kitchenItems
+        };
+
+      })
+      .filter(order =>
+        order.kitchenItems.length > 0
       );
-
-    });
 
 
   if (!kitchenOrders.length) {
 
     ordersEl.innerHTML = `
       <div class="card">
+
         <h3>Sipariş yok</h3>
+
         <p class="muted">
           Bekleyen mutfak siparişi bulunmuyor.
         </p>
+
       </div>
     `;
 
@@ -99,10 +110,11 @@ function render(orders) {
             </h2>
 
             <span class="muted">
-              ${esc(order.waiterName || "")}
+              ${esc(order.waiterName || "Garson")}
             </span>
 
           </div>
+
 
           <span class="badge">
             ${esc(order.status)}
@@ -114,29 +126,31 @@ function render(orders) {
         <hr>
 
 
-        ${(order.items || [])
-          .filter(item =>
-            !item.department ||
-            item.department === "mutfak"
-          )
-          .map(item => `
+        <div class="items">
 
-            <div class="row">
+          ${order.kitchenItems
+            .map(item => `
 
-              <span>
-                ${item.qty} ×
-                ${esc(item.name)}
-              </span>
+              <div class="row">
 
-              <b>
-                ${money(
-                  item.price * item.qty
-                )}
-              </b>
+                <span>
+                  <b>${item.qty} ×</b>
+                  ${esc(item.name)}
+                </span>
 
-            </div>
+                <b>
+                  ${money(
+                    Number(item.price || 0) *
+                    Number(item.qty || 0)
+                  )}
+                </b>
 
-          `).join("")}
+              </div>
+
+            `)
+            .join("")}
+
+        </div>
 
 
         <hr>
@@ -212,6 +226,9 @@ ordersEl.addEventListener(
     if (!button) return;
 
 
+    button.disabled = true;
+
+
     try {
 
       await setStatus(
@@ -228,6 +245,8 @@ ordersEl.addEventListener(
 
       console.error(error);
 
+      button.disabled = false;
+
       toast(
         "Durum güncellenemedi.",
         "error"
@@ -241,5 +260,4 @@ ordersEl.addEventListener(
 </script>
 
 </body>
-
 </html>
