@@ -2,7 +2,6 @@ import {
   auth,
   db,
   signOut,
-  onAuthStateChanged,
   collection,
   doc,
   getDoc,
@@ -58,46 +57,47 @@ export function toast(message, type = "ok") {
   }, 2500);
 }
 
+/*
+  تسجيل الخروج لم يعد ضروريًا لأن النظام
+  يعمل بدون صفحة تسجيل دخول.
+*/
 export async function logout() {
-  await signOut(auth);
   window.location.href = "login.html";
 }
 
+/*
+  النظام أصبح يفتح الصفحات مباشرة بدون Firebase Auth.
+
+  allowedRoles[0] يستخدم فقط لتحديد هوية الصفحة:
+  admin
+  garson
+  mutfak
+  firin
+  izgara
+*/
 export function guard(allowedRoles, callback) {
-  return onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-      return;
-    }
 
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+  const role = allowedRoles?.[0] || "guest";
 
-      if (!userSnap.exists()) {
-        await signOut(auth);
-        window.location.href = "login.html";
-        return;
-      }
+  const user = {
+    role,
+    name:
+      role === "admin"
+        ? "Admin"
+        : role === "garson"
+        ? "Garson"
+        : role === "mutfak"
+        ? "Mutfak"
+        : role === "firin"
+        ? "Fırın"
+        : role === "izgara"
+        ? "Izgara"
+        : ""
+  };
 
-      const userData = userSnap.data();
-
-      if (!allowedRoles.includes(userData.role)) {
-        alert("Bu sayfaya erişim yetkiniz yok.");
-        await signOut(auth);
-        window.location.href = "login.html";
-        return;
-      }
-
-      callback({
-        auth: user,
-        ...userData
-      });
-
-    } catch (error) {
-      console.error(error);
-      alert("Sistem bağlantısında hata oluştu.");
-    }
+  callback({
+    auth: null,
+    ...user
   });
 }
 
@@ -111,7 +111,7 @@ export function shell(user, title, subtitle = "") {
       </div>
 
       <button id="logout" class="btn ghost">
-        Çıkış
+        Ana Sayfa
       </button>
     </header>
 
@@ -124,7 +124,7 @@ export function shell(user, title, subtitle = "") {
         </div>
 
         <div class="user-info">
-          ${esc(user.name || user.auth?.email || "")}
+          ${esc(user.name || "")}
         </div>
       </div>
 
@@ -136,7 +136,9 @@ export function shell(user, title, subtitle = "") {
   const logoutButton = $("#logout");
 
   if (logoutButton) {
-    logoutButton.onclick = logout;
+    logoutButton.onclick = () => {
+      window.location.href = "index.html";
+    };
   }
 
   return $("#content");
@@ -146,6 +148,7 @@ export function listenMenu(callback) {
 
   return onSnapshot(
     collection(db, "menu"),
+
     (snapshot) => {
 
       const menu = snapshot.docs.map((item) => ({
@@ -172,6 +175,7 @@ export function listenOrders(callback) {
 
   return onSnapshot(
     ordersQuery,
+
     (snapshot) => {
 
       const orders = snapshot.docs.map((item) => ({
@@ -193,6 +197,7 @@ export function listenUsers(callback) {
 
   return onSnapshot(
     collection(db, "users"),
+
     (snapshot) => {
 
       const users = snapshot.docs.map((item) => ({
@@ -216,11 +221,8 @@ export async function createOrder(orderData) {
     collection(db, "orders"),
     {
       ...orderData,
-
       status: "pending",
-
       createdAt: serverTimestamp(),
-
       updatedAt: serverTimestamp()
     }
   );
