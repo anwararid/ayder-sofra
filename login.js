@@ -3,7 +3,8 @@ import {
   db,
   signInWithEmailAndPassword,
   doc,
-  getDoc
+  getDoc,
+  setDoc
 } from "./firebase.js";
 
 const form = document.querySelector("#form");
@@ -29,7 +30,7 @@ form.addEventListener("submit", async (event) => {
     const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#pass").value;
 
-    // تسجيل الدخول في Firebase Authentication
+    // 1. تسجيل الدخول في Firebase Authentication
     const result = await signInWithEmailAndPassword(
       auth,
       email,
@@ -42,121 +43,70 @@ form.addEventListener("submit", async (event) => {
     console.log("========== LOGIN ==========");
     console.log("EMAIL:", user.email);
     console.log("UID:", uid);
-    console.log("PROJECT:", "ayder-sofra");
 
-    // البحث عن users/{UID}
+    // 2. فحص وجود المستند في Firestore
     const userRef = doc(db, "users", uid);
+    let userSnap = await getDoc(userRef);
 
-    console.log("FIRESTORE PATH:", `users/${uid}`);
-
-    const userSnap = await getDoc(userRef);
-
-    console.log("DOCUMENT EXISTS:", userSnap.exists());
-
+    // 3. حل المشكلة: إذا كان المستند غير موجود، إنشائه تلقائياً
     if (!userSnap.exists()) {
-      showMessage(`
-        Kullanıcı kaydı bulunamadı.<br><br>
-        UID: ${uid}<br>
-        E-posta: ${user.email}<br>
-        Firestore: users/${uid}
-      `);
+      console.log("Document not found. Creating user document automatically...");
+      
+      const defaultData = {
+        email: user.email,
+        role: "admin", // يمكنك تغيير الدور الافتراضي هنا (admin, garson, mutfak, firin, izgara)
+        createdAt: new Date().toISOString()
+      };
 
-      button.disabled = false;
-      button.textContent = "Giriş Yap";
-      return;
+      await setDoc(userRef, defaultData);
+      
+      // إعادة قراءة المستند بعد إنشائه
+      userSnap = await getDoc(userRef);
     }
 
-    // قراءة المستخدم
+    // 4. قراءة بيانات المستخدم والتوجيه
     const data = userSnap.data();
 
     console.log("FIRESTORE DATA:", data);
     console.log("ROLE:", data.role);
 
-    // =========================
     // GARSON
-    // =========================
     if (data.role === "garson") {
-      showMessage(
-        "Garson girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 500);
-
+      showMessage("Garson girişi başarılı. Yönlendiriliyor...", "notice");
+      setTimeout(() => { window.location.href = "index.html"; }, 500);
       return;
     }
 
-    // =========================
     // ADMIN
-    // =========================
     if (data.role === "admin") {
-      showMessage(
-        "Admin girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "admin.html";
-      }, 500);
-
+      showMessage("Admin girişi başarılı. Yönlendiriliyor...", "notice");
+      setTimeout(() => { window.location.href = "admin.html"; }, 500);
       return;
     }
 
-    // =========================
     // MUTFAK
-    // =========================
     if (data.role === "mutfak") {
-      showMessage(
-        "Mutfak girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "kitchen.html";
-      }, 500);
-
+      showMessage("Mutfak girişi başarılı. Yönlendiriliyor...", "notice");
+      setTimeout(() => { window.location.href = "kitchen.html"; }, 500);
       return;
     }
 
-    // =========================
     // FIRIN
-    // =========================
     if (data.role === "firin") {
-      showMessage(
-        "Fırın girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "oven.html";
-      }, 500);
-
+      showMessage("Fırın girişi başarılı. Yönlendiriliyor...", "notice");
+      setTimeout(() => { window.location.href = "oven.html"; }, 500);
       return;
     }
 
-    // =========================
     // IZGARA
-    // =========================
     if (data.role === "izgara") {
-      showMessage(
-        "Izgara girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "grill.html";
-      }, 500);
-
+      showMessage("Izgara girişi başarılı. Yönlendiriliyor...", "notice");
+      setTimeout(() => { window.location.href = "grill.html"; }, 500);
       return;
     }
 
     // دور غير معروف
-    showMessage(`
-      Geçersiz kullanıcı rolü: ${data.role || "tanımsız"}
-    `);
-
+    showMessage(`Geçersiz kullanıcı rolü: ${data.role || "tanımsız"}`);
     button.disabled = false;
     button.textContent = "Giriş Yap";
 
