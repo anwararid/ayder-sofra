@@ -29,11 +29,22 @@ export {
   serverTimestamp
 };
 
-export const $ = (selector) => document.querySelector(selector);
+export const $ = (selector) =>
+  document.querySelector(selector);
+
+
+/* =========================
+   MONEY
+========================= */
 
 export const money = (value) => {
   return Number(value || 0).toFixed(2) + " ₺";
 };
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
 
 export const esc = (value) => {
   return String(value ?? "")
@@ -44,11 +55,21 @@ export const esc = (value) => {
     .replaceAll("'", "&#039;");
 };
 
-export function toast(message, type = "ok") {
-  const element = document.createElement("div");
 
-  element.className = `toast ${type}`;
-  element.textContent = message;
+/* =========================
+   TOAST
+========================= */
+
+export function toast(message, type = "ok") {
+
+  const element =
+    document.createElement("div");
+
+  element.className =
+    `toast ${type}`;
+
+  element.textContent =
+    message;
 
   document.body.appendChild(element);
 
@@ -57,204 +78,376 @@ export function toast(message, type = "ok") {
   }, 2500);
 }
 
-/*
-  تسجيل الخروج لم يعد ضروريًا لأن النظام
-  يعمل بدون صفحة تسجيل دخول.
-*/
+
+/* =========================
+   LOGOUT
+========================= */
+
 export async function logout() {
-  window.location.href = "login.html";
+
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+  }
+
+  /*
+    الموقع الآن يعمل مباشرة
+    بدون إجبار المستخدم على تسجيل الدخول.
+  */
+
 }
 
-/*
-  النظام أصبح يفتح الصفحات مباشرة بدون Firebase Auth.
 
-  allowedRoles[0] يستخدم فقط لتحديد هوية الصفحة:
-  admin
-  garson
-  mutfak
-  firin
-  izgara
-*/
+/* =========================
+   DIRECT ACCESS
+========================= */
+
 export function guard(allowedRoles, callback) {
 
-  const role = allowedRoles?.[0] || "guest";
+  /*
+    تم تعطيل تسجيل الدخول والحماية
+    حتى تفتح الصفحات مباشرة.
+
+    الصفحات:
+    garson.html
+    mutfak.html
+    firin.html
+    izgara.html
+    admin.html
+  */
 
   const user = {
-    role,
-    name:
-      role === "admin"
-        ? "Admin"
-        : role === "garson"
-        ? "Garson"
-        : role === "mutfak"
-        ? "Mutfak"
-        : role === "firin"
-        ? "Fırın"
-        : role === "izgara"
-        ? "Izgara"
-        : ""
+    uid: "guest",
+    email: "guest@aydersofra.local"
   };
 
   callback({
-    auth: null,
-    ...user
+    auth: user,
+
+    name: "Misafir",
+
+    role:
+      allowedRoles?.[0] || "garson"
   });
+
 }
 
-export function shell(user, title, subtitle = "") {
+
+/* =========================
+   SHELL
+========================= */
+
+export function shell(
+  user,
+  title,
+  subtitle = ""
+) {
 
   document.body.innerHTML = `
+
     <header>
+
       <div class="brand">
-        <span class="logo small">AS</span>
-        <b>Ayder Sofra</b>
+
+        <span class="logo small">
+          AS
+        </span>
+
+        <b>
+          Ayder Sofra
+        </b>
+
       </div>
 
-      <button id="logout" class="btn ghost">
-        Ana Sayfa
-      </button>
+
+      <nav class="top-nav">
+
+        <a href="garson.html">
+          Garson
+        </a>
+
+        <a href="mutfak.html">
+          Mutfak
+        </a>
+
+        <a href="firin.html">
+          Fırın
+        </a>
+
+        <a href="izgara.html">
+          Izgara
+        </a>
+
+        <a href="admin.html">
+          Yönetim
+        </a>
+
+      </nav>
+
     </header>
+
 
     <main class="page">
 
       <div class="page-head">
+
         <div>
-          <h1>${esc(title)}</h1>
-          <p class="muted">${esc(subtitle)}</p>
+
+          <h1>
+            ${esc(title)}
+          </h1>
+
+          <p class="muted">
+            ${esc(subtitle)}
+          </p>
+
         </div>
 
+
         <div class="user-info">
-          ${esc(user.name || "")}
+
+          ${esc(
+            user?.name ||
+            user?.auth?.email ||
+            "Misafir"
+          )}
+
         </div>
+
       </div>
+
 
       <div id="content"></div>
 
     </main>
+
   `;
 
-  const logoutButton = $("#logout");
-
-  if (logoutButton) {
-    logoutButton.onclick = () => {
-      window.location.href = "index.html";
-    };
-  }
 
   return $("#content");
 }
 
+
+/* =========================
+   MENU
+========================= */
+
 export function listenMenu(callback) {
 
   return onSnapshot(
+
     collection(db, "menu"),
 
     (snapshot) => {
 
-      const menu = snapshot.docs.map((item) => ({
-        id: item.id,
-        ...item.data()
-      }));
+      const menu =
+        snapshot.docs.map(item => ({
+          id: item.id,
+          ...item.data()
+        }));
 
       callback(menu);
+
     },
 
     (error) => {
-      console.error("Menu error:", error);
-      toast("Menü yüklenemedi.", "error");
+
+      console.error(
+        "Menu error:",
+        error
+      );
+
+      toast(
+        "Menü yüklenemedi.",
+        "error"
+      );
+
     }
+
   );
 }
 
+
+/* =========================
+   ORDERS
+========================= */
+
 export function listenOrders(callback) {
 
-  const ordersQuery = query(
-    collection(db, "orders"),
-    orderBy("createdAt", "desc")
-  );
+  const ordersQuery =
+    query(
+      collection(db, "orders"),
+      orderBy(
+        "createdAt",
+        "desc"
+      )
+    );
+
 
   return onSnapshot(
+
     ordersQuery,
 
     (snapshot) => {
 
-      const orders = snapshot.docs.map((item) => ({
-        id: item.id,
-        ...item.data()
-      }));
+      const orders =
+        snapshot.docs.map(item => ({
+          id: item.id,
+          ...item.data()
+        }));
 
       callback(orders);
+
     },
 
     (error) => {
-      console.error("Orders error:", error);
-      toast("Siparişler yüklenemedi.", "error");
+
+      console.error(
+        "Orders error:",
+        error
+      );
+
+      toast(
+        "Siparişler yüklenemedi.",
+        "error"
+      );
+
     }
+
   );
 }
+
+
+/* =========================
+   USERS
+========================= */
 
 export function listenUsers(callback) {
 
   return onSnapshot(
+
     collection(db, "users"),
 
     (snapshot) => {
 
-      const users = snapshot.docs.map((item) => ({
-        id: item.id,
-        ...item.data()
-      }));
+      const users =
+        snapshot.docs.map(item => ({
+          id: item.id,
+          ...item.data()
+        }));
 
       callback(users);
+
     },
 
     (error) => {
-      console.error("Users error:", error);
-      toast("Personel bilgileri yüklenemedi.", "error");
+
+      console.error(
+        "Users error:",
+        error
+      );
+
+      toast(
+        "Personel bilgileri yüklenemedi.",
+        "error"
+      );
+
     }
+
   );
 }
+
+
+/* =========================
+   CREATE ORDER
+========================= */
 
 export async function createOrder(orderData) {
 
   return addDoc(
+
     collection(db, "orders"),
+
     {
+
       ...orderData,
+
       status: "pending",
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+
+      createdAt:
+        serverTimestamp(),
+
+      updatedAt:
+        serverTimestamp()
+
     }
+
   );
 }
 
-export async function setStatus(orderId, status) {
+
+/* =========================
+   SET ORDER STATUS
+========================= */
+
+export async function setStatus(
+  orderId,
+  status
+) {
 
   return updateDoc(
-    doc(db, "orders", orderId),
+
+    doc(
+      db,
+      "orders",
+      orderId
+    ),
+
     {
+
       status,
-      updatedAt: serverTimestamp()
+
+      updatedAt:
+        serverTimestamp()
+
     }
+
   );
 }
+
+
+/* =========================
+   ORDER CARD
+========================= */
 
 export function card(order) {
 
-  const items = order.items || [];
+  const items =
+    order.items || [];
+
 
   return `
+
     <article class="card order-card">
+
 
       <div class="row">
 
         <div>
-          <b>Masa ${esc(order.table)}</b>
+
+          <b>
+            Masa ${esc(order.table)}
+          </b>
 
           <small class="muted">
-            ${esc(order.waiterName || "")}
+            ${esc(
+              order.waiterName || ""
+            )}
           </small>
+
         </div>
+
 
         <span class="badge">
           ${esc(order.status)}
@@ -262,33 +455,45 @@ export function card(order) {
 
       </div>
 
+
       <div class="items">
 
         ${items
           .map(
             (item) => `
+
               <div class="row">
 
                 <span>
-                  ${item.qty} × ${esc(item.name)}
+                  ${item.qty}
+                  ×
+                  ${esc(item.name)}
                 </span>
 
                 <b>
-                  ${money(item.price * item.qty)}
+                  ${money(
+                    item.price *
+                    item.qty
+                  )}
                 </b>
 
               </div>
+
             `
           )
           .join("")}
 
       </div>
 
+
       <hr>
+
 
       <div class="row">
 
-        <b>Toplam</b>
+        <b>
+          Toplam
+        </b>
 
         <strong>
           ${money(order.total)}
@@ -296,49 +501,68 @@ export function card(order) {
 
       </div>
 
+
       <div class="actions">
+
 
         ${
           order.status === "pending"
             ? `
+
               <button
                 class="btn primary action"
                 data-id="${order.id}"
                 data-s="preparing">
+
                 Hazırlamaya Al
+
               </button>
+
             `
             : ""
         }
+
 
         ${
           order.status === "preparing"
             ? `
+
               <button
                 class="btn primary action"
                 data-id="${order.id}"
                 data-s="ready">
+
                 Sipariş Hazır
+
               </button>
+
             `
             : ""
         }
+
 
         ${
           order.status === "ready"
             ? `
+
               <button
                 class="btn primary action"
                 data-id="${order.id}"
                 data-s="served">
+
                 Servis Edildi
+
               </button>
+
             `
             : ""
         }
 
+
       </div>
 
+
     </article>
+
   `;
-}
+      }
