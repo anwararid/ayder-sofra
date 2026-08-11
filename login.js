@@ -67,6 +67,7 @@ form.addEventListener("submit", async (e) => {
 
     console.log("FIRESTORE DATA:", data);
     console.log("USER ROLE:", role);
+    alert("ROLE = " + role);
 
     // التوجيه حسب الدور
     const pages = {
