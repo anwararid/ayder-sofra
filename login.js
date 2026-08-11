@@ -3,7 +3,8 @@ import {
   db,
   signInWithEmailAndPassword,
   doc,
-  getDoc
+  getDoc,
+  signOut
 } from "./firebase.js";
 
 const form = document.querySelector("#form");
@@ -18,8 +19,8 @@ function showMessage(text, type = "error") {
   `;
 }
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
   button.disabled = true;
   button.textContent = "Giriş yapılıyor...";
@@ -29,7 +30,7 @@ form.addEventListener("submit", async (event) => {
     const email = document.querySelector("#email").value.trim();
     const password = document.querySelector("#pass").value;
 
-    // Firebase Authentication
+    // تسجيل الدخول
     const result = await signInWithEmailAndPassword(
       auth,
       email,
@@ -37,16 +38,12 @@ form.addEventListener("submit", async (event) => {
     );
 
     const user = result.user;
-    const uid = user.uid;
 
     console.log("LOGIN EMAIL:", user.email);
-    console.log("LOGIN UID:", uid);
+    console.log("LOGIN UID:", user.uid);
 
-    // Firestore: users/{UID}
-    const userRef = doc(db, "users", uid);
-
-    console.log("FIRESTORE PATH:", `users/${uid}`);
-
+    // قراءة users/{UID}
+    const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
 
     console.log("DOCUMENT EXISTS:", userSnap.exists());
@@ -54,10 +51,11 @@ form.addEventListener("submit", async (event) => {
     if (!userSnap.exists()) {
       showMessage(`
         Kullanıcı kaydı bulunamadı.<br><br>
-        UID: ${uid}<br>
-        E-posta: ${user.email}<br>
-        Firestore: users/${uid}
+        UID: ${user.uid}<br>
+        Firestore: users/${user.uid}
       `);
+
+      await signOut(auth);
 
       button.disabled = false;
       button.textContent = "Giriş Yap";
@@ -65,93 +63,51 @@ form.addEventListener("submit", async (event) => {
     }
 
     const data = userSnap.data();
+    const role = String(data.role || "").trim().toLowerCase();
 
     console.log("FIRESTORE DATA:", data);
-    console.log("ROLE:", data.role);
+    console.log("USER ROLE:", role);
 
-    // Admin
-    if (data.role === "admin") {
-      showMessage(
-        "Admin girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
+    // التوجيه حسب الدور
+    const pages = {
+      admin: "admin.html",
+      garson: "index.html",
+      mutfak: "kitchen.html",
+      firin: "oven.html",
+      izgara: "grill.html"
+    };
 
-      setTimeout(() => {
-        window.location.href = "admin.html";
-      }, 500);
+    const page = pages[role];
 
+    if (!page) {
+      showMessage(`
+        Geçersiz kullanıcı rolü: ${role || "tanımsız"}
+      `);
+
+      await signOut(auth);
+
+      button.disabled = false;
+      button.textContent = "Giriş Yap";
       return;
     }
 
-    // Garson
-    if (data.role === "garson") {
-      showMessage(
-        "Garson girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
+    console.log("REDIRECT TO:", page);
 
-      setTimeout(() => {
-        window.location.href = "waiter.html";
-      }, 500);
+    showMessage(
+      `Giriş başarılı. ${role} paneline yönlendiriliyorsunuz...`,
+      "notice"
+    );
 
-      return;
-    }
-
-    // Mutfak
-    if (data.role === "mutfak") {
-      showMessage(
-        "Mutfak girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "kitchen.html";
-      }, 500);
-
-      return;
-    }
-
-    // Fırın
-    if (data.role === "firin") {
-      showMessage(
-        "Fırın girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "oven.html";
-      }, 500);
-
-      return;
-    }
-
-    // Izgara
-    if (data.role === "izgara") {
-      showMessage(
-        "Izgara girişi başarılı. Yönlendiriliyor...",
-        "notice"
-      );
-
-      setTimeout(() => {
-        window.location.href = "grill.html";
-      }, 500);
-
-      return;
-    }
-
-    showMessage(`
-      Geçersiz kullanıcı rolü: ${data.role || "tanımsız"}
-    `);
-
-    button.disabled = false;
-    button.textContent = "Giriş Yap";
+    setTimeout(() => {
+      window.location.replace(page);
+    }, 300);
 
   } catch (error) {
     console.error("LOGIN ERROR:", error);
 
     showMessage(`
       ${error.code || "Hata"}<br>
-      ${error.message || "Bilinmeyen hata"}
+      ${error.message}
     `);
 
     button.disabled = false;
