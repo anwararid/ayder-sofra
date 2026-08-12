@@ -2,6 +2,7 @@
 <html lang="tr">
 
 <head>
+
   <meta charset="utf-8">
 
   <meta
@@ -15,9 +16,12 @@
     rel="stylesheet"
     href="styles.css"
   >
+
 </head>
 
+
 <body>
+
 
 <script type="module">
 
@@ -25,11 +29,14 @@ import {
   shell,
   listenOrders,
   setStatus,
-  money,
   esc,
   toast
 } from "./app.js";
 
+
+/* ==================================================
+   SAYFA
+================================================== */
 
 const content =
   shell(
@@ -38,57 +45,512 @@ const content =
   );
 
 
+/* ==================================================
+   MUTFAK ARAYÜZÜ
+================================================== */
+
 content.innerHTML = `
-  <div
-    id="orders"
-    class="grid"
-  ></div>
+
+  <main class="kitchen-page">
+
+
+    <!-- ==========================================
+         DEKORATİF SU DAMLALARI
+    =========================================== -->
+
+    <div class="water-splash splash-one">
+      💦
+    </div>
+
+    <div class="water-splash splash-two">
+      💧
+    </div>
+
+    <div class="water-splash splash-three">
+      💦
+    </div>
+
+    <div class="water-splash splash-four">
+      💧
+    </div>
+
+
+
+    <!-- ==========================================
+         HERO
+    =========================================== -->
+
+    <section class="kitchen-hero">
+
+
+      <div class="kitchen-hero-overlay"></div>
+
+
+      <div class="kitchen-hero-content">
+
+
+        <div class="kitchen-brand">
+          AYDER SOFRA 🍽️
+        </div>
+
+
+        <div class="kitchen-title-row">
+
+
+          <div>
+
+            <div class="kitchen-label">
+              👨‍🍳 MUTFAK
+            </div>
+
+
+            <h1>
+              Mutfak Siparişleri
+            </h1>
+
+
+            <p>
+              Taze malzemelerden hazırlanan
+              lezzetleri zamanında yönetin.
+            </p>
+
+          </div>
+
+
+          <div class="kitchen-system-status">
+
+            <span class="kitchen-status-dot"></span>
+
+            Sistem Aktif
+
+          </div>
+
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ==========================================
+         İSTATİSTİKLER
+    =========================================== -->
+
+    <section class="kitchen-stats">
+
+
+      <div class="kitchen-stat-card">
+
+
+        <div class="kitchen-stat-icon">
+          🍽️
+        </div>
+
+
+        <div class="kitchen-stat-content">
+
+          <span>
+            AKTİF SİPARİŞ
+          </span>
+
+          <strong id="activeCount">
+            0
+          </strong>
+
+          <small>
+            Toplam aktif sipariş
+          </small>
+
+        </div>
+
+
+      </div>
+
+
+
+      <div class="kitchen-stat-card">
+
+
+        <div class="kitchen-stat-icon preparing">
+          👨‍🍳
+        </div>
+
+
+        <div class="kitchen-stat-content">
+
+          <span>
+            HAZIRLANIYOR
+          </span>
+
+          <strong id="preparingCount">
+            0
+          </strong>
+
+          <small>
+            Hazırlanmakta olan
+          </small>
+
+        </div>
+
+
+      </div>
+
+
+
+      <div class="kitchen-stat-card">
+
+
+        <div class="kitchen-stat-icon ready">
+          ✓
+        </div>
+
+
+        <div class="kitchen-stat-content">
+
+          <span>
+            HAZIR
+          </span>
+
+          <strong id="readyCount">
+            0
+          </strong>
+
+          <small>
+            Servise hazır
+          </small>
+
+        </div>
+
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- ==========================================
+         MUTFAK SİPARİŞLERİ
+    =========================================== -->
+
+    <section class="kitchen-orders-section">
+
+
+      <div class="kitchen-section-header">
+
+
+        <div class="kitchen-section-title">
+
+
+          <div class="kitchen-mini-icon">
+            🍽️
+          </div>
+
+
+          <div>
+
+            <h2>
+              MUTFAK SİPARİŞLERİ
+            </h2>
+
+            <p>
+              Mutfağa gönderilen aktif siparişler
+            </p>
+
+          </div>
+
+
+        </div>
+
+
+        <div class="kitchen-order-info">
+          💧 Canlı Siparişler
+        </div>
+
+
+      </div>
+
+
+
+      <!-- ========================================
+           SİPARİŞLER
+      ========================================= -->
+
+      <div
+        id="orders"
+        class="kitchen-orders-grid"
+      ></div>
+
+
+    </section>
+
+
+
+    <!-- ==========================================
+         MUTFAK ALT DEKORASYON
+    =========================================== -->
+
+    <section class="kitchen-food-decoration">
+
+      <div class="food-plate">
+        🐟
+      </div>
+
+      <div class="food-plate">
+        🍲
+      </div>
+
+      <div class="food-plate">
+        🥗
+      </div>
+
+      <div class="food-plate">
+        🍽️
+      </div>
+
+      <div class="food-plate">
+        🐟
+      </div>
+
+    </section>
+
+
+
+    <!-- ==========================================
+         FOOTER
+    =========================================== -->
+
+    <footer class="kitchen-footer">
+
+      <div class="kitchen-footer-food">
+        🐟
+        🍽️
+        🥗
+        🍲
+        🐟
+      </div>
+
+      <div class="kitchen-footer-text">
+        Tazelik, ustalıkla hazırlanır.
+      </div>
+
+    </footer>
+
+
+  </main>
+
 `;
 
 
+
+/* ==================================================
+   ELEMENTLER
+================================================== */
+
 const ordersEl =
-  content.querySelector("#orders");
+  content.querySelector(
+    "#orders"
+  );
 
 
-function render(orders) {
+const activeCount =
+  content.querySelector(
+    "#activeCount"
+  );
 
-  const kitchenOrders =
-    orders
-      .filter(order =>
-        ["pending", "preparing", "ready"].includes(
+
+const preparingCount =
+  content.querySelector(
+    "#preparingCount"
+  );
+
+
+const readyCount =
+  content.querySelector(
+    "#readyCount"
+  );
+
+
+
+/* ==================================================
+   STATUS
+================================================== */
+
+function getStatusInfo(
+  status
+) {
+
+
+  if (
+    status === "preparing"
+  ) {
+
+    return {
+
+      text:
+        "HAZIRLANIYOR",
+
+      icon:
+        "👨‍🍳",
+
+      className:
+        "preparing"
+
+    };
+
+  }
+
+
+  if (
+    status === "ready"
+  ) {
+
+    return {
+
+      text:
+        "HAZIR",
+
+      icon:
+        "✓",
+
+      className:
+        "ready"
+
+    };
+
+  }
+
+
+  return {
+
+    text:
+      "YENİ SİPARİŞ",
+
+    icon:
+      "●",
+
+    className:
+      "pending"
+
+  };
+
+}
+
+
+
+/* ==================================================
+   RENDER
+================================================== */
+
+function render(
+  orders
+) {
+
+
+  /* ================================================
+     AKTİF SİPARİŞLER
+  ================================================ */
+
+  const activeOrders =
+
+    orders.filter(
+      order =>
+
+        [
+          "pending",
+          "preparing",
+          "ready"
+        ].includes(
           order.status
         )
-      )
-      .map(order => {
-
-        const kitchenItems =
-          (order.items || []).filter(
-            item => item.department === "mutfak"
-          );
-
-        return {
-          ...order,
-          kitchenItems
-        };
-
-      })
-      .filter(order =>
-        order.kitchenItems.length > 0
-      );
+    );
 
 
-  if (!kitchenOrders.length) {
+
+  /* ================================================
+     SADECE MUTFAK ÜRÜNLERİ
+  ================================================ */
+
+  const kitchenOrders =
+
+    activeOrders.filter(
+      order => {
+
+        const items =
+          order.items || [];
+
+
+        return items.some(
+          item =>
+            item.department ===
+            "mutfak"
+        );
+
+      }
+    );
+
+
+
+  /* ================================================
+     İSTATİSTİKLER
+  ================================================ */
+
+  activeCount.textContent =
+    kitchenOrders.length;
+
+
+  preparingCount.textContent =
+
+    kitchenOrders.filter(
+      order =>
+        order.status ===
+        "preparing"
+    ).length;
+
+
+  readyCount.textContent =
+
+    kitchenOrders.filter(
+      order =>
+        order.status ===
+        "ready"
+    ).length;
+
+
+
+  /* ================================================
+     BOŞ
+  ================================================ */
+
+  if (
+    !kitchenOrders.length
+  ) {
 
     ordersEl.innerHTML = `
-      <div class="card">
 
-        <h3>Sipariş yok</h3>
+      <div class="kitchen-empty">
 
-        <p class="muted">
-          Bekleyen mutfak siparişi bulunmuyor.
+        <div class="kitchen-empty-icon">
+          🍽️
+        </div>
+
+        <h3>
+          Şu anda sipariş yok
+        </h3>
+
+        <p>
+          Mutfak için yeni sipariş geldiğinde
+          burada görünecek.
         </p>
 
+        <div class="kitchen-empty-food">
+          🐟 💧 🍲
+        </div>
+
       </div>
+
     `;
 
     return;
@@ -96,168 +558,438 @@ function render(orders) {
   }
 
 
+
+  /* ================================================
+     SİPARİŞLER
+  ================================================ */
+
   ordersEl.innerHTML =
-    kitchenOrders.map(order => `
 
-      <article class="card order-card">
-
-        <div class="row">
-
-          <div>
-
-            <h2>
-              Masa ${esc(order.table)}
-            </h2>
-
-            <span class="muted">
-              ${esc(order.waiterName || "Garson")}
-            </span>
-
-          </div>
+    kitchenOrders.map(
+      order => {
 
 
-          <span class="badge">
-            ${esc(order.status)}
-          </span>
+        /* ==========================================
+           MUTFAK ÜRÜNLERİ
+        =========================================== */
 
-        </div>
+        const items =
+
+          (
+            order.items || []
+          ).filter(
+            item =>
+              item.department ===
+              "mutfak"
+          );
 
 
-        <hr>
+        if (
+          !items.length
+        ) {
+
+          return "";
+
+        }
 
 
-        <div class="items">
 
-          ${order.kitchenItems
-            .map(item => `
+        /* ==========================================
+           STATUS
+        =========================================== */
 
-              <div class="row">
+        const status =
+          getStatusInfo(
+            order.status
+          );
 
-                <span>
-                  <b>${item.qty} ×</b>
-                  ${esc(item.name)}
-                </span>
 
-                <b>
-                  ${money(
-                    Number(item.price || 0) *
-                    Number(item.qty || 0)
+
+        /* ==========================================
+           ITEMS
+        =========================================== */
+
+        const itemsHtml =
+
+          items.map(
+            item => `
+
+              <div class="kitchen-product">
+
+
+                <div class="kitchen-product-qty">
+
+                  ${Number(
+                    item.qty || 0
                   )}
-                </b>
+
+                </div>
+
+
+                <div class="kitchen-product-info">
+
+                  <strong>
+
+                    ${esc(
+                      item.name
+                    )}
+
+                  </strong>
+
+
+                  ${
+                    item.category
+                      ? `
+                        <small>
+                          ${esc(
+                            item.category
+                          )}
+                        </small>
+                      `
+                      : ""
+                  }
+
+                </div>
+
+
+                <div class="kitchen-product-icon">
+
+                  ${
+                    String(
+                      item.name || ""
+                    )
+                      .toLowerCase()
+                      .includes("balık")
+                      ||
+                    String(
+                      item.name || ""
+                    )
+                      .toLowerCase()
+                      .includes("hamsi")
+                      ||
+                    String(
+                      item.name || ""
+                    )
+                      .toLowerCase()
+                      .includes("levrek")
+                      ||
+                    String(
+                      item.name || ""
+                    )
+                      .toLowerCase()
+                      .includes("çupra")
+                      ? "🐟"
+                      : "🍽️"
+                  }
+
+                </div>
+
 
               </div>
 
-            `)
-            .join("")}
-
-        </div>
+            `
+          ).join("");
 
 
-        <hr>
+
+        /* ==========================================
+           ACTION
+        =========================================== */
+
+        let actionHtml =
+          "";
 
 
-        <div class="actions">
+        if (
+          order.status ===
+          "pending"
+        ) {
 
-          ${
-            order.status === "pending"
-              ? `
-                <button
-                  class="btn primary"
-                  data-id="${order.id}"
-                  data-status="preparing"
-                >
-                  Hazırlamaya Al
-                </button>
-              `
-              : ""
-          }
+          actionHtml = `
+
+            <button
+
+              type="button"
+
+              class="
+                kitchen-action
+                kitchen-action-start
+              "
+
+              data-id="${esc(
+                order.id
+              )}"
+
+              data-status="preparing"
+
+            >
+
+              👨‍🍳
+              HAZIRLAMAYA AL
+
+            </button>
+
+          `;
+
+        }
 
 
-          ${
-            order.status === "preparing"
-              ? `
-                <button
-                  class="btn primary"
-                  data-id="${order.id}"
-                  data-status="ready"
-                >
-                  Sipariş Hazır
-                </button>
-              `
-              : ""
-          }
+        else if (
+          order.status ===
+          "preparing"
+        ) {
+
+          actionHtml = `
+
+            <button
+
+              type="button"
+
+              class="
+                kitchen-action
+                kitchen-action-ready
+              "
+
+              data-id="${esc(
+                order.id
+              )}"
+
+              data-status="ready"
+
+            >
+
+              ✓
+              HAZIR
+
+            </button>
+
+          `;
+
+        }
 
 
-          ${
-            order.status === "ready"
-              ? `
-                <button
-                  class="btn primary"
-                  data-id="${order.id}"
-                  data-status="served"
-                >
-                  Servis Edildi
-                </button>
-              `
-              : ""
-          }
+        else if (
+          order.status ===
+          "ready"
+        ) {
 
-        </div>
+          actionHtml = `
 
-      </article>
+            <button
 
-    `).join("");
+              type="button"
+
+              class="
+                kitchen-action
+                kitchen-action-served
+              "
+
+              data-id="${esc(
+                order.id
+              )}"
+
+              data-status="served"
+
+            >
+
+              🍽️
+              SERVİS EDİLDİ
+
+            </button>
+
+          `;
+
+        }
+
+
+
+        /* ==========================================
+           CARD
+        =========================================== */
+
+        return `
+
+          <article
+            class="
+              kitchen-order-card
+              ${status.className}
+            "
+          >
+
+
+            <!-- CARD HEADER -->
+
+            <div class="kitchen-card-header">
+
+
+              <div>
+
+                <span class="kitchen-table-label">
+                  MASA
+                </span>
+
+                <h3 class="kitchen-table-number">
+
+                  ${esc(
+                    order.table
+                  )}
+
+                </h3>
+
+              </div>
+
+
+              <div
+                class="
+                  kitchen-order-status
+                  ${status.className}
+                "
+              >
+
+                ${status.icon}
+
+                ${status.text}
+
+              </div>
+
+
+            </div>
+
+
+
+            <!-- ITEMS -->
+
+            <div class="kitchen-products">
+
+              ${itemsHtml}
+
+            </div>
+
+
+
+            <!-- DIVIDER -->
+
+            <div class="kitchen-divider"></div>
+
+
+
+            <!-- ACTION -->
+
+            <div class="kitchen-card-action">
+
+              ${actionHtml}
+
+            </div>
+
+
+          </article>
+
+        `;
+
+      }
+    ).join("");
 
 }
 
 
-listenOrders(render);
 
+/* ==================================================
+   FIREBASE LISTENER
+================================================== */
+
+listenOrders(
+  render
+);
+
+
+
+/* ==================================================
+   BUTTON ACTIONS
+================================================== */
 
 ordersEl.addEventListener(
+
   "click",
+
   async event => {
 
+
     const button =
+
       event.target.closest(
         "[data-status]"
       );
 
-    if (!button) return;
+
+    if (
+      !button
+    ) {
+
+      return;
+
+    }
 
 
-    button.disabled = true;
+    const id =
+      button.dataset.id;
+
+
+    const status =
+      button.dataset.status;
+
+
+    /* ==============================================
+       BUTTON DISABLE
+    ============================================== */
+
+    button.disabled =
+      true;
 
 
     try {
 
+
       await setStatus(
-        button.dataset.id,
-        button.dataset.status
+        id,
+        status
       );
 
 
       toast(
-        "Sipariş durumu güncellendi."
+        "Sipariş güncellendi."
       );
 
-    } catch (error) {
 
-      console.error(error);
+    }
 
-      button.disabled = false;
+    catch (
+      error
+    ) {
+
+
+      console.error(
+        "Mutfak sipariş hatası:",
+        error
+      );
+
 
       toast(
-        "Durum güncellenemedi.",
+        "Sipariş güncellenemedi.",
         "error"
       );
+
+
+      button.disabled =
+        false;
 
     }
 
   }
+
 );
 
 </script>
 
 </body>
+
 </html>
