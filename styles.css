@@ -1,37 +1,41 @@
+/* =========================================================
+   AYDER SOFRA — ADMIN PANEL
+   styles.css
+========================================================= */
+
 :root {
-  --primary: #173f35;
-  --primary-dark: #0f2e27;
-  --primary-light: #e6f0ec;
+  --navy: #0d2740;
+  --navy-2: #123b5d;
+  --blue: #2167ad;
+  --blue-light: #eaf3fb;
 
-  --accent: #c8954d;
-  --accent-light: #f7ecd9;
+  --bg: #f4f7fb;
+  --white: #ffffff;
 
-  --bg: #f6f4ef;
-  --surface: #ffffff;
-  --surface-soft: #faf9f6;
+  --text: #182335;
+  --muted: #6d7b8d;
 
-  --text: #202923;
-  --muted: #758078;
+  --line: #e0e7ef;
 
-  --line: #e5e2da;
+  --green: #198754;
+  --green-light: #e8f7ef;
 
-  --red: #bd4141;
-  --red-light: #fdeaea;
+  --red: #c53d3d;
+  --red-light: #ffeded;
 
-  --green: #2f8b62;
-  --green-light: #e8f6ef;
+  --orange: #d97706;
+  --orange-light: #fff4df;
 
-  --shadow-sm: 0 4px 14px rgba(24, 43, 36, 0.06);
-  --shadow: 0 12px 35px rgba(24, 43, 36, 0.08);
-  --shadow-lg: 0 22px 55px rgba(24, 43, 36, 0.13);
+  --shadow: 0 10px 30px rgba(13, 39, 64, 0.07);
+  --shadow-hover: 0 16px 38px rgba(13, 39, 64, 0.12);
 
   --radius: 18px;
 }
 
 
-/* ==================================================
+/* =========================================================
    RESET
-================================================== */
+========================================================= */
 
 * {
   box-sizing: border-box;
@@ -43,16 +47,7 @@ html {
 
 body {
   margin: 0;
-  min-height: 100vh;
-
-  background:
-    radial-gradient(
-      circle at top right,
-      rgba(200, 149, 77, 0.07),
-      transparent 28%
-    ),
-    var(--bg);
-
+  background: var(--bg);
   color: var(--text);
 
   font-family:
@@ -66,34 +61,34 @@ body {
 }
 
 
-/* ==================================================
+/* =========================================================
    HEADER
-================================================== */
+========================================================= */
 
 header {
-  height: 76px;
+  min-height: 74px;
 
   background:
     linear-gradient(
       135deg,
-      var(--primary-dark),
-      var(--primary)
+      var(--navy),
+      var(--navy-2)
     );
 
   color: #fff;
 
   padding:
-    0 max(
-      18px,
-      calc((100% - 1180px) / 2)
-    );
+    0
+    max(16px, calc((100% - 1180px) / 2));
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
+  gap: 20px;
+
   box-shadow:
-    0 4px 20px rgba(15, 46, 39, 0.16);
+    0 5px 20px rgba(13, 39, 64, 0.12);
 
   position: sticky;
   top: 0;
@@ -102,67 +97,69 @@ header {
 }
 
 
-/* ==================================================
+/* =========================================================
    BRAND
-================================================== */
+========================================================= */
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
+
+  min-width: 0;
 }
 
 .brand strong {
   font-size: 16px;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.1px;
 }
 
-.brand > div:last-child > div {
-  color: rgba(255,255,255,0.68);
+.brand .logo {
+  flex-shrink: 0;
 }
 
 
-/* ==================================================
+/* =========================================================
    LOGO
-================================================== */
+========================================================= */
 
 .logo {
   width: 58px;
   height: 58px;
 
-  border-radius: 18px;
+  border-radius: 17px;
 
   background:
     linear-gradient(
       135deg,
-      var(--accent),
-      #e0b46e
+      #ffffff,
+      #e9f2f9
     );
 
-  color: #fff;
+  color: var(--navy);
 
   display: grid;
   place-items: center;
 
-  font-weight: 950;
+  font-weight: 900;
 
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.14);
+    0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .logo.small {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
 
-  border-radius: 13px;
+  border-radius: 12px;
 
   font-size: 13px;
 }
 
 
-/* ==================================================
+/* =========================================================
    PAGE
-================================================== */
+========================================================= */
 
 .page {
   width: min(
@@ -174,49 +171,43 @@ header {
 }
 
 .page h1 {
-  margin:
-    0 0 5px;
+  margin: 0 0 5px;
 
   font-size: clamp(
-    25px,
+    26px,
     4vw,
     34px
   );
 
-  letter-spacing: -0.7px;
+  line-height: 1.15;
 }
 
 .page h2 {
-  letter-spacing: -0.3px;
+  line-height: 1.2;
 }
 
 .page h3 {
-  letter-spacing: -0.2px;
+  margin-top: 0;
 }
 
 
-/* ==================================================
+/* =========================================================
    TEXT
-================================================== */
+========================================================= */
 
 .muted {
   color: var(--muted);
 }
 
-p {
-  margin-top: 7px;
-}
-
-hr {
-  border: 0;
-  border-top: 1px solid var(--line);
-  margin: 18px 0;
+p.muted {
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
 
-/* ==================================================
+/* =========================================================
    GRID
-================================================== */
+========================================================= */
 
 .grid {
   display: grid;
@@ -224,30 +215,24 @@ hr {
   grid-template-columns:
     repeat(3, minmax(0, 1fr));
 
-  gap: 17px;
+  gap: 16px;
 }
 
 
-/* ==================================================
+/* =========================================================
    CARD
-================================================== */
+========================================================= */
 
 .card {
-  background:
-    linear-gradient(
-      180deg,
-      #fff,
-      var(--surface-soft)
-    );
+  background: var(--white);
 
-  border:
-    1px solid var(--line);
+  border: 1px solid var(--line);
 
   border-radius: var(--radius);
 
   padding: 20px;
 
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
 
   transition:
     transform 0.18s ease,
@@ -256,41 +241,40 @@ hr {
 }
 
 
-/* hover فقط للكروت التي يمكن الضغط عليها */
+/* =========================================================
+   QUICK ACCESS / LINKS
+========================================================= */
 
-a.card:hover,
-button.card:hover {
-  transform: translateY(-2px);
+a.card.link {
+  display: block;
 
-  border-color:
-    rgba(200, 149, 77, 0.35);
-
-  box-shadow: var(--shadow);
-}
-
-
-/* ==================================================
-   LINKS
-================================================== */
-
-.link {
   color: inherit;
+
   text-decoration: none;
 
-  display: block;
+  cursor: pointer;
 }
 
-.link h3 {
-  margin-top: 0;
+a.card.link:hover {
+  transform: translateY(-3px);
+
+  border-color: #cbd9e7;
+
+  box-shadow: var(--shadow-hover);
+}
+
+a.card.link h3 {
+  margin-bottom: 5px;
 }
 
 
-/* ==================================================
+/* =========================================================
    ROW
-================================================== */
+========================================================= */
 
 .row {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
 
@@ -298,32 +282,30 @@ button.card:hover {
 }
 
 
-/* ==================================================
-   BUTTONS
-================================================== */
+/* =========================================================
+   BUTTON
+========================================================= */
 
 .btn {
   border: 0;
 
-  border-radius: 12px;
+  border-radius: 11px;
 
-  padding:
-    11px 16px;
+  padding: 11px 16px;
 
-  min-height: 44px;
+  min-height: 42px;
 
   font: inherit;
+
   font-weight: 800;
 
   cursor: pointer;
 
   transition:
     transform 0.15s ease,
-    box-shadow 0.15s ease,
     opacity 0.15s ease,
+    box-shadow 0.15s ease,
     background 0.15s ease;
-
-  white-space: nowrap;
 }
 
 .btn:hover {
@@ -341,85 +323,83 @@ button.card:hover {
 }
 
 
-/* PRIMARY */
+/* =========================================================
+   PRIMARY
+========================================================= */
 
 .primary {
   background:
     linear-gradient(
       135deg,
-      var(--primary),
-      var(--primary-dark)
+      var(--navy),
+      var(--blue)
     );
 
   color: #fff;
 
   box-shadow:
-    0 6px 16px rgba(23, 63, 53, 0.18);
+    0 5px 15px rgba(33, 103, 173, 0.18);
 }
 
 .primary:hover {
   box-shadow:
-    0 9px 22px rgba(23, 63, 53, 0.25);
+    0 8px 20px rgba(33, 103, 173, 0.25);
 }
 
 
-/* GHOST */
+/* =========================================================
+   GHOST
+========================================================= */
 
 .ghost {
   background: #fff;
 
-  color: var(--primary);
+  color: var(--navy);
 
-  border:
-    1px solid var(--line);
-
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line);
 }
 
 header .ghost {
-  background:
-    rgba(255,255,255,0.09);
+  background: rgba(255, 255, 255, 0.1);
 
   color: #fff;
 
-  border:
-    1px solid rgba(255,255,255,0.16);
-
-  box-shadow: none;
+  border-color:
+    rgba(255, 255, 255, 0.2);
 }
 
 header .ghost:hover {
-  background:
-    rgba(255,255,255,0.16);
+  background: rgba(255, 255, 255, 0.17);
 }
 
 
-/* DANGER */
+/* =========================================================
+   DANGER
+========================================================= */
 
 .danger {
   background: var(--red-light);
 
   color: var(--red);
-
-  border:
-    1px solid #f5d0d0;
 }
 
 .danger:hover {
-  background: #fbdede;
+  background: #ffe0e0;
 }
 
 
-/* WIDE */
+/* =========================================================
+   WIDE
+========================================================= */
 
 .wide {
   width: 100%;
 }
 
 
-/* ==================================================
+/* =========================================================
    TOOLBAR
-================================================== */
+========================================================= */
 
 .toolbar {
   display: grid;
@@ -429,64 +409,74 @@ header .ghost:hover {
 
   gap: 10px;
 
-  margin-bottom: 16px;
+  margin-bottom: 15px;
 }
 
 
-/* ==================================================
+/* =========================================================
    INPUTS
-================================================== */
+========================================================= */
 
 input,
 select {
-  border:
-    1px solid var(--line);
+  width: 100%;
 
-  border-radius: 12px;
+  min-height: 44px;
 
-  padding:
-    12px 13px;
+  border: 1px solid var(--line);
 
-  min-height: 45px;
+  border-radius: 11px;
+
+  padding: 11px 13px;
 
   font: inherit;
 
-  width: 100%;
+  color: var(--text);
 
   background: #fff;
-
-  color: var(--text);
 
   outline: none;
 
   transition:
     border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
+    box-shadow 0.15s ease;
 }
 
 input::placeholder {
-  color: #a0aaa3;
+  color: #9aa6b4;
 }
 
 input:hover,
 select:hover {
-  border-color: #d2cec4;
+  border-color: #c8d4e0;
 }
 
 input:focus,
 select:focus {
-  border-color: var(--accent);
+  border-color: var(--blue);
 
   box-shadow:
-    0 0 0 4px
-    rgba(200,149,77,0.12);
+    0 0 0 3px
+    rgba(33, 103, 173, 0.12);
 }
 
 
-/* ==================================================
-   SPLIT / GARSON
-================================================== */
+/* =========================================================
+   LABEL
+========================================================= */
+
+label {
+  display: grid;
+
+  gap: 7px;
+
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   SPLIT
+========================================================= */
 
 .split {
   display: grid;
@@ -494,21 +484,80 @@ select:focus {
   grid-template-columns:
     minmax(0, 1fr) 340px;
 
-  gap: 20px;
+  gap: 18px;
 
   align-items: start;
 }
 
+
+/* =========================================================
+   CART
+========================================================= */
+
 .cart {
   position: sticky;
-  top: 94px;
+
+  top: 90px;
+
   height: max-content;
 }
 
+.items {
+  line-height: 1.8;
 
-/* ==================================================
-   PRODUCTS
-================================================== */
+  padding: 14px 0;
+}
+
+
+/* =========================================================
+   BADGE
+========================================================= */
+
+.badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: var(--blue-light);
+
+  color: var(--navy);
+
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.actions {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 14px;
+}
+
+.actions .btn {
+  flex: 1;
+}
+
+
+/* =========================================================
+   PRODUCT CARD
+========================================================= */
 
 .product {
   width: 100%;
@@ -519,7 +568,7 @@ select:focus {
 
   align-items: center;
 
-  gap: 18px;
+  gap: 15px;
 
   text-align: left;
 
@@ -527,14 +576,28 @@ select:focus {
 
   font: inherit;
 
-  color: inherit;
+  color: var(--text);
 
-  background:
-    linear-gradient(
-      180deg,
-      #fff,
-      #fbfaf7
-    );
+  border: 1px solid var(--line);
+
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.product:hover {
+  transform: translateY(-2px);
+
+  border-color: #bdd1e4;
+
+  box-shadow:
+    0 10px 25px
+    rgba(13, 39, 64, 0.09);
+}
+
+.product:active {
+  transform: translateY(0);
 }
 
 .product span {
@@ -545,16 +608,8 @@ select:focus {
   display: block;
 }
 
-.product > b:last-child {
-  color: var(--primary);
-
-  background:
-    var(--accent-light);
-
-  border-radius: 10px;
-
-  padding:
-    7px 10px;
+.product > b {
+  color: var(--navy);
 
   white-space: nowrap;
 }
@@ -570,102 +625,63 @@ select:focus {
 }
 
 
-/* ==================================================
-   BADGE
-================================================== */
+/* =========================================================
+   LIST
+========================================================= */
 
-.badge {
-  background:
-    var(--primary-light);
+.list {
+  display: grid;
 
-  color:
-    var(--primary);
-
-  padding:
-    5px 10px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-
-  font-weight: 800;
-
-  white-space: nowrap;
+  gap: 10px;
 }
 
 
-/* ==================================================
-   ACTIONS
-================================================== */
-
-.actions {
-  display: flex;
-
-  gap: 8px;
-
-  margin-top: 14px;
-
-  flex-wrap: wrap;
-}
-
-.actions .btn {
-  flex: 1;
-}
-
-
-/* ==================================================
+/* =========================================================
    TABS
-================================================== */
+========================================================= */
 
 .tabs {
   display: flex;
 
+  flex-wrap: wrap;
+
   gap: 8px;
 
   margin-bottom: 15px;
-
-  overflow-x: auto;
-
-  padding-bottom: 3px;
 }
 
 .tabs button {
-  border:
-    1px solid var(--line);
+  border: 1px solid var(--line);
 
   background: #fff;
 
   color: var(--text);
 
-  padding:
-    11px 17px;
+  padding: 11px 17px;
 
-  border-radius: 12px;
+  border-radius: 11px;
+
+  font: inherit;
 
   font-weight: 800;
 
   cursor: pointer;
 
-  white-space: nowrap;
-
   transition:
-    all 0.15s ease;
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .tabs button:hover {
-  border-color: var(--accent);
-}
+  border-color: #c4d3e1;
 
-.tabs button.active {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
+  background: #f8fbfe;
 }
 
 
-/* ==================================================
+/* =========================================================
    FORM
-================================================== */
+========================================================= */
 
 .form {
   display: grid;
@@ -673,102 +689,70 @@ select:focus {
   grid-template-columns:
     2fr 1fr 1fr auto;
 
-  gap: 10px;
+  gap: 9px;
 
   align-items: end;
 }
 
 
-/* ==================================================
-   LIST
-================================================== */
-
-.list {
-  display: grid;
-
-  gap: 12px;
-}
-
-
-/* ==================================================
+/* =========================================================
    ERROR
-================================================== */
+========================================================= */
 
 .error {
-  background:
-    var(--red-light);
+  background: var(--red-light);
 
-  color:
-    #9f2929;
+  color: #9f2929;
 
-  border:
-    1px solid #f3cccc;
+  border: 1px solid #ffd0d0;
 
-  padding:
-    11px 13px;
+  padding: 11px 13px;
 
-  border-radius: 12px;
+  border-radius: 11px;
 
   margin: 12px 0;
 }
 
 
-/* ==================================================
+/* =========================================================
    TOAST
-================================================== */
+========================================================= */
 
 .toast {
   position: fixed;
 
   right: 18px;
+
   bottom: 18px;
 
   max-width:
-    min(380px, calc(100% - 36px));
+    min(420px, calc(100% - 36px));
 
-  background:
-    var(--primary);
+  background: var(--navy);
 
   color: #fff;
 
-  padding:
-    13px 17px;
+  padding: 13px 17px;
 
-  border-radius: 13px;
+  border-radius: 12px;
 
-  z-index: 1000;
+  z-index: 200;
 
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 12px 35px
+    rgba(0, 0, 0, 0.18);
 
   font-weight: 700;
-
-  animation:
-    toastIn 0.22s ease;
 }
 
 .toast.error {
-  background:
-    var(--red);
-}
-
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform:
-      translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform:
-      translateY(0);
-  }
+  background: var(--red);
 }
 
 
-/* ==================================================
-   AUTH / LOGIN
-================================================== */
+/* =========================================================
+   AUTH
+========================================================= */
 
 .auth {
   min-height: 100vh;
@@ -779,54 +763,51 @@ select:focus {
 
   background:
     radial-gradient(
-      circle at 20% 20%,
-      rgba(200,149,77,0.22),
-      transparent 30%
+      circle at top right,
+      rgba(255, 255, 255, 0.12),
+      transparent 35%
     ),
-
     linear-gradient(
       135deg,
-      var(--primary-dark),
-      var(--primary)
+      var(--navy),
+      var(--blue)
     );
 
-  padding: 18px;
+  padding: 16px;
 }
 
+
+/* =========================================================
+   LOGIN CARD
+========================================================= */
+
 .login-card {
-  background:
-    rgba(255,255,255,0.98);
+  background: #fff;
 
-  width:
-    min(420px, 100%);
+  width: min(
+    410px,
+    100%
+  );
 
-  padding:
-    34px;
+  padding: 32px;
 
-  border-radius:
-    26px;
-
-  border:
-    1px solid rgba(255,255,255,0.4);
+  border-radius: 24px;
 
   box-shadow:
-    0 30px 90px rgba(0,0,0,0.24);
+    0 30px 80px
+    rgba(0, 0, 0, 0.25);
 }
 
 .login-card h1 {
   margin: 0;
-
-  color: var(--primary);
-
-  letter-spacing: -0.7px;
 }
 
 .login-card form {
   display: grid;
 
-  gap: 15px;
+  gap: 14px;
 
-  margin-top: 25px;
+  margin-top: 24px;
 }
 
 .login-card label {
@@ -834,49 +815,100 @@ select:focus {
 
   gap: 7px;
 
-  font-weight: 750;
+  font-weight: 700;
 }
 
 
-/* ==================================================
+/* =========================================================
+   MODALS
+========================================================= */
+
+#tableModal,
+#productModal,
+#staffModal {
+  backdrop-filter: blur(4px);
+}
+
+#tableModal > .card,
+#productModal > .card,
+#staffModal > .card {
+  max-height: calc(100vh - 32px);
+
+  overflow-y: auto;
+
+  box-shadow:
+    0 25px 80px
+    rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================================
+   CHECKBOX
+========================================================= */
+
+input[type="checkbox"] {
+  width: 18px !important;
+
+  height: 18px;
+
+  min-height: 18px;
+
+  accent-color: var(--navy);
+
+  cursor: pointer;
+}
+
+
+/* =========================================================
+   HR
+========================================================= */
+
+hr {
+  border: 0;
+
+  border-top: 1px solid var(--line);
+
+  margin: 15px 0;
+}
+
+
+/* =========================================================
    SELECTION
-================================================== */
+========================================================= */
 
 ::selection {
-  background:
-    rgba(200,149,77,0.25);
+  background: var(--blue);
 
-  color:
-    var(--primary-dark);
+  color: #fff;
 }
 
 
-/* ==================================================
+/* =========================================================
    SCROLLBAR
-================================================== */
+========================================================= */
 
 ::-webkit-scrollbar {
   width: 9px;
-  height: 9px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #eeeae2;
+  background: #edf2f7;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c7c2b8;
-  border-radius: 999px;
+  background: #b8c5d2;
+
+  border-radius: 20px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #aaa398;
+  background: #9eafbf;
 }
 
 
-/* ==================================================
+/* =========================================================
    TABLET
-================================================== */
+========================================================= */
 
 @media (max-width: 900px) {
 
@@ -901,128 +933,110 @@ select:focus {
 }
 
 
-/* ==================================================
+/* =========================================================
    MOBILE
-================================================== */
+========================================================= */
 
 @media (max-width: 600px) {
 
   header {
-    height: 68px;
+    min-height: 66px;
 
     padding:
-      0 14px;
+      10px 16px;
   }
 
   .brand strong {
     font-size: 14px;
   }
 
-  .brand > div:last-child > div {
-    font-size: 11px !important;
-  }
-
-  .logo.small {
-    width: 39px;
-    height: 39px;
-  }
-
-  header .btn {
-    padding:
-      9px 11px;
-
-    min-height: 40px;
-
-    font-size: 13px;
-  }
-
   .page {
-    width:
-      calc(100% - 20px);
+    width: min(
+      100% - 20px,
+      1180px
+    );
 
-    margin:
-      20px auto 35px;
+    margin-top: 18px;
+  }
+
+  .page h1 {
+    font-size: 26px;
   }
 
   .grid {
     grid-template-columns: 1fr;
-
-    gap: 12px;
   }
 
   .toolbar {
     grid-template-columns: 1fr;
-
-    gap: 9px;
   }
 
   .form {
     grid-template-columns: 1fr;
   }
 
-  .card {
-    padding: 16px;
-
-    border-radius: 16px;
+  .row {
+    align-items: flex-start;
   }
 
-  .split {
-    gap: 14px;
-  }
-
-  .product {
-    padding: 16px;
+  .row > .btn {
+    flex-shrink: 0;
   }
 
   .actions {
-    display: grid;
-
-    grid-template-columns:
-      1fr 1fr;
+    flex-direction: column;
   }
 
   .actions .btn {
     width: 100%;
   }
 
-  .row {
-    gap: 8px;
+  .card {
+    padding: 16px;
+    border-radius: 16px;
   }
 
-  .toast {
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
-
-    max-width: none;
-
-    text-align: center;
-  }
-
-  .login-card {
-    padding: 25px 20px;
-
-    border-radius: 21px;
+  #tableModal > .card,
+  #productModal > .card,
+  #staffModal > .card {
+    width: 100% !important;
   }
 
 }
 
 
-/* ==================================================
-   VERY SMALL PHONES
-================================================== */
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
 
-@media (max-width: 380px) {
+@media (max-width: 420px) {
 
-  .actions {
-    grid-template-columns: 1fr;
+  header {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
-  .product > b:last-child {
-    padding:
-      6px 8px;
-
-    font-size: 13px;
+  .logo.small {
+    width: 38px;
+    height: 38px;
   }
 
-}
+  header .btn {
+    padding: 9px 11px;
+
+    font-size: 12px;
+  }
+
+  .page {
+    width: calc(100% - 16px);
+  }
+
+  .card {
+    padding: 14px;
+  }
+
+  .product {
+    padding: 15px;
+  }
+
+    }
