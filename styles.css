@@ -1,41 +1,47 @@
 /* =========================================================
    AYDER SOFRA
-   GLOBAL STYLE
+   GLOBAL STYLES
+   Admin + Garson + Mutfak + Fırın + Izgara
 ========================================================= */
 
 :root {
-  --navy: #102a43;
-  --navy-dark: #071b2d;
-  --blue: #2584c7;
-  --blue-light: #eaf7ff;
+  --navy: #102b43;
+  --navy-dark: #071b2b;
 
-  --brown: #7b4528;
-  --brown-dark: #3e2114;
-  --brown-light: #fff1e7;
+  --blue: #2878b8;
+  --blue-light: #dff3ff;
 
-  --grill: #a52b18;
-  --grill-dark: #34110b;
-  --grill-light: #fff0ec;
+  --brown: #8a4f2b;
+  --brown-dark: #4d2918;
+  --brown-light: #f4dfce;
 
-  --green: #21865b;
-  --green-light: #eaf8f1;
+  --orange: #e77b2f;
+  --orange-light: #fff0df;
 
-  --bg: #eef3f7;
-  --surface: #ffffff;
+  --green: #238653;
+  --green-light: #e5f7ed;
 
-  --text: #17212b;
-  --muted: #718096;
+  --red: #c63b3b;
+  --red-light: #ffe5e5;
 
-  --line: #dce5ec;
-  --red: #c63c3c;
-  --yellow: #e7a72e;
+  --yellow: #d99a19;
+  --yellow-light: #fff6d8;
 
-  --shadow-sm: 0 5px 18px rgba(20, 42, 62, .08);
-  --shadow: 0 15px 38px rgba(20, 42, 62, .12);
-  --shadow-lg: 0 25px 70px rgba(20, 42, 62, .18);
+  --bg: #f4f7fb;
+  --white: #ffffff;
+
+  --text: #172333;
+  --muted: #6e7c8d;
+
+  --line: #dfe7ef;
+
+  --shadow:
+    0 12px 35px rgba(15, 38, 60, 0.10);
+
+  --shadow-lg:
+    0 25px 70px rgba(15, 38, 60, 0.16);
 
   --radius: 18px;
-  --radius-sm: 12px;
 }
 
 
@@ -58,30 +64,25 @@ body {
   color: var(--text);
 
   font-family:
+    Inter,
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
-    Arial,
     sans-serif;
 
   background:
     radial-gradient(
       circle at 10% 10%,
-      rgba(37, 132, 199, .10),
+      rgba(33, 103, 173, 0.08),
       transparent 28%
     ),
     radial-gradient(
-      circle at 90% 20%,
-      rgba(123, 69, 40, .08),
-      transparent 25%
+      circle at 90% 90%,
+      rgba(231, 123, 47, 0.08),
+      transparent 30%
     ),
-    linear-gradient(
-      135deg,
-      #f7fafc 0%,
-      #edf3f7 48%,
-      #e8f0f5 100%
-    );
+    var(--bg);
 }
 
 button,
@@ -95,10 +96,6 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
-a {
-  color: inherit;
-}
-
 img {
   max-width: 100%;
   display: block;
@@ -110,29 +107,28 @@ img {
 ========================================================= */
 
 header {
-  min-height: 76px;
+  min-height: 82px;
 
   padding:
     12px
-    max(18px, calc((100% - 1200px) / 2));
+    max(18px, calc((100% - 1180px) / 2));
 
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
 
-  color: #fff;
+  color: white;
 
   background:
     linear-gradient(
       135deg,
-      #071b2d,
-      #123b5d 55%,
-      #18547d
+      var(--navy-dark),
+      var(--navy),
+      #174c72
     );
 
   box-shadow:
-    0 8px 30px rgba(7, 27, 45, .18);
+    0 5px 25px rgba(0, 0, 0, 0.14);
 
   position: relative;
   z-index: 20;
@@ -140,19 +136,22 @@ header {
 
 header::after {
   content: "";
+
   position: absolute;
-  inset: auto 0 0 0;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
   height: 3px;
 
   background:
     linear-gradient(
       90deg,
-      #f4c15d,
-      #fff,
-      #f4c15d
+      #e77b2f,
+      #f0a04b,
+      #2878b8
     );
-
-  opacity: .65;
 }
 
 .brand {
@@ -162,8 +161,8 @@ header::after {
 }
 
 .brand strong {
-  font-size: 20px;
-  letter-spacing: -.3px;
+  font-size: 18px;
+  letter-spacing: 0.3px;
 }
 
 .logo {
@@ -175,27 +174,28 @@ header::after {
 
   border-radius: 17px;
 
-  font-weight: 950;
-  letter-spacing: -1px;
-
-  color: #fff;
+  color: white;
 
   background:
     linear-gradient(
       145deg,
-      #2167ad,
-      #0d2740
+      #194a6d,
+      #0b2439
     );
 
+  font-weight: 900;
+
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.25),
-    0 8px 20px rgba(0,0,0,.2);
+    inset 0 1px rgba(255,255,255,.16),
+    0 8px 25px rgba(0,0,0,.22);
 }
 
 .logo.small {
-  width: 44px;
-  height: 44px;
+  width: 45px;
+  height: 45px;
+
   border-radius: 13px;
+
   font-size: 13px;
 }
 
@@ -205,23 +205,19 @@ header::after {
 ========================================================= */
 
 .page {
-  width: min(1200px, calc(100% - 28px));
-  margin: 30px auto 60px;
+  width: min(1180px, calc(100% - 28px));
+  margin: 28px auto 50px;
 }
 
 .page h1 {
-  margin: 0 0 5px;
+  margin: 0 0 6px;
   font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.1;
-  letter-spacing: -1.2px;
+  font-weight: 900;
 }
 
-.page h2 {
-  letter-spacing: -.5px;
-}
-
+.page h2,
 .page h3 {
-  letter-spacing: -.25px;
+  color: var(--text);
 }
 
 .muted {
@@ -235,35 +231,43 @@ header::after {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
   gap: 16px;
 }
 
 
 /* =========================================================
-   CARD
+   CARDS
 ========================================================= */
 
 .card {
-  background:
-    rgba(255,255,255,.94);
+  background: rgba(255,255,255,.94);
 
-  border: 1px solid rgba(220,229,236,.95);
+  border:
+    1px solid
+    rgba(223,231,239,.95);
 
   border-radius: var(--radius);
 
   padding: 20px;
 
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow);
 
   transition:
-    transform .2s ease,
-    box-shadow .2s ease,
-    border-color .2s ease;
+    transform .18s ease,
+    box-shadow .18s ease,
+    border-color .18s ease;
 }
 
 .card:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-lg);
+}
+
+a.card {
+  display: block;
 }
 
 .link {
@@ -282,8 +286,10 @@ header::after {
 
 .row {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   gap: 12px;
 }
 
@@ -294,9 +300,10 @@ header::after {
 
 .btn {
   border: 0;
+
   border-radius: 12px;
 
-  padding: 11px 16px;
+  padding: 12px 17px;
 
   font-weight: 800;
 
@@ -310,7 +317,6 @@ header::after {
 
 .btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 7px 18px rgba(0,0,0,.10);
 }
 
 .btn:active {
@@ -318,24 +324,33 @@ header::after {
 }
 
 .primary {
-  color: #fff;
+  color: white;
 
   background:
     linear-gradient(
       135deg,
-      #102f4b,
+      var(--navy),
       #2167ad
     );
+
+  box-shadow:
+    0 8px 18px rgba(33,103,173,.18);
 }
 
 .ghost {
   color: var(--navy);
-  background: #f1f5f8;
+
+  background: white;
+
+  border:
+    1px solid
+    var(--line);
 }
 
 .danger {
-  color: #a82d2d;
-  background: #ffeaea;
+  color: var(--red);
+
+  background: var(--red-light);
 }
 
 .wide {
@@ -352,28 +367,23 @@ select,
 textarea {
   width: 100%;
 
-  border: 1px solid var(--line);
+  padding: 12px 14px;
+
+  border:
+    1px solid
+    var(--line);
 
   border-radius: 12px;
 
-  padding: 12px 13px;
+  outline: none;
+
+  background: white;
 
   color: var(--text);
 
-  background: #fff;
-
-  outline: none;
-
   transition:
-    border-color .18s ease,
-    box-shadow .18s ease,
-    background .18s ease;
-}
-
-input:hover,
-select:hover,
-textarea:hover {
-  border-color: #b8c9d7;
+    border-color .15s ease,
+    box-shadow .15s ease;
 }
 
 input:focus,
@@ -382,12 +392,14 @@ textarea:focus {
   border-color: var(--blue);
 
   box-shadow:
-    0 0 0 4px rgba(37,132,199,.12);
+    0 0 0 4px
+    rgba(40,120,184,.10);
 }
 
 label {
   display: grid;
   gap: 7px;
+
   font-weight: 700;
 }
 
@@ -398,10 +410,13 @@ label {
 
 .toolbar {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
+
+  grid-template-columns:
+    180px 1fr;
+
   gap: 10px;
 
-  margin-bottom: 16px;
+  margin-bottom: 15px;
 }
 
 
@@ -411,16 +426,25 @@ label {
 
 .split {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 350px;
-  gap: 20px;
 
-  align-items: start;
+  grid-template-columns:
+    minmax(0, 1fr)
+    340px;
+
+  gap: 18px;
 }
 
 .cart {
   position: sticky;
-  top: 18px;
+
+  top: 15px;
+
   height: max-content;
+}
+
+.items {
+  line-height: 1.8;
+  padding: 14px 0;
 }
 
 
@@ -432,52 +456,42 @@ label {
   width: 100%;
 
   display: flex;
-  align-items: center;
+
   justify-content: space-between;
+  align-items: center;
+
   gap: 15px;
 
   text-align: left;
 
   cursor: pointer;
+
   font: inherit;
 
-  position: relative;
-  overflow: hidden;
-}
+  border: 1px solid var(--line);
 
-.product::before {
-  content: "🍽️";
-
-  position: absolute;
-  right: -3px;
-  bottom: -16px;
-
-  font-size: 65px;
-
-  opacity: .045;
-
-  pointer-events: none;
+  transition:
+    transform .16s ease,
+    border-color .16s ease,
+    box-shadow .16s ease;
 }
 
 .product:hover {
-  border-color: rgba(37,132,199,.45);
   transform: translateY(-3px);
+
+  border-color:
+    rgba(40,120,184,.35);
+
+  box-shadow:
+    0 10px 25px rgba(16,43,67,.10);
 }
 
 .product small {
   display: block;
+
   color: var(--muted);
-  margin-top: 5px;
-}
 
-
-/* =========================================================
-   CART
-========================================================= */
-
-.items {
-  line-height: 1.8;
-  padding: 14px 0;
+  margin-top: 4px;
 }
 
 
@@ -487,20 +501,20 @@ label {
 
 .badge {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  min-height: 27px;
+  background: #eaf1f8;
 
-  padding: 5px 10px;
+  padding: 6px 10px;
 
   border-radius: 999px;
 
-  color: #24516e;
-  background: #eaf3f9;
-
   font-size: 12px;
+
   font-weight: 800;
+
   white-space: nowrap;
 }
 
@@ -511,53 +525,12 @@ label {
 
 .actions {
   display: flex;
+
   flex-wrap: wrap;
+
   gap: 8px;
+
   margin-top: 14px;
-}
-
-
-/* =========================================================
-   TABS
-========================================================= */
-
-.tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
-.tabs button {
-  border: 1px solid var(--line);
-
-  background: #fff;
-
-  padding: 11px 17px;
-
-  border-radius: 12px;
-
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition: .18s ease;
-}
-
-.tabs button:hover {
-  background: #f1f6fa;
-  border-color: #bfd0dc;
-}
-
-
-/* =========================================================
-   FORM
-========================================================= */
-
-.form {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr auto;
-  gap: 9px;
 }
 
 
@@ -567,7 +540,53 @@ label {
 
 .list {
   display: grid;
-  gap: 12px;
+  gap: 10px;
+}
+
+
+/* =========================================================
+   FORM
+========================================================= */
+
+.form {
+  display: grid;
+
+  grid-template-columns:
+    2fr
+    1fr
+    1fr
+    auto;
+
+  gap: 9px;
+}
+
+
+/* =========================================================
+   TABS
+========================================================= */
+
+.tabs {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-bottom: 15px;
+}
+
+.tabs button {
+  border: 0;
+
+  background: white;
+
+  padding: 12px 18px;
+
+  border-radius: 11px;
+
+  font-weight: 800;
+
+  cursor: pointer;
 }
 
 
@@ -576,10 +595,9 @@ label {
 ========================================================= */
 
 .error {
-  background: #ffe8e8;
-  color: #9e2929;
+  background: var(--red-light);
 
-  border: 1px solid #ffcaca;
+  color: #9f2929;
 
   padding: 11px 13px;
 
@@ -599,24 +617,23 @@ label {
   right: 18px;
   bottom: 18px;
 
-  max-width: min(380px, calc(100% - 36px));
-
-  padding: 13px 17px;
-
-  color: #fff;
-
   background:
     linear-gradient(
       135deg,
-      #102f4b,
+      var(--navy),
       #2167ad
     );
+
+  color: white;
+
+  padding: 13px 17px;
 
   border-radius: 13px;
 
   z-index: 9999;
 
-  box-shadow: var(--shadow);
+  box-shadow:
+    0 15px 35px rgba(0,0,0,.18);
 
   font-weight: 700;
 }
@@ -625,14 +642,14 @@ label {
   background:
     linear-gradient(
       135deg,
-      #8f2525,
-      #c53d3d
+      #a72e2e,
+      var(--red)
     );
 }
 
 
 /* =========================================================
-   AUTH
+   LOGIN
 ========================================================= */
 
 .auth {
@@ -641,23 +658,23 @@ label {
   display: grid;
   place-items: center;
 
-  padding: 20px;
+  padding: 18px;
 
   background:
     radial-gradient(
-      circle at 15% 15%,
-      rgba(255,255,255,.12),
+      circle at 20% 20%,
+      rgba(255,255,255,.14),
       transparent 25%
     ),
     radial-gradient(
-      circle at 85% 80%,
-      rgba(255,255,255,.10),
-      transparent 28%
+      circle at 80% 80%,
+      rgba(255,180,80,.16),
+      transparent 30%
     ),
     linear-gradient(
       135deg,
-      #071b2d,
-      #0d2740 45%,
+      #071b2b,
+      #0d2740,
       #2167ad
     );
 }
@@ -665,13 +682,14 @@ label {
 .login-card {
   width: min(420px, 100%);
 
+  background: rgba(255,255,255,.98);
+
   padding: 34px;
 
-  background: rgba(255,255,255,.97);
+  border-radius: 26px;
 
-  border-radius: 25px;
-
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.28);
 }
 
 .login-card h1 {
@@ -680,13 +698,17 @@ label {
 
 .login-card form {
   display: grid;
+
   gap: 14px;
+
   margin-top: 24px;
 }
 
 .login-card label {
   display: grid;
+
   gap: 7px;
+
   font-weight: 700;
 }
 
@@ -697,6 +719,7 @@ label {
 
 .order-card {
   position: relative;
+
   overflow: hidden;
 }
 
@@ -715,7 +738,7 @@ label {
     linear-gradient(
       180deg,
       #2167ad,
-      #65b5e8
+      #68b9e8
     );
 }
 
@@ -723,427 +746,188 @@ label {
   margin-top: 0;
 }
 
-.order-card hr {
-  border: 0;
-  border-top: 1px solid var(--line);
-  margin: 16px 0;
-}
-
 
 /* =========================================================
-   GARSON PAGE
-   Blue / clean restaurant style
+   MUTFAK
+   Açık mavi / su teması
 ========================================================= */
 
-body.garson-page {
+body.kitchen-page,
+.kitchen-page {
   background:
     radial-gradient(
-      circle at 10% 10%,
-      rgba(38,142,207,.18),
-      transparent 28%
+      circle at 15% 15%,
+      rgba(70,180,230,.22),
+      transparent 25%
     ),
     radial-gradient(
-      circle at 90% 85%,
-      rgba(40,100,180,.13),
+      circle at 85% 75%,
+      rgba(40,120,184,.18),
       transparent 30%
     ),
     linear-gradient(
       135deg,
-      #f4fbff,
-      #eaf5fb
+      #e8f8ff,
+      #d8f1fb,
+      #f5fbff
     );
 }
 
-.garson-page .card {
-  border-color: #d5e8f4;
-}
-
-.garson-page .product:hover {
-  background: #f7fcff;
-}
-
-
-/* =========================================================
-   MUTFAK PAGE
-   Light blue / water / plates feeling
-========================================================= */
-
-body.mutfak-page {
-  color: #163044;
-
-  background:
-    radial-gradient(
-      circle at 10% 15%,
-      rgba(87,181,230,.30),
-      transparent 25%
-    ),
-    radial-gradient(
-      circle at 90% 20%,
-      rgba(164,220,245,.32),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 50% 90%,
-      rgba(45,146,194,.15),
-      transparent 30%
-    ),
-    linear-gradient(
-      135deg,
-      #eaf9ff,
-      #d9f1fc 45%,
-      #eefaff
-    );
-}
-
-.mutfak-page header {
-  background:
-    linear-gradient(
-      135deg,
-      #075985,
-      #169bd2,
-      #56c4e9
-    );
-}
-
-.mutfak-page .order-card::before {
+.kitchen-page .order-card::before {
   background:
     linear-gradient(
       180deg,
-      #0b75a8,
-      #64cbea
+      #4cb9e9,
+      #1374a7
     );
 }
 
-.mutfak-page .card {
-  background: rgba(255,255,255,.90);
-  border-color: #c8e8f5;
-}
-
-
-/* decorative kitchen bubbles */
-
-.mutfak-page::before,
-.mutfak-page::after {
-  content: "";
-
-  position: fixed;
-
-  width: 170px;
-  height: 170px;
-
-  border-radius: 50%;
-
-  pointer-events: none;
-
-  opacity: .16;
-
-  filter: blur(1px);
-
-  z-index: -1;
-}
-
-.mutfak-page::before {
-  top: 120px;
-  right: 4%;
-
-  background:
-    radial-gradient(
-      circle at 30% 30%,
-      #fff 0 5%,
-      transparent 6%
-    ),
-    radial-gradient(
-      circle at 65% 55%,
-      #fff 0 7%,
-      transparent 8%
-    ),
-    radial-gradient(
-      circle at 40% 80%,
-      #fff 0 4%,
-      transparent 5%
-    );
-}
-
-.mutfak-page::after {
-  bottom: 5%;
-  left: 2%;
-
-  background:
-    radial-gradient(
-      circle at 40% 30%,
-      #fff 0 6%,
-      transparent 7%
-    ),
-    radial-gradient(
-      circle at 70% 70%,
-      #fff 0 8%,
-      transparent 9%
-    );
+.kitchen-page .badge {
+  background: #d9f3ff;
+  color: #11638c;
 }
 
 
 /* =========================================================
-   FIRIN PAGE
-   Brown / oven / pide / lahmacun
+   FIRIN
+   Kahverengi / taş / pide teması
 ========================================================= */
 
-body.firin-page {
-  color: #392116;
-
+body.bakery-page,
+.bakery-page {
   background:
     radial-gradient(
-      circle at 12% 12%,
-      rgba(181,104,49,.22),
-      transparent 27%
-    ),
-    radial-gradient(
-      circle at 90% 70%,
-      rgba(117,58,27,.18),
-      transparent 30%
-    ),
-    linear-gradient(
-      135deg,
-      #fff6ee,
-      #f7e6d7 48%,
-      #f0d4bd
-    );
-}
-
-.firin-page header {
-  background:
-    linear-gradient(
-      135deg,
-      #32180e,
-      #63341e,
-      #9a5731
-    );
-}
-
-.firin-page .card {
-  background: rgba(255,249,243,.94);
-  border-color: #ead2bf;
-}
-
-.firin-page .order-card::before {
-  background:
-    linear-gradient(
-      180deg,
-      #713b21,
-      #d88745
-    );
-}
-
-.firin-page .badge {
-  color: #6b3b22;
-  background: #f6dfcb;
-}
-
-.firin-page .btn.primary {
-  background:
-    linear-gradient(
-      135deg,
-      #572a18,
-      #9a4d29
-    );
-}
-
-
-/* Oven decorative background */
-
-.firin-page::before {
-  content: "🥖   🫓   🥙   🫓   🥖";
-
-  position: fixed;
-
-  left: 0;
-  right: 0;
-  bottom: 5%;
-
-  text-align: center;
-
-  font-size: clamp(30px, 6vw, 70px);
-
-  letter-spacing: 22px;
-
-  opacity: .055;
-
-  pointer-events: none;
-
-  z-index: -1;
-}
-
-
-/* =========================================================
-   IZGARA PAGE
-   Dark red / fire / grill
-========================================================= */
-
-body.izgara-page {
-  color: #2b1712;
-
-  background:
-    radial-gradient(
-      circle at 12% 12%,
-      rgba(220,78,40,.24),
+      circle at 12% 20%,
+      rgba(138,79,43,.20),
       transparent 25%
     ),
     radial-gradient(
-      circle at 90% 85%,
-      rgba(132,31,16,.22),
+      circle at 88% 75%,
+      rgba(231,123,47,.20),
       transparent 28%
     ),
     linear-gradient(
       135deg,
-      #fff3ef,
-      #f8ded7 50%,
-      #f0c8bf
+      #f3dfce,
+      #f8eadc,
+      #ead2bd
     );
 }
 
-.izgara-page header {
-  background:
-    linear-gradient(
-      135deg,
-      #260b07,
-      #58180f,
-      #9e321d
-    );
-}
-
-.izgara-page .card {
-  background: rgba(255,249,247,.94);
-  border-color: #ebcec7;
-}
-
-.izgara-page .order-card::before {
+.bakery-page .order-card::before {
   background:
     linear-gradient(
       180deg,
-      #771d10,
-      #e85b32
+      #d86d2c,
+      #733a20
     );
 }
 
-.izgara-page .badge {
-  color: #7b2618;
-  background: #fae0da;
-}
-
-.izgara-page .btn.primary {
-  background:
-    linear-gradient(
-      135deg,
-      #58160d,
-      #ad321d
-    );
-}
-
-
-/* grill decorative flames */
-
-.izgara-page::before {
-  content: "🔥  🔥  🔥  🔥  🔥";
-
-  position: fixed;
-
-  left: 0;
-  right: 0;
-  bottom: 4%;
-
-  text-align: center;
-
-  font-size: clamp(30px, 6vw, 72px);
-
-  letter-spacing: 15px;
-
-  opacity: .065;
-
-  pointer-events: none;
-
-  z-index: -1;
+.bakery-page .badge {
+  background: var(--brown-light);
+  color: var(--brown-dark);
 }
 
 
 /* =========================================================
-   ADMIN PAGE
+   IZGARA
+   Koyu / ateş / kömür
 ========================================================= */
 
-body.admin-page {
+body.grill-page,
+.grill-page {
+  color: #fff;
+
   background:
     radial-gradient(
-      circle at 0% 0%,
-      rgba(33,103,173,.13),
+      circle at 20% 20%,
+      rgba(255,94,20,.24),
       transparent 25%
     ),
     radial-gradient(
-      circle at 100% 30%,
-      rgba(123,69,40,.08),
-      transparent 25%
+      circle at 80% 75%,
+      rgba(255,145,40,.18),
+      transparent 30%
     ),
     linear-gradient(
       135deg,
-      #f7fafc,
-      #edf3f7
+      #201713,
+      #3a2118,
+      #17110f
     );
 }
 
-.admin-page .card:hover {
-  transform: translateY(-2px);
+.grill-page .card {
+  color: #fff;
+
+  background:
+    rgba(48,31,24,.94);
+
+  border-color:
+    rgba(255,170,100,.16);
 }
 
-.admin-page .grid > .card:first-child {
-  border-top: 4px solid #2167ad;
+.grill-page .order-card::before {
+  background:
+    linear-gradient(
+      180deg,
+      #ff9c32,
+      #d83b1d
+    );
 }
 
-.admin-page .grid > .card:nth-child(2) {
-  border-top: 4px solid #21865b;
+.grill-page .badge {
+  background: #593523;
+  color: #ffd7a8;
 }
 
-.admin-page .grid > .card:nth-child(3) {
-  border-top: 4px solid #c53d3d;
+.grill-page .muted {
+  color: #d0bdb1;
 }
 
-
-/* =========================================================
-   TABLE CARDS
-========================================================= */
-
-#tablesGrid .card {
-  position: relative;
-  overflow: hidden;
-}
-
-#tablesGrid .card::after {
-  content: "🪑";
-
-  position: absolute;
-
-  right: 15px;
-  bottom: 5px;
-
-  font-size: 48px;
-
-  opacity: .055;
-
-  pointer-events: none;
-}
-
-#tablesGrid .badge {
-  position: relative;
-  z-index: 2;
+.grill-page h1,
+.grill-page h2,
+.grill-page h3 {
+  color: #fff;
 }
 
 
 /* =========================================================
-   PRODUCT LIST ADMIN
+   ADMIN STAT CARDS
 ========================================================= */
 
-#productsList .card {
-  position: relative;
+#totalTables,
+#availableTables,
+#busyTables {
+  font-size: 32px;
+
+  margin:
+    7px
+    0
+    0;
+
+  font-weight: 900;
 }
 
-#productsList .card:hover {
-  border-color: rgba(33,103,173,.30);
+
+/* =========================================================
+   ADMIN QUICK ACCESS
+========================================================= */
+
+a[href="garson.html"] {
+  border-top: 4px solid #2878b8;
+}
+
+a[href="mutfak.html"] {
+  border-top: 4px solid #55b8e5;
+}
+
+a[href="firin.html"] {
+  border-top: 4px solid #9a572f;
+}
+
+a[href="izgara.html"] {
+  border-top: 4px solid #e56b2c;
 }
 
 
@@ -1154,26 +938,34 @@ body.admin-page {
 #tableModal,
 #productModal,
 #staffModal {
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(5px);
 }
 
 #tableModal > .card,
 #productModal > .card,
 #staffModal > .card {
-  box-shadow: var(--shadow-lg);
-  animation: modalIn .2s ease-out;
+  max-height: calc(100vh - 32px);
+
+  overflow-y: auto;
+
+  box-shadow:
+    0 30px 90px rgba(0,0,0,.25);
 }
 
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px) scale(.98);
-  }
 
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+/* =========================================================
+   HR
+========================================================= */
+
+hr {
+  border: 0;
+
+  border-top:
+    1px solid
+    var(--line);
+
+  margin:
+    15px 0;
 }
 
 
@@ -1182,7 +974,7 @@ body.admin-page {
 ========================================================= */
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 9px;
 }
 
 ::-webkit-scrollbar-track {
@@ -1190,23 +982,25 @@ body.admin-page {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #b7c6d1;
-  border-radius: 999px;
+  background: #b7c5d2;
+
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #91a5b4;
+  background: #8fa2b2;
 }
 
 
 /* =========================================================
-   MOBILE
+   RESPONSIVE
 ========================================================= */
 
 @media (max-width: 900px) {
 
   .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
   }
 
   .split {
@@ -1218,7 +1012,8 @@ body.admin-page {
   }
 
   .form {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns:
+      1fr 1fr;
   }
 
 }
@@ -1227,21 +1022,25 @@ body.admin-page {
 @media (max-width: 650px) {
 
   header {
-    min-height: 68px;
-    padding: 10px 14px;
+    min-height: 70px;
+
+    padding:
+      10px 14px;
   }
 
   .brand strong {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .page {
-    width: min(100% - 20px, 1200px);
-    margin-top: 20px;
+    width:
+      calc(100% - 20px);
+
+    margin-top: 18px;
   }
 
   .page h1 {
-    font-size: 30px;
+    font-size: 29px;
   }
 
   .grid {
@@ -1256,67 +1055,48 @@ body.admin-page {
     grid-template-columns: 1fr;
   }
 
-  .row {
-    align-items: flex-start;
-  }
-
-  .actions {
-    width: 100%;
-  }
-
-  .actions .btn {
-    flex: 1;
+  .split {
+    grid-template-columns: 1fr;
   }
 
   .card {
     padding: 16px;
-    border-radius: 15px;
   }
 
-  .login-card {
-    padding: 25px 20px;
+  .actions {
+    flex-direction: column;
+  }
+
+  .actions .btn {
+    width: 100%;
+  }
+
+  .row {
+    align-items: flex-start;
   }
 
 }
 
 
-@media (max-width: 430px) {
+@media (max-width: 450px) {
 
   .logo.small {
-    width: 39px;
-    height: 39px;
+    width: 40px;
+    height: 40px;
   }
 
-  .brand > div:last-child > div {
-    font-size: 10px !important;
+  header {
+    min-height: 64px;
   }
 
   .btn {
-    padding: 10px 12px;
-    font-size: 13px;
+    padding:
+      11px 13px;
   }
 
-  input,
-  select {
-    padding: 11px;
+  .login-card {
+    padding: 23px;
+    border-radius: 20px;
   }
 
-}
-
-
-/* =========================================================
-   REDUCED MOTION
-========================================================= */
-
-@media (prefers-reduced-motion: reduce) {
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-  }
-
-                       }
+       }
