@@ -1,23 +1,20 @@
 <!doctype html>
-
 <html lang="tr">
 
 <head>
+  <meta charset="utf-8">
 
-<meta charset="utf-8">
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1"
->
+  <title>Ayder Sofra | Garson</title>
 
-<title>Ayder Sofra | Garson</title>
-
-<link
-  rel="stylesheet"
-  href="styles.css"
->
-
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
 </head>
 
 <body>
@@ -25,14 +22,23 @@
 <script type="module">
 
 import {
+  db,
+  collection,
+  onSnapshot
+} from "./firebase.js";
+
+import {
   shell,
-  listenMenu,
   createOrder,
   money,
   esc,
   toast
 } from "./app.js";
 
+
+/* =========================
+   SAYFA
+========================= */
 
 const content =
   shell(
@@ -53,10 +59,11 @@ content.innerHTML = `
 
     ${Array.from(
       { length: 20 },
-      (_, i) =>
-        `<option value="${i + 1}">
+      (_, i) => `
+        <option value="${i + 1}">
           Masa ${i + 1}
-        </option>`
+        </option>
+      `
     ).join("")}
 
   </select>
@@ -102,6 +109,7 @@ content.innerHTML = `
     <button
       id="send"
       class="btn primary wide"
+      type="button"
     >
       Siparişi Gönder
     </button>
@@ -112,6 +120,10 @@ content.innerHTML = `
 
 `;
 
+
+/* =========================
+   ELEMENTLER
+========================= */
 
 const table =
   content.querySelector("#table");
@@ -131,6 +143,10 @@ const total =
 const send =
   content.querySelector("#send");
 
+
+/* =========================
+   STATE
+========================= */
 
 let menu = [];
 
@@ -152,54 +168,118 @@ function render() {
   const filtered =
     menu.filter(item => {
 
+      /*
+       * Sadece aktif ürünleri göster.
+       * active false ise gösterme.
+       */
+
       const active =
         item.active !== false;
 
-      const matches =
-        String(item.name || "")
-          .toLowerCase()
-          .includes(q);
 
-      return active && matches;
+      const name =
+        String(
+          item.name || ""
+        ).toLowerCase();
+
+
+      const category =
+        String(
+          item.category || ""
+        ).toLowerCase();
+
+
+      const matches =
+        !q ||
+        name.includes(q) ||
+        category.includes(q);
+
+
+      return (
+        active &&
+        matches
+      );
 
     });
 
 
-  menuEl.innerHTML =
-    filtered.map(item => `
+  /* =========================
+     ÜRÜNLER
+  ========================= */
 
-      <button
-        class="card product"
-        data-id="${item.id}"
-      >
+  if (!filtered.length) {
 
-        <span>
+    menuEl.innerHTML = `
+
+      <div class="card">
+
+        <strong>
+          Ürün bulunamadı.
+        </strong>
+
+        <p class="muted">
+          Yönetim panelinden aktif ürün ekleyin.
+        </p>
+
+      </div>
+
+    `;
+
+  } else {
+
+    menuEl.innerHTML =
+      filtered.map(item => `
+
+        <button
+          type="button"
+          class="card product"
+          data-id="${esc(item.id)}"
+        >
+
+          <span>
+
+            <b>
+              ${esc(item.name)}
+            </b>
+
+            <small>
+              ${esc(item.category || "")}
+            </small>
+
+            <small>
+              ${departmentName(
+                item.department
+              )}
+            </small>
+
+          </span>
+
 
           <b>
-            ${esc(item.name)}
+            ${money(
+              Number(item.price || 0)
+            )}
           </b>
 
-          <small>
-            ${esc(item.category || "")}
-          </small>
+        </button>
 
-        </span>
+      `).join("");
 
-        <b>
-          ${money(item.price)}
-        </b>
+  }
 
-      </button>
 
-    `).join("");
-
+  /* =========================
+     SEPET
+  ========================= */
 
   if (!cart.length) {
 
     cartEl.innerHTML = `
+
       <p class="muted">
         Sepet boş
       </p>
+
     `;
 
   } else {
@@ -207,17 +287,26 @@ function render() {
     cartEl.innerHTML =
       cart.map(item => `
 
-        <div class="row">
+        <div
+          class="row"
+          style="margin-bottom:10px"
+        >
 
           <span>
+
             ${item.qty} ×
             ${esc(item.name)}
+
           </span>
 
+
           <b>
+
             ${money(
-              item.price * item.qty
+              Number(item.price || 0) *
+              Number(item.qty || 0)
             )}
+
           </b>
 
         </div>
@@ -227,12 +316,21 @@ function render() {
   }
 
 
+  /* =========================
+     TOPLAM
+  ========================= */
+
   const sum =
     cart.reduce(
-      (total, item) =>
-        total +
-        Number(item.price || 0) *
-        Number(item.qty || 0),
+      (sum, item) => {
+
+        return (
+          sum +
+          Number(item.price || 0) *
+          Number(item.qty || 0)
+        );
+
+      },
       0
     );
 
@@ -244,28 +342,126 @@ function render() {
 
 
 /* =========================
-   MENU
+   BÖLÜM ADI
 ========================= */
 
-listenMenu(items => {
+function departmentName(
+  department
+) {
 
-  menu = items;
+  const names = {
 
-  render();
+    mutfak: "Mutfak",
 
-});
+    firin: "Fırın",
+
+    izgara: "Izgara"
+
+  };
+
+
+  return (
+    names[department] ||
+    ""
+  );
+
+}
+
+
+/* ==================================================
+   FIREBASE PRODUCTS
+================================================== */
+
+
+/*
+ * ÖNEMLİ:
+ *
+ * Admin panelinde ürünler:
+ *
+ * collection(db, "products")
+ *
+ * içine kaydediliyorsa,
+ * Garson da aynı collection'ı okumalı.
+ */
+
+onSnapshot(
+
+  collection(
+    db,
+    "products"
+  ),
+
+  snapshot => {
+
+    menu =
+      snapshot.docs.map(
+        item => ({
+
+          id: item.id,
+
+          ...item.data()
+
+        })
+      );
+
+
+    console.log(
+      "Garson ürünleri:",
+      menu
+    );
+
+
+    render();
+
+  },
+
+  error => {
+
+    console.error(
+      "Products error:",
+      error
+    );
+
+
+    menuEl.innerHTML = `
+
+      <div class="card">
+
+        <strong>
+          Ürünler yüklenemedi.
+        </strong>
+
+        <p class="muted">
+          Firebase bağlantısını veya Firestore izinlerini kontrol edin.
+        </p>
+
+      </div>
+
+    `;
+
+
+    toast(
+      "Ürünler yüklenemedi.",
+      "error"
+    );
+
+  }
+
+);
 
 
 /* =========================
    SEARCH
 ========================= */
 
-search.oninput =
-  render;
+search.addEventListener(
+  "input",
+  render
+);
 
 
 /* =========================
-   ADD PRODUCT
+   ÜRÜNÜ SEPETE EKLE
 ========================= */
 
 menuEl.addEventListener(
@@ -277,36 +473,79 @@ menuEl.addEventListener(
         "[data-id]"
       );
 
-    if (!button) return;
+
+    if (!button) {
+      return;
+    }
+
+
+    const id =
+      button.dataset.id;
 
 
     const item =
       menu.find(
-        x => x.id === button.dataset.id
+        product =>
+          product.id === id
       );
 
-    if (!item) return;
+
+    if (!item) {
+      return;
+    }
+
+
+    /*
+     * Pasif ürün sepete girmesin.
+     */
+
+    if (
+      item.active === false
+    ) {
+
+      toast(
+        "Bu ürün aktif değil.",
+        "error"
+      );
+
+      return;
+
+    }
 
 
     const old =
       cart.find(
-        x => x.id === item.id
+        product =>
+          product.id === item.id
       );
 
 
     if (old) {
 
-      old.qty++;
+      old.qty += 1;
 
     } else {
 
       cart.push({
-        id: item.id,
-        name: item.name,
-        price: Number(item.price || 0),
+
+        id:
+          item.id,
+
+        name:
+          item.name || "",
+
+        price:
+          Number(item.price || 0),
+
+        category:
+          item.category || "",
+
         department:
           item.department || "",
-        qty: 1
+
+        qty:
+          1
+
       });
 
     }
@@ -319,11 +558,14 @@ menuEl.addEventListener(
 
 
 /* =========================
-   SEND ORDER
+   SİPARİŞ GÖNDER
 ========================= */
 
-send.onclick =
+send.addEventListener(
+  "click",
   async () => {
+
+    /* MASA */
 
     if (!table.value) {
 
@@ -336,6 +578,8 @@ send.onclick =
 
     }
 
+
+    /* SEPET */
 
     if (!cart.length) {
 
@@ -351,15 +595,26 @@ send.onclick =
 
     const totalValue =
       cart.reduce(
-        (sum, item) =>
-          sum +
-          item.price *
-          item.qty,
+        (sum, item) => {
+
+          return (
+            sum +
+            Number(item.price || 0) *
+            Number(item.qty || 0)
+          );
+
+        },
         0
       );
 
 
     try {
+
+      send.disabled = true;
+
+      send.textContent =
+        "Gönderiliyor...";
+
 
       await createOrder({
 
@@ -371,12 +626,22 @@ send.onclick =
 
         items:
           cart.map(item => ({
-            id: item.id,
-            name: item.name,
-            price: item.price,
+
+            id:
+              item.id,
+
+            name:
+              item.name,
+
+            price:
+              Number(item.price || 0),
+
             department:
-              item.department,
-            qty: item.qty
+              item.department || "",
+
+            qty:
+              Number(item.qty || 0)
+
           })),
 
         total:
@@ -387,7 +652,9 @@ send.onclick =
 
       cart = [];
 
+
       render();
+
 
       toast(
         "Sipariş gönderildi."
@@ -396,17 +663,33 @@ send.onclick =
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Order error:",
+        error
+      );
+
 
       toast(
         "Sipariş gönderilemedi.",
         "error"
       );
 
+    } finally {
+
+      send.disabled = false;
+
+      send.textContent =
+        "Siparişi Gönder";
+
     }
 
-  };
+  }
+);
 
+
+/* =========================
+   İLK RENDER
+========================= */
 
 render();
 
