@@ -1,0 +1,1503 @@
+<!doctype html>
+<html lang="tr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ayder Sofra | Garson</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="garson-page">
+
+<script type="module">
+
+import {
+  listenOrders,
+  listenMenu,
+  createOrder,
+  setStatus,
+  money,
+  esc,
+  toast,
+  db,
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+  serverTimestamp
+} from "./app.js";
+
+/* ==================================================
+   SAYFA
+================================================== */
+
+document.body.innerHTML = `
+
+  <div class="service-page">
+
+    <header class="service-hero">
+
+      <div class="service-brand">
+        <div class="service-brand-icon">🍴</div>
+
+        <div>
+          <div class="service-brand-name">
+            AYDER SOFRA
+          </div>
+
+          <div class="service-brand-subtitle">
+            Lezzet, ustalıkla hazırlanır.
+          </div>
+        </div>
+      </div>
+
+      <div class="service-hero-center">
+
+        <div class="service-status">
+          <span class="status-dot"></span>
+          Sistem Aktif
+        </div>
+
+        <h1>GARSON</h1>
+
+        <p>
+          Masaları yönetin ve sipariş oluşturun.
+        </p>
+
+      </div>
+
+      <div class="service-hero-decoration">
+        🍽️
+      </div>
+
+    </header>
+
+
+    <!-- =========================
+         MASALAR
+    ========================== -->
+
+    <section class="service-tables-panel">
+
+      <div class="service-orders-header">
+
+        <div>
+          <div class="section-title">
+            🪑 MASALAR
+          </div>
+
+          <div class="section-subtitle">
+            Masaya dokunun, ürünleri seçin ve siparişi gönderin.
+          </div>
+        </div>
+
+      </div>
+
+      <div
+        id="tablesGrid"
+        class="service-tables-grid"
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         YENİ SİPARİŞ
+    ========================== -->
+
+    <section
+      id="newOrderPanel"
+      class="new-order-panel"
+      hidden
+    >
+
+      <div class="new-order-header">
+
+        <div>
+          <div class="section-title">
+            🧾 MASA <span id="selectedTableNumber">-</span>
+          </div>
+
+          <div class="section-subtitle">
+            Ürünleri seçmek için + düğmesine basın.
+          </div>
+        </div>
+
+        <button
+          id="closeOrderPanel"
+          class="btn"
+          type="button"
+        >
+          Kapat
+        </button>
+
+      </div>
+
+
+      <div class="order-create-grid">
+
+        <div class="order-create-form">
+
+          <label for="productSearch">
+            Ürün ara
+          </label>
+
+          <input
+            id="productSearch"
+            type="search"
+            placeholder="Ürün ara..."
+            autocomplete="off"
+          >
+
+          <div
+            id="productList"
+            class="service-product-list"
+          ></div>
+
+        </div>
+
+
+        <aside class="service-cart">
+
+          <div class="service-cart-title">
+            🛒 Sepet
+          </div>
+
+          <div id="cartList">
+            <p class="muted">
+              Sepet boş
+            </p>
+          </div>
+
+          <div class="service-cart-total">
+
+            <span>
+              Toplam
+            </span>
+
+            <strong id="cartTotal">
+              0.00 ₺
+            </strong>
+
+          </div>
+
+          <button
+            id="sendOrder"
+            class="btn primary wide"
+            type="button"
+          >
+            Siparişi Gönder
+          </button>
+
+        </aside>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         AKTİF SİPARİŞLER
+    ========================== -->
+
+    <section class="service-orders-panel">
+
+      <div class="service-orders-header">
+
+        <div>
+
+          <div class="section-title">
+            🍽️ SERVİS SİPARİŞLERİ
+          </div>
+
+          <div class="section-subtitle">
+            Garson tarafından oluşturulan siparişler
+          </div>
+
+        </div>
+
+
+        <select id="orderFilter">
+
+          <option value="all">
+            Tüm Siparişler
+          </option>
+
+          <option value="pending">
+            Yeni Sipariş
+          </option>
+
+          <option value="preparing">
+            Hazırlanıyor
+          </option>
+
+          <option value="ready">
+            Hazır
+          </option>
+
+          <option value="served">
+            Servis Edildi
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div
+        id="orders"
+        class="service-orders-grid"
+      ></div>
+
+    </section>
+
+
+    <footer class="service-footer">
+
+      <strong>
+        AYDER SOFRA
+      </strong>
+
+      <span>
+        Tazelik, ustalıkla hazırlanır.
+      </span>
+
+    </footer>
+
+  </div>
+
+`;
+
+
+/* ==================================================
+   ELEMENTLER
+================================================== */
+
+const tablesGrid =
+  document.querySelector("#tablesGrid");
+
+const newOrderPanel =
+  document.querySelector("#newOrderPanel");
+
+const selectedTableNumber =
+  document.querySelector("#selectedTableNumber");
+
+const closeOrderPanel =
+  document.querySelector("#closeOrderPanel");
+
+const productSearch =
+  document.querySelector("#productSearch");
+
+const productList =
+  document.querySelector("#productList");
+
+const cartList =
+  document.querySelector("#cartList");
+
+const cartTotal =
+  document.querySelector("#cartTotal");
+
+const sendOrder =
+  document.querySelector("#sendOrder");
+
+const ordersEl =
+  document.querySelector("#orders");
+
+const orderFilter =
+  document.querySelector("#orderFilter");
+
+
+/* ==================================================
+   STATE
+================================================== */
+
+let menu = [];
+let cart = [];
+let orders = [];
+let tables = [];
+
+let selectedTable = null;
+
+
+/* ==================================================
+   TABLE HELPERS
+================================================== */
+
+function getTableNumber(table) {
+
+  if (typeof table === "number") {
+    return table;
+  }
+
+  if (typeof table === "string") {
+    const parsed = Number(table);
+
+    return Number.isFinite(parsed)
+      ? parsed
+      : null;
+  }
+
+  if (table && table.number != null) {
+    const parsed = Number(table.number);
+
+    return Number.isFinite(parsed)
+      ? parsed
+      : null;
+  }
+
+  if (table && table.table != null) {
+    const parsed = Number(table.table);
+
+    return Number.isFinite(parsed)
+      ? parsed
+      : null;
+  }
+
+  return null;
+}
+
+
+function tableIsOccupied(number) {
+
+  return orders.some(order => {
+
+    const orderTable =
+      Number(order.table);
+
+    return (
+      orderTable === Number(number) &&
+      [
+        "pending",
+        "preparing",
+        "ready"
+      ].includes(order.status)
+    );
+
+  });
+
+}
+
+
+/* ==================================================
+   TABLES
+================================================== */
+
+function renderTables() {
+
+  const numbers =
+    Array.from(
+      { length: 20 },
+      (_, index) => index + 1
+    );
+
+
+  tablesGrid.innerHTML =
+    numbers.map(number => {
+
+      const occupied =
+        tableIsOccupied(number);
+
+
+      return `
+
+        <button
+          type="button"
+          class="
+            service-table-card
+            ${occupied ? "occupied" : "available"}
+          "
+          data-table="${number}"
+        >
+
+          <div class="table-number">
+            ${number}
+          </div>
+
+          <div class="table-name">
+            MASA ${number}
+          </div>
+
+          <div class="table-state">
+
+            <span class="table-state-dot"></span>
+
+            ${
+              occupied
+                ? "DOLU"
+                : "MÜSAİT"
+            }
+
+          </div>
+
+        </button>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* ==================================================
+   SELECT TABLE
+================================================== */
+
+function openTable(number) {
+
+  selectedTable =
+    Number(number);
+
+  selectedTableNumber.textContent =
+    selectedTable;
+
+  productSearch.value =
+    "";
+
+  cart = [];
+
+  renderCart();
+  renderMenu();
+
+  newOrderPanel.hidden =
+    false;
+
+  newOrderPanel.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+
+}
+
+
+function closeTable() {
+
+  selectedTable =
+    null;
+
+  cart = [];
+
+  renderCart();
+
+  newOrderPanel.hidden =
+    true;
+
+}
+
+
+/* ==================================================
+   TABLE CLICK
+================================================== */
+
+tablesGrid.addEventListener(
+  "click",
+  event => {
+
+    const button =
+      event.target.closest(
+        "[data-table]"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    const number =
+      Number(button.dataset.table);
+
+
+    /*
+      Eğer masa doluysa yeni sipariş açmıyoruz.
+      Önce aktif siparişin bitmesi gerekir.
+    */
+
+    if (tableIsOccupied(number)) {
+
+      toast(
+        "Bu masa dolu. Önce mevcut siparişi servis edin.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    openTable(number);
+
+  }
+);
+
+
+closeOrderPanel.addEventListener(
+  "click",
+  closeTable
+);
+
+
+/* ==================================================
+   STATUS
+================================================== */
+
+function statusName(status) {
+
+  const names = {
+
+    pending:
+      "YENİ SİPARİŞ",
+
+    preparing:
+      "HAZIRLANIYOR",
+
+    ready:
+      "HAZIR",
+
+    served:
+      "SERVİS EDİLDİ"
+
+  };
+
+  return names[status] || status;
+
+}
+
+
+function statusClass(status) {
+
+  const classes = {
+
+    pending:
+      "status-new",
+
+    preparing:
+      "status-preparing",
+
+    ready:
+      "status-ready",
+
+    served:
+      "status-served"
+
+  };
+
+  return classes[status] || "";
+
+}
+
+
+/* ==================================================
+   MENU
+================================================== */
+
+function renderMenu() {
+
+  const search =
+    productSearch.value
+      .trim()
+      .toLowerCase();
+
+
+  const filtered =
+    menu.filter(product => {
+
+      if (
+        product.active === false ||
+        product.isActive === false
+      ) {
+        return false;
+      }
+
+
+      const name =
+        String(product.name || "")
+          .toLowerCase();
+
+
+      const category =
+        String(product.category || "")
+          .toLowerCase();
+
+
+      return (
+        !search ||
+        name.includes(search) ||
+        category.includes(search)
+      );
+
+    });
+
+
+  if (!filtered.length) {
+
+    productList.innerHTML = `
+
+      <div class="service-empty">
+
+        <strong>
+          Ürün bulunamadı
+        </strong>
+
+        <p>
+          products koleksiyonunda aktif ürün bulunmuyor.
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  productList.innerHTML =
+    filtered.map(product => `
+
+      <div
+        class="service-product"
+      >
+
+        <div>
+
+          <strong>
+            ${esc(product.name)}
+          </strong>
+
+          <small>
+            ${esc(product.category || "")}
+          </small>
+
+        </div>
+
+
+        <div class="service-product-right">
+
+          <b>
+            ${money(product.price)}
+          </b>
+
+          <button
+            type="button"
+            class="product-add"
+            data-product-id="${esc(product.id)}"
+            aria-label="Ürün ekle"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+}
+
+
+/* ==================================================
+   CART
+================================================== */
+
+function renderCart() {
+
+  if (!cart.length) {
+
+    cartList.innerHTML = `
+
+      <p class="muted">
+        Sepet boş
+      </p>
+
+    `;
+
+    cartTotal.textContent =
+      money(0);
+
+    return;
+
+  }
+
+
+  cartList.innerHTML =
+    cart.map(item => `
+
+      <div class="cart-item">
+
+        <div>
+
+          <strong>
+            ${item.qty} ×
+            ${esc(item.name)}
+          </strong>
+
+          <small>
+            ${money(item.price)}
+          </small>
+
+        </div>
+
+
+        <div class="cart-item-actions">
+
+          <button
+            type="button"
+            data-minus="${esc(item.id)}"
+          >
+            −
+          </button>
+
+          <span>
+            ${item.qty}
+          </span>
+
+          <button
+            type="button"
+            data-plus="${esc(item.id)}"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    `).join("");
+
+
+  const total =
+    cart.reduce(
+      (sum, item) =>
+        sum +
+        Number(item.price || 0) *
+        Number(item.qty || 0),
+      0
+    );
+
+
+  cartTotal.textContent =
+    money(total);
+
+}
+
+
+/* ==================================================
+   ADD PRODUCT
+================================================== */
+
+productList.addEventListener(
+  "click",
+  event => {
+
+    const button =
+      event.target.closest(
+        "[data-product-id]"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    const product =
+      menu.find(
+        item =>
+          item.id ===
+          button.dataset.productId
+      );
+
+
+    if (!product) {
+      return;
+    }
+
+
+    const existing =
+      cart.find(
+        item =>
+          item.id === product.id
+      );
+
+
+    if (existing) {
+
+      existing.qty += 1;
+
+    } else {
+
+      cart.push({
+
+        id:
+          product.id,
+
+        name:
+          product.name,
+
+        price:
+          Number(product.price || 0),
+
+        department:
+          product.department || "",
+
+        category:
+          product.category || "",
+
+        qty:
+          1
+
+      });
+
+    }
+
+
+    renderCart();
+
+  }
+);
+
+
+/* ==================================================
+   CART BUTTONS
+================================================== */
+
+cartList.addEventListener(
+  "click",
+  event => {
+
+    const plus =
+      event.target.closest(
+        "[data-plus]"
+      );
+
+
+    const minus =
+      event.target.closest(
+        "[data-minus]"
+      );
+
+
+    if (plus) {
+
+      const item =
+        cart.find(
+          x =>
+            x.id ===
+            plus.dataset.plus
+        );
+
+
+      if (item) {
+        item.qty++;
+      }
+
+    }
+
+
+    if (minus) {
+
+      const item =
+        cart.find(
+          x =>
+            x.id ===
+            minus.dataset.minus
+        );
+
+
+      if (!item) {
+        return;
+      }
+
+
+      item.qty--;
+
+
+      if (item.qty <= 0) {
+
+        cart =
+          cart.filter(
+            x =>
+              x.id !== item.id
+          );
+
+      }
+
+    }
+
+
+    renderCart();
+
+  }
+);
+
+
+/* ==================================================
+   SEARCH
+================================================== */
+
+productSearch.addEventListener(
+  "input",
+  renderMenu
+);
+
+
+/* ==================================================
+   SEND ORDER
+================================================== */
+
+sendOrder.addEventListener(
+  "click",
+  async () => {
+
+    if (!selectedTable) {
+
+      toast(
+        "Lütfen önce masa seçin.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    if (!cart.length) {
+
+      toast(
+        "Sepet boş.",
+        "error"
+      );
+
+      return;
+
+    }
+
+
+    const total =
+      cart.reduce(
+        (sum, item) =>
+          sum +
+          Number(item.price || 0) *
+          Number(item.qty || 0),
+        0
+      );
+
+
+    try {
+
+      sendOrder.disabled =
+        true;
+
+      sendOrder.textContent =
+        "Gönderiliyor...";
+
+
+      await createOrder({
+
+        table:
+          Number(selectedTable),
+
+        waiterName:
+          "Garson",
+
+        items:
+          cart.map(item => ({
+
+            id:
+              item.id,
+
+            name:
+              item.name,
+
+            price:
+              Number(item.price || 0),
+
+            department:
+              item.department || "",
+
+            category:
+              item.category || "",
+
+            qty:
+              Number(item.qty || 0)
+
+          })),
+
+        total
+
+      });
+
+
+      cart = [];
+
+      renderCart();
+
+
+      toast(
+        "Sipariş başarıyla gönderildi."
+      );
+
+
+      closeTable();
+
+
+    } catch (error) {
+
+      console.error(
+        "Order error:",
+        error
+      );
+
+
+      toast(
+        "Sipariş gönderilemedi.",
+        "error"
+      );
+
+    } finally {
+
+      sendOrder.disabled =
+        false;
+
+      sendOrder.textContent =
+        "Siparişi Gönder";
+
+    }
+
+  }
+);
+
+
+/* ==================================================
+   CLEAR TABLE
+================================================== */
+
+async function clearTable(order) {
+
+  if (!order?.id) {
+    return;
+  }
+
+
+  const confirmed =
+    window.confirm(
+      `Masa ${order.table} boşaltılsın mı?`
+    );
+
+
+  if (!confirmed) {
+    return;
+  }
+
+
+  try {
+
+    await setStatus(
+      order.id,
+      "served"
+    );
+
+
+    toast(
+      `Masa ${order.table} artık müsait.`
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Clear table error:",
+      error
+    );
+
+
+    toast(
+      "Masa boşaltılamadı.",
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ==================================================
+   ORDERS
+================================================== */
+
+function renderOrders() {
+
+  const filter =
+    orderFilter.value;
+
+
+  const filtered =
+    orders.filter(order => {
+
+      if (filter === "all") {
+        return true;
+      }
+
+      return order.status === filter;
+
+    });
+
+
+  if (!filtered.length) {
+
+    ordersEl.innerHTML = `
+
+      <div class="service-empty large">
+
+        <div class="empty-icon">
+          🍽️
+        </div>
+
+        <h3>
+          Sipariş yok
+        </h3>
+
+        <p>
+          Bu kategoride görüntülenecek sipariş bulunmuyor.
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  ordersEl.innerHTML =
+    filtered.map(order => {
+
+      const items =
+        order.items || [];
+
+
+      const orderTotal =
+        Number(
+          order.total || 0
+        );
+
+
+      return `
+
+        <article
+          class="
+            service-order-card
+            ${statusClass(order.status)}
+          "
+        >
+
+          <div class="service-order-top">
+
+            <div>
+
+              <div class="table-title">
+                MASA ${esc(order.table)}
+              </div>
+
+              <small>
+                Garson:
+                ${esc(
+                  order.waiterName ||
+                  "Garson"
+                )}
+              </small>
+
+            </div>
+
+
+            <span
+              class="
+                order-status
+                ${statusClass(order.status)}
+              "
+            >
+              ${statusName(order.status)}
+            </span>
+
+          </div>
+
+
+          <div class="order-items">
+
+            ${
+              items.length
+
+                ? items.map(item => `
+
+                    <div class="order-item">
+
+                      <span>
+
+                        <b>
+                          ${Number(
+                            item.qty || 0
+                          )} ×
+                        </b>
+
+                        ${esc(
+                          item.name ||
+                          "Ürün"
+                        )}
+
+                      </span>
+
+                      <strong>
+                        ${money(
+                          Number(
+                            item.price || 0
+                          ) *
+                          Number(
+                            item.qty || 0
+                          )
+                        )}
+                      </strong>
+
+                    </div>
+
+                  `).join("")
+
+                : `
+
+                    <div class="muted">
+                      Ürün bulunamadı.
+                    </div>
+
+                  `
+            }
+
+          </div>
+
+
+          <div class="service-order-bottom">
+
+            <div>
+
+              <small>
+                Toplam
+              </small>
+
+              <strong>
+                ${money(orderTotal)}
+              </strong>
+
+            </div>
+
+
+            <div class="actions">
+
+              ${
+                order.status === "pending"
+                  ? `
+                    <button
+                      type="button"
+                      class="btn primary"
+                      data-order-id="${esc(order.id)}"
+                      data-status="preparing"
+                    >
+                      👨‍🍳 Hazırlamaya Al
+                    </button>
+                  `
+                  : ""
+              }
+
+
+              ${
+                order.status === "preparing"
+                  ? `
+                    <button
+                      type="button"
+                      class="btn primary"
+                      data-order-id="${esc(order.id)}"
+                      data-status="ready"
+                    >
+                      ✓ Hazır
+                    </button>
+                  `
+                  : ""
+              }
+
+
+              ${
+                order.status === "ready"
+                  ? `
+                    <button
+                      type="button"
+                      class="btn primary"
+                      data-order-id="${esc(order.id)}"
+                      data-status="served"
+                    >
+                      🍽️ Servis Edildi
+                    </button>
+                  `
+                  : ""
+              }
+
+
+              ${
+                order.status === "served"
+                  ? `
+                    <button
+                      type="button"
+                      class="btn"
+                      data-clear-order="${esc(order.id)}"
+                    >
+                      🧹 Masayı Boşalt
+                    </button>
+                  `
+                  : ""
+              }
+
+            </div>
+
+          </div>
+
+        </article>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* ==================================================
+   ORDER STATUS
+================================================== */
+
+ordersEl.addEventListener(
+  "click",
+  async event => {
+
+    const clearButton =
+      event.target.closest(
+        "[data-clear-order]"
+      );
+
+
+    if (clearButton) {
+
+      const order =
+        orders.find(
+          item =>
+            item.id ===
+            clearButton.dataset.clearOrder
+        );
+
+
+      await clearTable(order);
+
+      return;
+
+    }
+
+
+    const button =
+      event.target.closest(
+        "[data-status]"
+      );
+
+
+    if (!button) {
+      return;
+    }
+
+
+    try {
+
+      button.disabled =
+        true;
+
+
+      await setStatus(
+        button.dataset.orderId,
+        button.dataset.status
+      );
+
+
+      toast(
+        "Sipariş güncellendi."
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Status error:",
+        error
+      );
+
+
+      toast(
+        "Sipariş durumu değiştirilemedi.",
+        "error"
+      );
+
+
+      button.disabled =
+        false;
+
+    }
+
+  }
+);
+
+
+/* ==================================================
+   FILTER
+================================================== */
+
+orderFilter.addEventListener(
+  "change",
+  renderOrders
+);
+
+
+/* ==================================================
+   FIREBASE LISTENERS
+================================================== */
+
+listenMenu(
+  items => {
+
+    menu =
+      items || [];
+
+    renderMenu();
+
+  }
+);
+
+
+listenOrders(
+  incomingOrders => {
+
+    orders =
+      incomingOrders || [];
+
+    renderTables();
+
+    renderOrders();
+
+  }
+);
+
+
+/* ==================================================
+   INITIAL RENDER
+================================================== */
+
+renderCart();
+renderTables();
+renderOrders();
+
+</script>
+
+</body>
+</html>
