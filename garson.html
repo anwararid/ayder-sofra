@@ -401,7 +401,7 @@ function renderOrders() {
         ${o.status === "pending" ? `<button class="order-action" data-order-id="${esc(o.id)}" data-new-status="preparing">👨‍🍳 Hazırlanıyor</button>` : ""}
         ${o.status === "preparing" ? `<button class="order-action" data-order-id="${esc(o.id)}" data-new-status="ready">✓ Hazır</button>` : ""}
         ${o.status === "ready" ? `<button class="order-action" data-order-id="${esc(o.id)}" data-new-status="served">🍽️ Servis Edildi</button>` : ""}
-        ${o.status === "served" ? `<button class="order-action delete" data-delete-order="${esc(o.id)}">🗑 Siparişi Sil</button>` : ""}
+        ${(o.status === "served" || o.status === "completed") ? `<button class="order-action delete" data-delete-order="${esc(o.id)}">🗑 Siparişi Sil</button>` : ""}
       </div>
     </article>`).join("");
 }
