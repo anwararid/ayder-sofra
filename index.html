@@ -1,2 +1,179 @@
-<!doctype html><html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ayder Sofra</title><link rel="stylesheet" href="styles.css"></head><body><script type="module">import{guard,shell}from"./app.js";guard(["admin","garson","mutfak","firin","izgara"],u=>{const c=shell(u,"Hoş geldiniz","Ayder Sofra operasyon merkezi");c.innerHTML=`<div class="grid"><a class="card link" href="${u.role==="admin"?"admin.html":u.role==="garson"?"waiter.html":u.role+".html"}"><h2>Operasyon Paneli</h2><p>Rolünüze göre çalışma ekranını açın.</p></a><div class="card"><h2>Canlı Sistem</h2><p>Siparişler Firestore ile gerçek zamanlıdır.</p></div><div class="card"><h2>Güvenli</h2><p>Firebase Authentication + rol tabanlı erişim.</p></div></div>`});</script> <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-<script>eruda.init();</script> </body></html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayder Sofra - Garson, Mutfak, Fırın, Izgara</title>
+<style>
+/* =========================================================
+   AYDER SOFRA - ALL IN ONE STYLES
+   ========================================================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #17212b;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(116, 181, 220, 0.35), transparent 32%),
+    radial-gradient(circle at 90% 15%, rgba(235, 194, 125, 0.28), transparent 30%),
+    linear-gradient(135deg, #eaf5fb 0%, #f8f4ed 48%, #e9f2f7 100%);
+  min-height: 100vh;
+  padding: 15px;
+}
+
+.container { max-width: 1200px; margin: 0 auto; }
+
+/* TOP NAV TABS */
+.nav-tabs {
+  display: flex;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 8px;
+  border-radius: 18px;
+  border: 1px solid rgba(35, 67, 78, 0.12);
+  margin-bottom: 20px;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  flex: 1; min-width: 110px; padding: 12px 10px; border: none; border-radius: 12px;
+  font-size: 14px; font-weight: 700; cursor: pointer; color: #2c4450; background: transparent;
+  white-space: nowrap; transition: all 0.25s ease;
+}
+
+.tab-btn.active { color: #ffffff; box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
+.tab-btn[data-target="garson"].active { background: linear-gradient(135deg, #164c5d, #287c91); }
+.tab-btn[data-target="mutfak"].active { background: linear-gradient(135deg, #2a6a89, #4a98be); }
+.tab-btn[data-target="firin"].active  { background: linear-gradient(135deg, #713a22, #c46b32); }
+.tab-btn[data-target="servis"].active { background: linear-gradient(135deg, #2b2522, #8c4829); }
+
+/* HERO BANNER */
+.hero {
+  border-radius: 24px; padding: 25px 30px; color: #ffffff; margin-bottom: 25px;
+  box-shadow: 0 15px 35px rgba(19, 42, 53, 0.18);
+}
+.hero-garson { background: linear-gradient(120deg, #082a39, #194853 52%, #744827); }
+.hero-mutfak { background: linear-gradient(120deg, #0e3042, #2a6a89 52%, #4187a8); }
+.hero-firin  { background: linear-gradient(120deg, #30160c, #713a22 52%, #c46b32); }
+.hero-servis { background: linear-gradient(120deg, #141211, #412a20 52%, #8c4829); }
+
+.hero-brand {
+  display: inline-block; padding: 4px 10px; border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 999px; background: rgba(255,255,255,0.12); color: #f7d89d; font-size: 11px;
+  font-weight: 800; margin-bottom: 8px;
+}
+.hero h1 { font-size: 24px; font-weight: 800; }
+
+/* GRID & CARDS */
+.panel-view { display: none; }
+.panel-view.active { display: block; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+
+.ticket-card {
+  background: #ffffff; border: 1px solid #dce7eb; border-radius: 20px; padding: 18px;
+  box-shadow: 0 8px 24px rgba(35, 62, 73, 0.08); display: flex; flex-direction: column; gap: 14px;
+}
+.ticket-card.urgent { border-top: 4px solid #d85e55; }
+.ticket-card.preparing { border-top: 4px solid #e8bb70; }
+.ticket-card.ready { border-top: 4px solid #56a96c; }
+
+.ticket-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #e1e9ec; padding-bottom: 10px; }
+.table-badge { background: #edf5f8; color: #164b5b; font-size: 16px; font-weight: 800; padding: 4px 10px; border-radius: 10px; }
+.timer-badge { font-size: 12px; font-weight: 700; color: #d85e55; background: #fde8e6; padding: 4px 8px; border-radius: 20px; }
+
+.item-row { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; }
+.item-qty { background: #a46b31; color: #fff; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; margin-right: 6px; }
+
+.btn { height: 42px; border: 0; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; color: #fff; }
+.btn-success { background: linear-gradient(135deg, #2e7d32, #4caf50); }
+.btn-warning { background: linear-gradient(135deg, #d8832a, #e8bb70); }
+.btn-dark    { background: linear-gradient(135deg, #164b5b, #28758a); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- TABS -->
+  <div class="nav-tabs">
+    <button class="tab-btn active" data-target="garson">👔 Garson</button>
+    <button class="tab-btn" data-target="mutfak">👨‍🍳 Mutfak</button>
+    <button class="tab-btn" data-target="firin">🥖 Fırın</button>
+    <button class="tab-btn" data-target="servis">🍢 Izgara / Servis</button>
+  </div>
+
+  <!-- GARSON -->
+  <div id="garson" class="panel-view active">
+    <div class="hero hero-garson">
+      <span class="hero-brand">AYDER SOFRA • GARSON</span>
+      <h1>Masa Sipariş & Kat Yönetimi</h1>
+    </div>
+    <div class="cards-grid">
+      <div class="ticket-card ready">
+        <div class="ticket-header"><span class="table-badge">Masa 04</span><span class="timer-badge" style="background:#e6f5ea; color:#267444;">✅ Hazır</span></div>
+        <div class="item-row"><div><span class="item-qty">2</span> Adana Kebap</div></div>
+        <button class="btn btn-success">🔔 Masaya Teslim Et</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MUTFAK -->
+  <div id="mutfak" class="panel-view">
+    <div class="hero hero-mutfak">
+      <span class="hero-brand">AYDER SOFRA • MUTFAK</span>
+      <h1>Sıcak Yemek & Mutfak Ekranı</h1>
+    </div>
+    <div class="cards-grid">
+      <div class="ticket-card urgent">
+        <div class="ticket-header"><span class="table-badge">Masa 02</span><span class="timer-badge">🔥 14 dk</span></div>
+        <div class="item-row"><div><span class="item-qty">2</span> Saç Tava</div></div>
+        <button class="btn btn-warning">👨‍🍳 Hazırlamaya Başla</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIRIN -->
+  <div id="firin" class="panel-view">
+    <div class="hero hero-firin">
+      <span class="hero-brand">AYDER SOFRA • FIRIN</span>
+      <h1>Taş Fırın & Pide Paneli</h1>
+    </div>
+    <div class="cards-grid">
+      <div class="ticket-card urgent">
+        <div class="ticket-header"><span class="table-badge">Masa 09</span><span class="timer-badge">🔥 6 Lahmacun</span></div>
+        <div class="item-row"><div><span class="item-qty">4</span> Acılı Lahmacun</div></div>
+        <button class="btn btn-warning">🥖 Fırına Attım</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVİS -->
+  <div id="servis" class="panel-view">
+    <div class="hero hero-servis">
+      <span class="hero-brand">AYDER SOFRA • IZGARA</span>
+      <h1>Ocakbaşı & Izgara Bölümü</h1>
+    </div>
+    <div class="cards-grid">
+      <div class="ticket-card urgent">
+        <div class="ticket-header"><span class="table-badge">Masa 05</span><span class="timer-badge">🔥 10 dk</span></div>
+        <div class="item-row"><div><span class="item-qty">2</span> Karışık Izgara</div></div>
+        <button class="btn btn-warning">🍢 Izgaraya Koy</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab-btn');
+const panels = document.querySelectorAll('.panel-view');
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.getAttribute('data-target')).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
