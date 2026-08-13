@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="tr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ayder Sofra | Garson Paneli</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+    }
+
+    .table-btn-card {
+      padding: 12px;
+      background: var(--card-bg, #1e293b);
+      border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+      border-radius: 10px;
+      color: #ffffff !important;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ألوان حالات الطاولات */
+    .table-btn-card.available { border-left: 4px solid #10b981; }
+    .table-btn-card.busy { border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.1); }
+
+    .table-btn-card.selected {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    }
+
+    .table-status-badge {
+      font-size: 0.75rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: normal;
+    }
+    .status-available { background: #064e3b; color: #34d399; }
+    .status-busy { background: #7f1d1d; color: #fca5a5; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .menu-item-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      background: var(--card-bg, #1e293b);
+      border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+      border-radius: 10px;
+    }
+
+    .menu-item-card h4 {
+      margin: 0 0 4px 0;
+      color: #ffffff !important;
+      font-size: 1rem;
+    }
+
+    .menu-item-card p {
+      margin: 0 0 10px 0;
+      color: #cbd5e1;
+      font-size: 0.85rem;
+    }
+
+    .order-cart-panel {
+      background: var(--card-bg, #1e293b);
+      border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 15px;
+    }
+
+    .cart-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: #ffffff;
+    }
+
+    .cart-item-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-qty {
+      background: #334155;
+      border: none;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body class="admin-page">
+
+<main class="admin-container">
+
+  <!-- HERO HEADER -->
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-brand">AYDER SOFRA 🍽️</div>
+      <div class="hero-line"></div>
+      <h1>Garson Sipariş Paneli</h1>
+      <p>Masa seçin, sipariş oluşturun, güncelleyin veya masayı boşaltın.</p>
+    </div>
+  </section>
+
+  <!-- MASA SEÇİMİ -->
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-label">1. ADIM</span>
+        <h2>Masa Seçin</h2>
+      </div>
+    </div>
+    <div id="waiterTablesGrid" class="tables-grid"></div>
+  </section>
+
+  <!-- MENÜ VE SİPARİŞ SEÇİMİ -->
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-label">2. ADIM</span>
+        <h2>Menüden Ürün Seçin</h2>
+      </div>
+    </div>
+    <div id="waiterProductsList" class="menu-grid"></div>
+  </section>
+
+  <!-- SİPARİŞ ÖZETİ SEPETİ -->
+  <section class="panel">
+    <div class="panel-header">
+      <div>
+        <span class="panel-label">3. ADIM</span>
+        <h2 id="selectedTableTitle">Sipariş Özeti (Masa Seçilmedi)</h2>
+      </div>
+    </div>
+
+    <div class="order-cart-panel">
+      <div id="cartItemsContainer">
+        <p style="color: #94a3b8; text-align: center;">Henüz masa veya ürün seçilmedi.</p>
+      </div>
+      <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; color:#fff; font-size:1.2rem; font-weight:bold; margin-bottom:15px;">
+        <span>Toplam:</span>
+        <span id="cartTotal">0.00 ₺</span>
+      </div>
+      
+      <button id="submitOrderBtn" class="btn btn-primary btn-full" type="button" disabled>Siparişi Kaydet / Güncelle</button>
+      <button id="clearTableBtn" class="btn-danger" type="button" style="display:none;">🗑️ Masayı Boşalt ve Hesabı Kapat</button>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast"></div>
+
+<!-- JAVASCRIPT DIRECT EMBED -->
+<script type="module">
+import { db, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, getDocs, query, where } from "./firebase.js";
+
+const waiterTablesGrid = document.querySelector("#waiterTablesGrid");
+const waiterProductsList = document.querySelector("#waiterProductsList");
+const selectedTableTitle = document.querySelector("#selectedTableTitle");
+const cartItemsContainer = document.querySelector("#cartItemsContainer");
+const cartTotal = document.querySelector("#cartTotal");
+const submitOrderBtn = document.querySelector("#submitOrderBtn");
+const clearTableBtn = document.querySelector("#clearTableBtn");
+const toast = document.querySelector("#toast");
+
+let tables = [];
+let products = [];
+let activeOrders = [];
+let selectedTable = null;
+let cart = [];
+let currentOrderId = null;
+
+function showToast(text, error = false) {
+  toast.className = error ? "toast toast-error" : "toast";
+  toast.textContent = text;
+  setTimeout(() => { toast.className = ""; }, 3000);
+}
+
+// 1. MASALARI YÜKLE
+onSnapshot(collection(db, "tables"), snapshot => {
+  tables = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  tables.sort((a,b) => (parseInt(a.name.replace(/\D/g,'')) || 0) - (parseInt(b.name.replace(/\D/g,'')) || 0));
+  renderTables();
+});
+
+// 2. SİPARİŞLERİ YÜKLE
+onSnapshot(collection(db, "orders"), snapshot => {
+  activeOrders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  if (selectedTable) {
+    loadTableOrder(selectedTable);
+  }
+});
+
+function renderTables() {
+  waiterTablesGrid.innerHTML = "";
+  tables.forEach(t => {
+    const isBusy = t.status === "busy";
+    const btn = document.createElement("div");
+    btn.className = `table-btn-card ${isBusy ? 'busy' : 'available'} ${selectedTable?.id === t.id ? 'selected' : ''}`;
+    
+    btn.innerHTML = `
+      <span>${t.name}</span>
+      <span class="table-status-badge ${isBusy ? 'status-busy' : 'status-available'}">
+        ${isBusy ? 'Dolu' : 'Boş'}
+      </span>
+    `;
+    
+    btn.onclick = () => {
+      selectedTable = t;
+      selectedTableTitle.textContent = `Sipariş Özeti (${t.name})`;
+      renderTables();
+      loadTableOrder(t);
+
+      document.querySelector("#waiterProductsList").scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+    };
+    
+    waiterTablesGrid.appendChild(btn);
+  });
+}
+
+// تحميل طلب الطاولة إن وجد
+function loadTableOrder(table) {
+  const existingOrder = activeOrders.find(o => o.tableId === table.id && o.status !== "completed");
+  
+  if (existingOrder) {
+    currentOrderId = existingOrder.id;
+    cart = [...existingOrder.items];
+    clearTableBtn.style.display = "block";
+  } else {
+    currentOrderId = null;
+    cart = [];
+    clearTableBtn.style.display = "none";
+  }
+  updateCartUI();
+}
+
+// 3. ÜRÜNLERİ YÜKLE
+onSnapshot(collection(db, "products"), snapshot => {
+  products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(p => p.active !== false);
+  renderProducts();
+});
+
+function renderProducts() {
+  waiterProductsList.innerHTML = "";
+  products.forEach(p => {
+    const card = document.createElement("div");
+    card.className = "menu-item-card";
+    card.innerHTML = `
+      <div>
+        <h4>${p.name}</h4>
+        <p>${Number(p.price).toFixed(2)} ₺</p>
+      </div>
+      <button class="btn btn-primary" style="padding:4px 8px; font-size:0.85rem;">Ekle +</button>
+    `;
+    card.querySelector("button").onclick = () => addToCart(p);
+    waiterProductsList.appendChild(card);
+  });
+}
+
+// 4. SEPET İŞLEMLERİ
+function addToCart(product) {
+  if (!selectedTable) {
+    showToast("Lütfen önce bir masa seçin!", true);
+    return;
+  }
+  const exist = cart.find(item => item.id === product.id);
+  if (exist) {
+    exist.count++;
+  } else {
+    cart.push({ ...product, count: 1 });
+  }
+  updateCartUI();
+}
+
+function updateCartUI() {
+  if (cart.length === 0) {
+    cartItemsContainer.innerHTML = `<p style="color: #94a3b8; text-align: center;">Henüz ürün eklenmedi.</p>`;
+    submitOrderBtn.disabled = true;
+    cartTotal.textContent = "0.00 ₺";
+    return;
+  }
+
+  submitOrderBtn.disabled = !selectedTable;
+  cartItemsContainer.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.price * item.count;
+    const row = document.createElement("div");
+    row.className = "cart-item-row";
+    row.innerHTML = `
+      <div>
+        <strong>${item.name}</strong>
+        <div style="font-size:0.8rem; opacity:0.7;">${(item.price * item.count).toFixed(2)} ₺</div>
+      </div>
+      <div class="cart-item-controls">
+        <button class="btn-qty minus">-</button>
+        <span>${item.count}</span>
+        <button class="btn-qty plus">+</button>
+      </div>
+    `;
+
+    row.querySelector(".minus").onclick = () => {
+      item.count--;
+      if (item.count <= 0) cart = cart.filter(i => i.id !== item.id);
+      updateCartUI();
+    };
+    row.querySelector(".plus").onclick = () => {
+      item.count++;
+      updateCartUI();
+    };
+
+    cartItemsContainer.appendChild(row);
+  });
+
+  cartTotal.textContent = `${total.toFixed(2)} ₺`;
+}
+
+// 5. SİPARİŞİ FIRESTORE'A GÖNDER / GÜNCELLE
+submitOrderBtn.onclick = async () => {
+  if (!selectedTable || cart.length === 0) return;
+
+  try {
+    const orderId = currentOrderId || `order-${Date.now()}`;
+    
+    // حفظ أو تحديث الطلب
+    await setDoc(doc(db, "orders", orderId), {
+      tableId: selectedTable.id,
+      tableName: selectedTable.name,
+      items: cart,
+      status: "pending",
+      updatedAt: Date.now()
+    }, { merge: true });
+
+    // تغيير حالة الطاولة إلى مشغولة busy
+    await updateDoc(doc(db, "tables", selectedTable.id), {
+      status: "busy"
+    });
+
+    showToast("Sipariş güncellendi ve mutfağa iletildi!");
+  } catch (err) {
+    console.error(err);
+    showToast("Sipariş kaydedilemedi.", true);
+  }
+};
+
+// 6. MASAYI BOŞALT (إفراغ الطاولة)
+clearTableBtn.onclick = async () => {
+  if (!selectedTable) return;
+  if (!confirm(`${selectedTable.name} boşaltılsın mı?`)) return;
+
+  try {
+    // حذف الطلبات النشطة للطاولة
+    if (currentOrderId) {
+      await deleteDoc(doc(db, "orders", currentOrderId));
+    }
+
+    // إعادة حالة الطاولة إلى available
+    await updateDoc(doc(db, "tables", selectedTable.id), {
+      status: "available"
+    });
+
+    showToast("Masa başarıyla boşaltıldı.");
+    cart = [];
+    currentOrderId = null;
+    clearTableBtn.style.display = "none";
+    updateCartUI();
+  } catch (err) {
+    console.error(err);
+    showToast("Masa boşaltılamadı.", true);
+  }
+};
+</script>
+
+</body>
+</html>
