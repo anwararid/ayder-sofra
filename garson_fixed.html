@@ -1,0 +1,1436 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ayder Sofra | Garson Paneli</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    :root{
+      --g-bg:#0b0f17;
+      --g-panel:rgba(22,30,46,.78);
+      --g-card:#182235;
+      --g-card2:#202b40;
+      --g-border:rgba(255,255,255,.09);
+      --g-primary:#6366f1;
+      --g-primary2:#4f46e5;
+      --g-success:#10b981;
+      --g-danger:#ef4444;
+      --g-warning:#f59e0b;
+      --g-text:#f8fafc;
+      --g-muted:#94a3b8;
+    }
+
+    *{box-sizing:border-box}
+
+    body.garson-page{
+      margin:0;
+      min-height:100vh;
+      color:var(--g-text);
+      background:
+        radial-gradient(circle at 0 0,rgba(99,102,241,.14),transparent 35%),
+        radial-gradient(circle at 100% 100%,rgba(16,185,129,.08),transparent 35%),
+        var(--g-bg);
+      font-family:Inter,"Plus Jakarta Sans",Arial,sans-serif;
+    }
+
+    button,input{font:inherit}
+
+    .garson-app{
+      width:min(1180px,100%);
+      margin:auto;
+      padding:20px 14px 40px;
+    }
+
+    .garson-hero{
+      position:relative;
+      overflow:hidden;
+      margin-bottom:18px;
+      padding:26px 24px;
+      text-align:center;
+      border:1px solid var(--g-border);
+      border-radius:22px;
+      background:linear-gradient(135deg,rgba(30,41,59,.88),rgba(15,23,42,.94));
+      box-shadow:0 20px 45px rgba(0,0,0,.32);
+    }
+
+    .garson-hero-brand{
+      color:#818cf8;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:3px;
+    }
+
+    .garson-hero h1{
+      margin:7px 0 8px;
+      font-size:clamp(25px,5vw,36px);
+    }
+
+    .garson-hero p{
+      margin:0;
+      color:var(--g-muted);
+      font-size:14px;
+    }
+
+    .garson-status{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-top:15px;
+      padding:7px 12px;
+      border:1px solid rgba(16,185,129,.2);
+      border-radius:999px;
+      background:rgba(16,185,129,.09);
+      color:#34d399;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .garson-status i{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#10b981;
+      box-shadow:0 0 9px #10b981;
+    }
+
+    .garson-panel{
+      padding:20px;
+      border:1px solid var(--g-border);
+      border-radius:20px;
+      background:var(--g-panel);
+      box-shadow:0 10px 30px rgba(0,0,0,.2);
+      backdrop-filter:blur(12px);
+    }
+
+    .panel-header{
+      margin-bottom:16px;
+    }
+
+    .panel-label{
+      color:#818cf8;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:1.6px;
+    }
+
+    .panel-header h2{
+      margin:5px 0 0;
+      font-size:20px;
+    }
+
+    .panel-header p{
+      margin:6px 0 0;
+      color:var(--g-muted);
+      font-size:13px;
+    }
+
+    .tables-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .table-btn-card{
+      min-height:125px;
+      padding:17px 14px;
+      border:1px solid var(--g-border);
+      border-bottom:3px solid var(--g-success);
+      border-radius:16px;
+      background:var(--g-card);
+      color:var(--g-text);
+      cursor:pointer;
+      text-align:center;
+      transition:.2s ease;
+    }
+
+    .table-btn-card:hover{
+      transform:translateY(-2px);
+      background:var(--g-card2);
+    }
+
+    .table-btn-card.busy{
+      border-bottom-color:var(--g-danger);
+      background:rgba(239,68,68,.055);
+    }
+
+    .table-btn-card.selected{
+      border-color:var(--g-primary);
+      background:rgba(99,102,241,.16);
+      box-shadow:0 0 22px rgba(99,102,241,.22);
+      transform:translateY(-2px);
+    }
+
+    .table-number{
+      display:block;
+      font-size:25px;
+      font-weight:800;
+    }
+
+    .table-meta{
+      display:block;
+      margin-top:7px;
+      color:var(--g-muted);
+      font-size:11px;
+    }
+
+    .table-status-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:5px;
+      margin-top:10px;
+      padding:5px 9px;
+      border-radius:999px;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .table-status-badge.available{
+      background:rgba(16,185,129,.11);
+      color:#34d399;
+    }
+
+    .table-status-badge.busy{
+      background:rgba(239,68,68,.11);
+      color:#f87171;
+    }
+
+    .pulse-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:currentColor;
+    }
+
+    .step-gap{height:18px}
+
+    .selected-table-bar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      margin-bottom:18px;
+      padding:17px;
+      border:1px solid var(--g-border);
+      border-radius:16px;
+      background:linear-gradient(135deg,rgba(99,102,241,.16),rgba(30,41,59,.65));
+    }
+
+    .selected-table-title{
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .selected-table-sub{
+      margin-top:4px;
+      color:var(--g-muted);
+      font-size:12px;
+    }
+
+    .clear-btn{
+      flex:0 0 auto;
+      border:1px solid rgba(239,68,68,.45);
+      border-radius:10px;
+      padding:10px 13px;
+      background:rgba(239,68,68,.08);
+      color:#f87171;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    .clear-btn:disabled{
+      opacity:.4;
+      cursor:not-allowed;
+    }
+
+    .category-bar{
+      display:flex;
+      gap:8px;
+      margin-bottom:13px;
+      padding-bottom:3px;
+      overflow-x:auto;
+    }
+
+    .cat-btn{
+      flex:0 0 auto;
+      border:1px solid var(--g-border);
+      border-radius:999px;
+      padding:8px 14px;
+      background:var(--g-card);
+      color:var(--g-muted);
+      cursor:pointer;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .cat-btn.active{
+      border-color:var(--g-primary);
+      background:var(--g-primary);
+      color:#fff;
+    }
+
+    .search{
+      width:100%;
+      margin-bottom:13px;
+      padding:12px 14px;
+      border:1px solid var(--g-border);
+      border-radius:12px;
+      outline:none;
+      background:#101827;
+      color:#fff;
+    }
+
+    .search:focus{
+      border-color:var(--g-primary);
+      box-shadow:0 0 0 3px rgba(99,102,241,.12);
+    }
+
+    .products-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:11px;
+      max-height:510px;
+      overflow:auto;
+      padding-right:2px;
+    }
+
+    .product-card{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:145px;
+      padding:14px;
+      border:1px solid var(--g-border);
+      border-radius:14px;
+      background:var(--g-card);
+    }
+
+    .product-card h3{
+      margin:0 0 6px;
+      font-size:15px;
+    }
+
+    .product-card p{
+      min-height:30px;
+      margin:0;
+      color:var(--g-muted);
+      font-size:11px;
+      line-height:1.45;
+    }
+
+    .product-bottom{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:13px;
+    }
+
+    .product-price{
+      color:#67e8f9;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .add-btn{
+      min-width:82px;
+      border:0;
+      border-radius:9px;
+      padding:9px 11px;
+      background:linear-gradient(135deg,var(--g-primary),var(--g-primary2));
+      color:#fff;
+      cursor:pointer;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .add-btn:disabled{
+      opacity:.35;
+      cursor:not-allowed;
+    }
+
+    .cart-box{
+      margin-top:18px;
+      padding:15px;
+      border:1px solid var(--g-border);
+      border-radius:15px;
+      background:rgba(15,23,42,.62);
+    }
+
+    .cart-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+
+    .cart-head strong{font-size:15px}
+
+    .cart-count{
+      display:inline-grid;
+      min-width:24px;
+      height:24px;
+      place-items:center;
+      margin-left:5px;
+      border-radius:50%;
+      background:var(--g-primary);
+      font-size:11px;
+    }
+
+    .cart-warning{
+      color:#fbbf24;
+      font-size:11px;
+      font-weight:700;
+    }
+
+    .cart-row{
+      display:grid;
+      grid-template-columns:auto 28px auto minmax(0,1fr) auto auto;
+      align-items:center;
+      gap:7px;
+      padding:10px 0;
+      border-bottom:1px solid var(--g-border);
+    }
+
+    .qty-btn{
+      width:28px;
+      height:28px;
+      border:1px solid var(--g-border);
+      border-radius:8px;
+      background:#273449;
+      color:#fff;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    .qty-btn.plus{background:var(--g-primary)}
+
+    .cart-name{
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font-size:12px;
+    }
+
+    .cart-line-total{
+      white-space:nowrap;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .remove-btn{
+      border:0;
+      background:none;
+      color:#f87171;
+      cursor:pointer;
+      font-size:19px;
+    }
+
+    .cart-total{
+      display:flex;
+      justify-content:space-between;
+      padding:15px 0;
+      font-weight:800;
+    }
+
+    .cart-total strong{
+      color:#67e8f9;
+      font-size:19px;
+    }
+
+    .main-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:9px;
+    }
+
+    .primary-btn,.secondary-btn{
+      min-height:46px;
+      border:0;
+      border-radius:11px;
+      cursor:pointer;
+      font-weight:800;
+    }
+
+    .primary-btn{
+      background:linear-gradient(135deg,var(--g-primary),var(--g-primary2));
+      color:#fff;
+    }
+
+    .secondary-btn{
+      border:1px solid var(--g-border);
+      background:#1a2536;
+      color:#fff;
+    }
+
+    .primary-btn:disabled,.secondary-btn:disabled{
+      opacity:.35;
+      cursor:not-allowed;
+    }
+
+    .orders-panel{
+      margin-top:18px;
+    }
+
+    .orders-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .order-card{
+      padding:14px;
+      border:1px solid var(--g-border);
+      border-radius:14px;
+      background:var(--g-card);
+    }
+
+    .order-top,.order-bottom{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .order-top small{
+      display:block;
+      margin-top:4px;
+      color:var(--g-muted);
+      font-size:11px;
+    }
+
+    .order-status{
+      height:max-content;
+      padding:6px 9px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:800;
+      white-space:nowrap;
+    }
+
+    .status-pending{background:rgba(245,158,11,.12);color:#fbbf24}
+    .status-preparing{background:rgba(59,130,246,.13);color:#60a5fa}
+    .status-ready{background:rgba(16,185,129,.13);color:#34d399}
+    .status-served{background:rgba(148,163,184,.13);color:#cbd5e1}
+
+    .order-items{
+      margin:11px 0;
+      padding:9px 0;
+      border-top:1px solid var(--g-border);
+      border-bottom:1px solid var(--g-border);
+    }
+
+    .order-line{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:5px 0;
+      font-size:12px;
+    }
+
+    .order-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+
+    .order-action{
+      border:0;
+      border-radius:9px;
+      padding:9px 12px;
+      background:var(--g-primary);
+      color:#fff;
+      cursor:pointer;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .order-action.delete{
+      background:#b91c1c;
+    }
+
+    .empty{
+      padding:28px 10px;
+      color:var(--g-muted);
+      text-align:center;
+      font-size:13px;
+    }
+
+    .error-box{
+      padding:18px;
+      border:1px solid rgba(239,68,68,.35);
+      border-radius:12px;
+      background:rgba(239,68,68,.08);
+      color:#fca5a5;
+      font-size:13px;
+    }
+
+    @media(max-width:700px){
+      .garson-app{padding:12px 9px 30px}
+      .garson-panel{padding:15px}
+      .products-grid{grid-template-columns:1fr}
+      .selected-table-bar{align-items:flex-start;flex-direction:column}
+      .clear-btn{width:100%}
+    }
+
+    @media(max-width:460px){
+      .tables-grid{gap:8px}
+      .table-btn-card{min-height:110px;padding:13px 8px}
+      .table-number{font-size:21px}
+      .main-actions{grid-template-columns:1fr}
+      .cart-row{grid-template-columns:auto 24px auto minmax(0,1fr) auto}
+      .cart-line-total{display:none}
+    }
+  </style>
+</head>
+
+<body class="garson-page">
+  <main class="garson-app">
+
+    <section class="garson-hero">
+      <div class="garson-hero-brand">AYDER SOFRA 🍽️</div>
+      <h1>Garson Sipariş Paneli</h1>
+      <p>Masa seçin, ürün ekleyin ve siparişi mutfağa gönderin.</p>
+      <div class="garson-status"><i></i> Sistem Aktif</div>
+    </section>
+
+    <section class="garson-panel">
+      <div class="panel-header">
+        <span class="panel-label">1. ADIM</span>
+        <h2>Masalar</h2>
+        <p>Her iki masa yan yana görünür. Masaya tıklayarak sipariş ekranını açın.</p>
+      </div>
+      <div id="waiterTablesGrid" class="tables-grid"></div>
+    </section>
+
+    <div class="step-gap"></div>
+
+    <section class="garson-panel" id="menuPanel">
+      <div class="selected-table-bar">
+        <div>
+          <div id="selectedTableTitle" class="selected-table-title">Masa seçin</div>
+          <div id="selectedTableSub" class="selected-table-sub">Önce bir masa seçin.</div>
+        </div>
+        <button id="clearTableBtn" class="clear-btn" type="button" disabled>
+          🗑️ Masayı Boşalt
+        </button>
+      </div>
+
+      <div class="panel-header">
+        <span class="panel-label">2. ADIM</span>
+        <h2>Ürünler</h2>
+        <p>Yönetim sayfasındaki <strong>products</strong> koleksiyonuyla aynı ürünler kullanılır.</p>
+      </div>
+
+      <input id="productSearch" class="search" type="search" placeholder="Ürün ara..." autocomplete="off">
+
+      <div id="categoryBar" class="category-bar"></div>
+
+      <div id="waiterProductsList" class="products-grid">
+        <div class="empty">Ürünler yükleniyor...</div>
+      </div>
+
+      <div class="cart-box">
+        <div class="cart-head">
+          <strong>🛒 Sipariş Sepeti <span id="cartCount" class="cart-count">0</span></strong>
+          <span id="cartWarning" class="cart-warning"></span>
+        </div>
+
+        <div id="cartItemsContainer">
+          <div class="empty">Önce bir masa seçin.</div>
+        </div>
+
+        <div class="cart-total">
+          <span>Toplam</span>
+          <strong id="cartTotal">0.00 ₺</strong>
+        </div>
+
+        <div class="main-actions">
+          <button id="submitOrderBtn" class="primary-btn" type="button" disabled>
+            ➤ Siparişi Gönder
+          </button>
+
+          <button id="viewOrdersBtn" class="secondary-btn" type="button" disabled>
+            📋 Masanın Siparişleri
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="ordersSection" class="garson-panel orders-panel">
+      <div class="panel-header">
+        <span class="panel-label">3. ADIM</span>
+        <h2>Masa Siparişleri</h2>
+        <p>Durumu değiştirebilir veya tamamlanmış siparişi silebilirsiniz.</p>
+      </div>
+      <div id="ordersList" class="orders-list">
+        <div class="empty">Görüntülemek için bir masa seçin.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module">
+    import {
+      listenProducts,
+      listenOrders,
+      createOrder,
+      setStatus,
+      deleteOrder,
+      money,
+      esc,
+      toast
+    } from "./app.js";
+
+    const $ = (selector) => document.querySelector(selector);
+
+    const waiterTablesGrid = $("#waiterTablesGrid");
+    const waiterProductsList = $("#waiterProductsList");
+    const categoryBar = $("#categoryBar");
+    const selectedTableTitle = $("#selectedTableTitle");
+    const selectedTableSub = $("#selectedTableSub");
+    const cartItemsContainer = $("#cartItemsContainer");
+    const cartTotal = $("#cartTotal");
+    const cartCount = $("#cartCount");
+    const cartWarning = $("#cartWarning");
+    const submitOrderBtn = $("#submitOrderBtn");
+    const clearTableBtn = $("#clearTableBtn");
+    const viewOrdersBtn = $("#viewOrdersBtn");
+    const ordersSection = $("#ordersSection");
+    const ordersList = $("#ordersList");
+    const productSearch = $("#productSearch");
+
+    const TABLE_COUNT = 20;
+    const TABLES = Array.from({ length: TABLE_COUNT }, (_, index) => index + 1);
+
+    const ACTIVE_STATUSES = new Set([
+      "pending",
+      "preparing",
+      "ready"
+    ]);
+
+    let products = [];
+    let orders = [];
+    let selectedTable = null;
+    let cart = [];
+    let selectedCategory = "Tümü";
+
+    function normalizeNumber(value) {
+      const number = Number(value);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function orderTable(order) {
+      return normalizeNumber(
+        order?.table ?? order?.tableNumber ?? order?.tableId
+      );
+    }
+
+    function productName(product) {
+      return String(
+        product?.name ??
+        product?.title ??
+        "İsimsiz Ürün"
+      );
+    }
+
+    function productPrice(product) {
+      return normalizeNumber(
+        product?.price ?? product?.unitPrice
+      );
+    }
+
+    function productCategory(product) {
+      return String(
+        product?.category ??
+        product?.categoryName ??
+        ""
+      );
+    }
+
+    function isProductActive(product) {
+      return product?.active !== false &&
+             product?.isActive !== false;
+    }
+
+    function tableOrders(tableNumber) {
+      return orders.filter(
+        (order) => orderTable(order) === Number(tableNumber)
+      );
+    }
+
+    function activeTableOrders(tableNumber) {
+      return tableOrders(tableNumber).filter(
+        (order) => ACTIVE_STATUSES.has(order?.status)
+      );
+    }
+
+    function isTableBusy(tableNumber) {
+      return activeTableOrders(tableNumber).length > 0;
+    }
+
+    function statusName(status) {
+      return {
+        pending: "YENİ SİPARİŞ",
+        preparing: "HAZIRLANIYOR",
+        ready: "HAZIR",
+        served: "SERVİS EDİLDİ"
+      }[status] || String(status || "");
+    }
+
+    function statusClass(status) {
+      return {
+        pending: "status-pending",
+        preparing: "status-preparing",
+        ready: "status-ready",
+        served: "status-served"
+      }[status] || "";
+    }
+
+    function renderTables() {
+      waiterTablesGrid.innerHTML = TABLES.map((tableNumber) => {
+        const busy = isTableBusy(tableNumber);
+        const selected = Number(selectedTable) === tableNumber;
+        const active = activeTableOrders(tableNumber);
+        const total = active.reduce(
+          (sum, order) => sum + normalizeNumber(order.total),
+          0
+        );
+
+        return `
+          <button
+            type="button"
+            class="table-btn-card ${busy ? "busy" : ""} ${selected ? "selected" : ""}"
+            data-table="${tableNumber}"
+          >
+            <span class="table-number">Masa ${tableNumber}</span>
+
+            <span class="table-status-badge ${busy ? "busy" : "available"}">
+              <span class="pulse-dot"></span>
+              ${busy ? "Dolu" : "Boş"}
+            </span>
+
+            <span class="table-meta">
+              ${
+                busy
+                  ? `${active.length} aktif sipariş • ${money(total)}`
+                  : "Sipariş yok"
+              }
+            </span>
+          </button>
+        `;
+      }).join("");
+    }
+
+    function renderCategories() {
+      const categorySet = new Set();
+
+      products
+        .filter(isProductActive)
+        .forEach((product) => {
+          const category = productCategory(product);
+          if (category) categorySet.add(category);
+        });
+
+      const categories = ["Tümü", ...Array.from(categorySet).sort((a, b) => a.localeCompare(b))];
+
+      if (!categories.includes(selectedCategory)) {
+        selectedCategory = "Tümü";
+      }
+
+      categoryBar.innerHTML = categories.map((category) => `
+        <button
+          type="button"
+          class="cat-btn ${selectedCategory === category ? "active" : ""}"
+          data-category="${esc(category)}"
+        >
+          ${esc(category)}
+        </button>
+      `).join("");
+    }
+
+    function renderProducts() {
+      let list = products.filter(isProductActive);
+
+      if (selectedCategory !== "Tümü") {
+        list = list.filter(
+          (product) => productCategory(product) === selectedCategory
+        );
+      }
+
+      const search = productSearch.value.trim().toLocaleLowerCase("tr-TR");
+
+      if (search) {
+        list = list.filter((product) => {
+          const name = productName(product).toLocaleLowerCase("tr-TR");
+          const category = productCategory(product).toLocaleLowerCase("tr-TR");
+          return name.includes(search) || category.includes(search);
+        });
+      }
+
+      if (!list.length) {
+        waiterProductsList.innerHTML = `
+          <div class="empty">Ürün bulunamadı.</div>
+        `;
+        return;
+      }
+
+      waiterProductsList.innerHTML = list.map((product) => {
+        const id = String(product.id);
+        const name = productName(product);
+        const price = productPrice(product);
+        const category = productCategory(product);
+
+        return `
+          <article class="product-card">
+            <div>
+              <h3>${esc(name)}</h3>
+              <p>${esc(product.description || category || "Ürün")}</p>
+            </div>
+
+            <div class="product-bottom">
+              <span class="product-price">${money(price)}</span>
+
+              <button
+                type="button"
+                class="add-btn"
+                data-product-id="${esc(id)}"
+                ${selectedTable === null ? "disabled" : ""}
+              >
+                + Ekle
+              </button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderCart() {
+      if (selectedTable === null) {
+        cartItemsContainer.innerHTML = `
+          <div class="empty">Önce bir masa seçin.</div>
+        `;
+        cartCount.textContent = "0";
+        cartTotal.textContent = money(0);
+        cartWarning.textContent = "";
+        submitOrderBtn.disabled = true;
+        viewOrdersBtn.disabled = true;
+        return;
+      }
+
+      if (!cart.length) {
+        cartItemsContainer.innerHTML = `
+          <div class="empty">Ürün eklemek için ürünlerdeki “+ Ekle” düğmesine basın.</div>
+        `;
+      } else {
+        cartItemsContainer.innerHTML = cart.map((item) => `
+          <div class="cart-row">
+            <button
+              type="button"
+              class="qty-btn"
+              data-minus="${esc(item.id)}"
+              aria-label="Azalt"
+            >−</button>
+
+            <span>${normalizeNumber(item.qty)}</span>
+
+            <button
+              type="button"
+              class="qty-btn plus"
+              data-plus="${esc(item.id)}"
+              aria-label="Artır"
+            >+</button>
+
+            <span class="cart-name">${esc(item.name)}</span>
+
+            <span class="cart-line-total">
+              ${money(normalizeNumber(item.price) * normalizeNumber(item.qty))}
+            </span>
+
+            <button
+              type="button"
+              class="remove-btn"
+              data-remove="${esc(item.id)}"
+              aria-label="Ürünü kaldır"
+            >×</button>
+          </div>
+        `).join("");
+      }
+
+      const total = cart.reduce(
+        (sum, item) =>
+          sum +
+          normalizeNumber(item.price) *
+          normalizeNumber(item.qty),
+        0
+      );
+
+      const count = cart.reduce(
+        (sum, item) => sum + normalizeNumber(item.qty),
+        0
+      );
+
+      cartCount.textContent = String(count);
+      cartTotal.textContent = money(total);
+      submitOrderBtn.disabled = cart.length === 0;
+      viewOrdersBtn.disabled = false;
+
+      cartWarning.textContent = activeTableOrders(selectedTable).length
+        ? "Masada aktif sipariş var."
+        : "";
+    }
+
+    function updateSelectedTableUI() {
+      if (selectedTable === null) {
+        selectedTableTitle.textContent = "Masa seçin";
+        selectedTableSub.textContent = "Önce bir masa seçin.";
+        clearTableBtn.disabled = true;
+        return;
+      }
+
+      const active = activeTableOrders(selectedTable);
+      const total = active.reduce(
+        (sum, order) => sum + normalizeNumber(order.total),
+        0
+      );
+
+      selectedTableTitle.textContent = `Masa ${selectedTable}`;
+
+      selectedTableSub.textContent = active.length
+        ? `Dolu • ${active.length} aktif sipariş • ${money(total)}`
+        : "Boş • Yeni sipariş oluşturabilirsiniz.";
+
+      clearTableBtn.disabled = active.length === 0;
+    }
+
+    function selectTable(tableNumber) {
+      selectedTable = Number(tableNumber);
+      cart = [];
+      updateSelectedTableUI();
+      renderTables();
+      renderProducts();
+      renderCart();
+      renderOrders();
+
+      document.querySelector("#menuPanel")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    }
+
+    function renderOrders() {
+      if (selectedTable === null) {
+        ordersList.innerHTML = `
+          <div class="empty">Görüntülemek için bir masa seçin.</div>
+        `;
+        return;
+      }
+
+      const tableOrdersList = tableOrders(selectedTable);
+
+      if (!tableOrdersList.length) {
+        ordersList.innerHTML = `
+          <div class="empty">Bu masada henüz sipariş yok.</div>
+        `;
+        return;
+      }
+
+      ordersList.innerHTML = tableOrdersList.map((order) => {
+        const items = Array.isArray(order.items) ? order.items : [];
+        const total = normalizeNumber(order.total);
+
+        return `
+          <article class="order-card">
+            <div class="order-top">
+              <div>
+                <strong>Sipariş #${esc(String(order.id).slice(-6))}</strong>
+                <small>
+                  Garson: ${esc(order.waiterName || "Garson")}
+                </small>
+              </div>
+
+              <span class="order-status ${statusClass(order.status)}">
+                ${esc(statusName(order.status))}
+              </span>
+            </div>
+
+            <div class="order-items">
+              ${
+                items.length
+                  ? items.map((item) => {
+                      const qty = normalizeNumber(item.qty);
+                      const price = normalizeNumber(item.price);
+                      return `
+                        <div class="order-line">
+                          <span>
+                            ${qty} × ${esc(item.name || "Ürün")}
+                          </span>
+                          <strong>${money(price * qty)}</strong>
+                        </div>
+                      `;
+                    }).join("")
+                  : `<div class="empty">Ürün bilgisi yok.</div>`
+              }
+            </div>
+
+            <div class="order-bottom">
+              <strong>Toplam</strong>
+              <strong>${money(total)}</strong>
+            </div>
+
+            <div class="order-actions">
+              ${
+                order.status === "pending"
+                  ? `
+                    <button
+                      type="button"
+                      class="order-action"
+                      data-order-id="${esc(order.id)}"
+                      data-new-status="preparing"
+                    >
+                      👨‍🍳 Hazırlanıyor
+                    </button>
+                  `
+                  : ""
+              }
+
+              ${
+                order.status === "preparing"
+                  ? `
+                    <button
+                      type="button"
+                      class="order-action"
+                      data-order-id="${esc(order.id)}"
+                      data-new-status="ready"
+                    >
+                      ✓ Hazır
+                    </button>
+                  `
+                  : ""
+              }
+
+              ${
+                order.status === "ready"
+                  ? `
+                    <button
+                      type="button"
+                      class="order-action"
+                      data-order-id="${esc(order.id)}"
+                      data-new-status="served"
+                    >
+                      🍽️ Servis Edildi
+                    </button>
+                  `
+                  : ""
+              }
+
+              ${
+                order.status === "served"
+                  ? `
+                    <button
+                      type="button"
+                      class="order-action delete"
+                      data-delete-order="${esc(order.id)}"
+                    >
+                      🗑️ Siparişi Sil
+                    </button>
+                  `
+                  : ""
+              }
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    waiterTablesGrid.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-table]");
+      if (!button) return;
+      selectTable(Number(button.dataset.table));
+    });
+
+    categoryBar.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-category]");
+      if (!button) return;
+
+      selectedCategory = button.dataset.category || "Tümü";
+      renderCategories();
+      renderProducts();
+    });
+
+    productSearch.addEventListener("input", renderProducts);
+
+    waiterProductsList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-product-id]");
+      if (!button) return;
+
+      if (selectedTable === null) {
+        toast("Önce bir masa seçin.", "error");
+        return;
+      }
+
+      const product = products.find(
+        (item) => String(item.id) === String(button.dataset.productId)
+      );
+
+      if (!product) {
+        toast("Ürün bulunamadı.", "error");
+        return;
+      }
+
+      const id = String(product.id);
+      const existing = cart.find(
+        (item) => String(item.id) === id
+      );
+
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({
+          id,
+          name: productName(product),
+          price: productPrice(product),
+          department: product.department || product.station || "",
+          qty: 1
+        });
+      }
+
+      renderCart();
+    });
+
+    cartItemsContainer.addEventListener("click", (event) => {
+      const plus = event.target.closest("[data-plus]");
+      const minus = event.target.closest("[data-minus]");
+      const remove = event.target.closest("[data-remove]");
+
+      if (plus) {
+        const item = cart.find(
+          (entry) => String(entry.id) === String(plus.dataset.plus)
+        );
+        if (item) item.qty += 1;
+      }
+
+      if (minus) {
+        const item = cart.find(
+          (entry) => String(entry.id) === String(minus.dataset.minus)
+        );
+
+        if (item) {
+          item.qty -= 1;
+
+          if (item.qty <= 0) {
+            cart = cart.filter(
+              (entry) => String(entry.id) !== String(item.id)
+            );
+          }
+        }
+      }
+
+      if (remove) {
+        cart = cart.filter(
+          (entry) => String(entry.id) !== String(remove.dataset.remove)
+        );
+      }
+
+      renderCart();
+    });
+
+    submitOrderBtn.addEventListener("click", async () => {
+      if (selectedTable === null) {
+        toast("Önce bir masa seçin.", "error");
+        return;
+      }
+
+      if (!cart.length) {
+        toast("Sepet boş.", "error");
+        return;
+      }
+
+      const total = cart.reduce(
+        (sum, item) =>
+          sum +
+          normalizeNumber(item.price) *
+          normalizeNumber(item.qty),
+        0
+      );
+
+      try {
+        submitOrderBtn.disabled = true;
+        submitOrderBtn.textContent = "Gönderiliyor...";
+
+        await createOrder({
+          table: selectedTable,
+          tableNumber: selectedTable,
+          waiterName: "Garson",
+          items: cart.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: normalizeNumber(item.price),
+            department: item.department || "",
+            qty: normalizeNumber(item.qty)
+          })),
+          total
+        });
+
+        cart = [];
+        renderCart();
+        renderTables();
+        updateSelectedTableUI();
+
+        toast(`Masa ${selectedTable} siparişi gönderildi.`);
+      } catch (error) {
+        console.error("Create order error:", error);
+        toast(
+          `Sipariş gönderilemedi: ${error?.message || "Bilinmeyen hata"}`,
+          "error"
+        );
+      } finally {
+        submitOrderBtn.textContent = "➤ Siparişi Gönder";
+        renderCart();
+      }
+    });
+
+    ordersList.addEventListener("click", async (event) => {
+      const statusButton = event.target.closest("[data-new-status]");
+      const deleteButton = event.target.closest("[data-delete-order]");
+
+      if (statusButton) {
+        try {
+          statusButton.disabled = true;
+
+          await setStatus(
+            statusButton.dataset.orderId,
+            statusButton.dataset.newStatus
+          );
+
+          toast("Sipariş durumu güncellendi.");
+        } catch (error) {
+          console.error("Set status error:", error);
+          statusButton.disabled = false;
+          toast(
+            `Sipariş güncellenemedi: ${error?.message || "Bilinmeyen hata"}`,
+            "error"
+          );
+        }
+
+        return;
+      }
+
+      if (deleteButton) {
+        const confirmed = window.confirm(
+          "Bu tamamlanmış siparişi silmek istediğinizden emin misiniz?"
+        );
+
+        if (!confirmed) return;
+
+        try {
+          deleteButton.disabled = true;
+
+          await deleteOrder(deleteButton.dataset.deleteOrder);
+
+          toast("Sipariş silindi.");
+        } catch (error) {
+          console.error("Delete order error:", error);
+          deleteButton.disabled = false;
+          toast(
+            `Sipariş silinemedi: ${error?.message || "Bilinmeyen hata"}`,
+            "error"
+          );
+        }
+      }
+    });
+
+    viewOrdersBtn.addEventListener("click", () => {
+      ordersSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+    });
+
+    clearTableBtn.addEventListener("click", async () => {
+      if (selectedTable === null) return;
+
+      const active = activeTableOrders(selectedTable);
+
+      if (!active.length) {
+        toast("Bu masa zaten boş.");
+        return;
+      }
+
+      const confirmed = window.confirm(
+        `Masa ${selectedTable} boşaltılsın mı? Aktif siparişler silinecek.`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        clearTableBtn.disabled = true;
+
+        await Promise.all(
+          active.map((order) => deleteOrder(order.id))
+        );
+
+        cart = [];
+        renderCart();
+        toast(`Masa ${selectedTable} boşaltıldı.`);
+      } catch (error) {
+        console.error("Clear table error:", error);
+        toast(
+          `Masa boşaltılamadı: ${error?.message || "Bilinmeyen hata"}`,
+          "error"
+        );
+      } finally {
+        updateSelectedTableUI();
+        renderTables();
+        renderOrders();
+        clearTableBtn.disabled = activeTableOrders(selectedTable).length === 0;
+      }
+    });
+
+    function showLoadError(message) {
+      waiterProductsList.innerHTML = `
+        <div class="error-box">${esc(message)}</div>
+      `;
+    }
+
+    // المنتجات: نفس collection "products" التي تستخدمها الإدارة.
+    try {
+      listenProducts((items) => {
+        products = Array.isArray(items) ? items : [];
+        renderCategories();
+        renderProducts();
+      });
+    } catch (error) {
+      console.error("Products listener error:", error);
+      showLoadError("تعذر تحميل المنتجات. تأكد من app.js و Firebase.");
+    }
+
+    // الطلبات: نفس collection "orders" التي تستخدمها المطبخ والإدارة.
+    try {
+      listenOrders((items) => {
+        orders = Array.isArray(items) ? items : [];
+
+        renderTables();
+        updateSelectedTableUI();
+        renderCart();
+        renderOrders();
+      });
+    } catch (error) {
+      console.error("Orders listener error:", error);
+      ordersList.innerHTML = `
+        <div class="error-box">
+          تعذر تحميل الطلبات. تأكد من اتصال Firebase وقواعد Firestore.
+        </div>
+      `;
+    }
+
+    renderTables();
+    renderCategories();
+    renderProducts();
+    renderCart();
+    renderOrders();
+  </script>
+</body>
+</html>
