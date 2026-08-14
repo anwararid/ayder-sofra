@@ -263,7 +263,6 @@ export function shell(
 
   `;
 
-
   return $("#content");
 
 }
@@ -607,8 +606,6 @@ export async function setStatus(
   );
 
 }
-
-
 /* ==================================================
    DELETE ORDER
 ================================================== */
@@ -745,7 +742,6 @@ export function card(
       class="card order-card"
     >
 
-
       <div class="row">
 
         <div>
@@ -833,7 +829,9 @@ export function card(
             : `
 
                 <div class="muted">
+
                   Ürün bulunamadı.
+
                 </div>
 
               `
@@ -852,16 +850,17 @@ export function card(
         </b>
 
         <strong>
+
           ${money(
             order.total
           )}
+
         </strong>
 
       </div>
 
 
       <div class="actions">
-
 
         ${
           order.status ===
@@ -870,11 +869,15 @@ export function card(
             ? `
 
               <button
+
                 class="btn primary action"
+
                 data-id="${esc(
                   order.id
                 )}"
+
                 data-s="preparing"
+
               >
 
                 Hazırlamaya Al
@@ -894,11 +897,15 @@ export function card(
             ? `
 
               <button
+
                 class="btn primary action"
+
                 data-id="${esc(
                   order.id
                 )}"
+
                 data-s="ready"
+
               >
 
                 Sipariş Hazır
@@ -918,11 +925,15 @@ export function card(
             ? `
 
               <button
+
                 class="btn primary action"
+
                 data-id="${esc(
                   order.id
                 )}"
+
                 data-s="served"
+
               >
 
                 Servis Edildi
@@ -942,10 +953,13 @@ export function card(
             ? `
 
               <button
+
                 class="btn danger action"
+
                 data-delete-order="${esc(
                   order.id
                 )}"
+
               >
 
                 🗑 Siparişi Sil
@@ -957,9 +971,7 @@ export function card(
             : ""
         }
 
-
       </div>
-
 
     </article>
 
@@ -994,9 +1006,13 @@ export function statusName(
 
 
   return (
+
     names[status] ||
+
     status ||
+
     ""
+
   );
 
 }
@@ -1028,8 +1044,11 @@ export function statusClass(
 
 
   return (
+
     classes[status] ||
+
     ""
+
   );
 
 }
@@ -1046,11 +1065,15 @@ export function isOrderActive(
   return [
 
     "pending",
+
     "preparing",
+
     "ready"
 
   ].includes(
+
     order?.status
+
   );
 
 }
@@ -1066,6 +1089,7 @@ export function tableHasActiveOrders(
 ) {
 
   return orders.some(
+
     order => {
 
       return (
@@ -1073,6 +1097,7 @@ export function tableHasActiveOrders(
         Number(
           order.table
         ) ===
+
         Number(
           tableNumber
         )
@@ -1086,6 +1111,7 @@ export function tableHasActiveOrders(
       );
 
     }
+
   );
 
 }
@@ -1101,6 +1127,7 @@ export function tableHasOrders(
 ) {
 
   return orders.some(
+
     order => {
 
       return (
@@ -1108,6 +1135,7 @@ export function tableHasOrders(
         Number(
           order.table
         ) ===
+
         Number(
           tableNumber
         )
@@ -1115,6 +1143,7 @@ export function tableHasOrders(
       );
 
     }
+
   );
 
 }
@@ -1130,7 +1159,9 @@ export function tableActiveTotal(
 ) {
 
   return orders
+
     .filter(
+
       order => {
 
         return (
@@ -1138,6 +1169,7 @@ export function tableActiveTotal(
           Number(
             order.table
           ) ===
+
           Number(
             tableNumber
           )
@@ -1151,7 +1183,9 @@ export function tableActiveTotal(
         );
 
       }
+
     )
+
     .reduce(
 
       (sum, order) => {
@@ -1159,6 +1193,7 @@ export function tableActiveTotal(
         return (
 
           sum +
+
           Number(
             order.total || 0
           )
@@ -1184,6 +1219,7 @@ export function tableActiveOrderCount(
 ) {
 
   return orders.filter(
+
     order => {
 
       return (
@@ -1191,6 +1227,7 @@ export function tableActiveOrderCount(
         Number(
           order.table
         ) ===
+
         Number(
           tableNumber
         )
@@ -1204,6 +1241,7 @@ export function tableActiveOrderCount(
       );
 
     }
+
   ).length;
 
-}
+  }
