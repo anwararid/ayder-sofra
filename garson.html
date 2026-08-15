@@ -583,6 +583,43 @@
       .cart-row{grid-template-columns:auto 24px auto minmax(0,1fr) auto}
       .cart-line-total{display:none}
     }
+   .home-button {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 9999;
+
+   display: inline-flex;
+   align-items: center;
+      gap: 7px;
+
+      padding: 10px 15px;
+
+      background: #102b3d;
+      color: #ffffff;
+ 
+      border: 1px solid #2b5068;
+      border-radius: 10px;
+
+      text-decoration: none;
+
+      font-size: 14px;
+      font-weight: 800;
+
+     box-shadow: 0 8px 20px rgba(0,0,0,.20);
+
+     transition: .18s ease;
+  }
+
+  .home-button:hover {
+      background: #1b4966;
+      border-color: #4a82a2;
+      transform: translateY(-2px);
+  }
+
+  .home-button:active {
+      transform: scale(.97);
+         }
   </style>
 </head>
 
