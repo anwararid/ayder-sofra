@@ -23,6 +23,7 @@ jobs:
 
       - name: Prepare Web Assets
         run: |
+          rm -rf www
           mkdir -p www
           cp -r *.html *.css *.js www/ 2>/dev/null || true
 
