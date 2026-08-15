@@ -1,106 +1,519 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ayder Sofra - Mutfak Paneli</title>
-<!-- 1. ربط ملفات المكتبات الأصلية (مثل Firebase) -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- 2. كود التنسيق الجديد (CSS) لضمان الألوان والبطاقات -->
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: sans-serif; color: #17212b; background: #eaf5fb; padding: 15px; }
-.container { max-width: 1200px; margin: 0 auto; }
-.hero { background: linear-gradient(120deg, #0e3042, #2a6a89); padding: 25px 30px; color: #fff; border-radius: 24px; margin-bottom: 25px; }
-.section-heading { margin: 20px 0; }
-.section-heading h2 { font-size: 24px; }
-.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
-.ticket-card { background: #fff; border: 1px solid #dce7eb; border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
-/* كود خاص بتلوين البطاقات حسب الحالة */
-.ticket-card[data-status="pending"] { border-top: 4px solid #d85e55; }
-.ticket-card[data-status="cooking"] { border-top: 4px solid #e8bb70; }
-.ticket-card[data-status="ready"] { border-top: 4px solid #56a96c; }
-.ticket-header { display: flex; justify-content: space-between; border-bottom: 1px dashed #e1e9ec; padding-bottom: 10px; }
-.table-badge { background: #edf5f8; font-size: 16px; font-weight: 800; padding: 4px 10px; border-radius: 10px; }
-.item-qty { background: #a46b31; color: #fff; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
-.btn { height: 40px; border: 0; border-radius: 10px; font-weight: 800; cursor: pointer; color: #fff; width: 100%; }
-.btn-update { background: linear-gradient(135deg, #164b5b, #28758a); }
-</style>
+  <title>Ayder Sofra</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family:
+        Arial,
+        Tahoma,
+        sans-serif;
+
+      background:
+        radial-gradient(
+          circle at top right,
+          #163b50 0%,
+          #081923 45%,
+          #041018 100%
+        );
+
+      color: #fff;
+      padding: 20px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    /* HEADER */
+
+    .header {
+      text-align: center;
+      padding: 35px 20px 25px;
+    }
+
+    .logo {
+      width: 75px;
+      height: 75px;
+
+      margin: 0 auto 16px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border-radius: 22px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #d99a55,
+          #9b5e27
+        );
+
+      color: #fff;
+
+      font-size: 27px;
+      font-weight: 900;
+
+      box-shadow:
+        0 12px 30px rgba(0,0,0,.35);
+    }
+
+    .header h1 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .header p {
+      margin-top: 10px;
+      color: #9fb4c0;
+      font-size: 15px;
+    }
+
+    /* STATUS */
+
+    .system-status {
+      width: fit-content;
+      margin: 0 auto 30px;
+
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      padding: 9px 16px;
+
+      border-radius: 999px;
+
+      background: rgba(42, 214, 143, .10);
+
+      border: 1px solid rgba(42, 214, 143, .25);
+
+      color: #4be59c;
+
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+
+      border-radius: 50%;
+
+      background: #38e49a;
+
+      box-shadow:
+        0 0 12px #38e49a;
+    }
+
+    /* TITLE */
+
+    .section-title {
+      margin-bottom: 15px;
+    }
+
+    .section-title h2 {
+      font-size: 21px;
+    }
+
+    .section-title p {
+      margin-top: 5px;
+      color: #829ba8;
+      font-size: 13px;
+    }
+
+    /* GRID */
+
+    .departments {
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(0, 1fr)
+        );
+
+      gap: 15px;
+    }
+
+    /* CARD */
+
+    .department {
+      position: relative;
+
+      min-height: 170px;
+
+      padding: 22px;
+
+      border-radius: 20px;
+
+      border: 1px solid #1d3b4d;
+
+      background:
+        linear-gradient(
+          145deg,
+          #102a3b,
+          #0a1e2c
+        );
+
+      color: #fff;
+
+      text-decoration: none;
+
+      overflow: hidden;
+
+      transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+    }
+
+    .department::after {
+      content: "";
+
+      position: absolute;
+
+      width: 120px;
+      height: 120px;
+
+      right: -35px;
+      bottom: -45px;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,.035);
+    }
+
+    .department:hover {
+      transform: translateY(-3px);
+
+      border-color: #3c7190;
+
+      box-shadow:
+        0 15px 35px rgba(0,0,0,.25);
+    }
+
+    .department:active {
+      transform: scale(.98);
+    }
+
+    .department-icon {
+      width: 58px;
+      height: 58px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      margin-bottom: 18px;
+
+      border-radius: 16px;
+
+      background: rgba(255,255,255,.07);
+
+      font-size: 29px;
+    }
+
+    .department h3 {
+      font-size: 20px;
+      margin-bottom: 7px;
+    }
+
+    .department p {
+      color: #8ea8b6;
+
+      font-size: 13px;
+
+      line-height: 1.5;
+    }
+
+    .arrow {
+      position: absolute;
+
+      left: 18px;
+      bottom: 18px;
+
+      color: #6d8b9b;
+
+      font-size: 20px;
+    }
+
+    /* COLORS */
+
+    .waiter {
+      border-top: 3px solid #3989ff;
+    }
+
+    .kitchen {
+      border-top: 3px solid #45d994;
+    }
+
+    .oven {
+      border-top: 3px solid #e39a4c;
+    }
+
+    .grill {
+      border-top: 3px solid #e85c5c;
+    }
+
+    .admin {
+      grid-column: 1 / -1;
+      border-top: 3px solid #9d7bea;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      text-align: center;
+
+      padding: 30px 0 10px;
+
+      color: #5e7784;
+
+      font-size: 12px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 600px) {
+
+      body {
+        padding: 12px;
+      }
+
+      .header {
+        padding-top: 25px;
+      }
+
+      .header h1 {
+        font-size: 27px;
+      }
+
+      .departments {
+        grid-template-columns: 1fr;
+      }
+
+      .department {
+        min-height: 145px;
+      }
+
+      .admin {
+        grid-column: auto;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<div class="container">
-  <div class="hero">
-    <h1>AYDER SOFRA • MUTFAK</h1>
-    <p>Aktif mutfak siparişlerini buradan yönetebilirsiniz.</p>
-  </div>
+  <main class="app">
 
-  <div class="section-heading">
-    <h2>Canlı Siparişler</h2>
-  </div>
+    <header class="header">
 
-  <!-- 3. منطقة عرض البطاقات الديناميكية -->
-  <div id="orders-grid" class="cards-grid">
-    <!-- سيتم ملء هذا الجزء تلقائياً بواسطة الجافا سكربت -->
-  </div>
-</div>
-
-<!-- 4. الكود البرمجي الأصلي لجلب البيانات (من Firebase) -->
-<script>
-// --- تكوين Firebase الخاص بك (يرجى نسخه من ملفك الأصلي إذا اختلف) ---
-const firebaseConfig = {
-  // يرجى ملء بيانات Firebase الخاصة بك هنا (APIKey, etc.)
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// --- دالة لجلب وعرض الطلبات بتنسيق البطاقات الجديدة ---
-db.collection("orders").onSnapshot((snapshot) => {
-  const grid = document.getElementById('orders-grid');
-  grid.innerHTML = ''; // تفريغ المنطقة أولاً
-
-  snapshot.forEach((doc) => {
-    const order = doc.data();
-    
-    // إنشاء البطاقة الجديدة (HTML Structure)
-    const card = `
-      <div class="ticket-card" data-status="${order.status}">
-        <div class="ticket-header">
-          <span class="table-badge">Masa ${order.tableNumber}</span>
-        </div>
-        <div class="ticket-items">
-          ${order.items.map(item => `
-            <div><span class="item-qty">${item.quantity}</span> ${item.name}</div>
-          `).join('')}
-        </div>
-        <button class="btn btn-update" onclick="updateOrderStatus('${doc.id}', '${order.status}')">Durumu Güncelle</button>
+      <div class="logo">
+        AS
       </div>
-    `;
-    
-    // إضافة البطاقة للشبكة
-    grid.innerHTML += card;
-  });
-});
 
-// دالة لتحديث حالة الطلب (نفس المنطق القديم)
-async function updateOrderStatus(orderId, currentStatus) {
-  let nextStatus;
-  if (currentStatus === 'pending') nextStatus = 'cooking';
-  else if (currentStatus === 'cooking') nextStatus = 'ready';
-  else return; // إذا كانت جاهزة لا نفعل شيء
+      <h1>
+        AYDER SOFRA
+      </h1>
 
-  await db.collection("orders").doc(orderId).update({ status: nextStatus });
-}
-</script>
+      <p>
+        نظام إدارة المطعم
+      </p>
+
+    </header>
+
+
+    <div class="system-status">
+
+      <span class="status-dot"></span>
+
+      النظام متصل
+
+    </div>
+
+
+    <section>
+
+      <div class="section-title">
+
+        <h2>
+          اختر القسم
+        </h2>
+
+        <p>
+          اختر الواجهة التي تريد استخدامها
+        </p>
+
+      </div>
+
+
+      <div class="departments">
+
+
+        <!-- GARSON -->
+
+        <a
+          href="./garson.html"
+          class="department waiter"
+        >
+
+          <div class="department-icon">
+            👨‍🍳
+          </div>
+
+          <h3>
+            الجرسون
+          </h3>
+
+          <p>
+            إدارة الطاولات
+            وإنشاء وإرسال الطلبات
+          </p>
+
+          <span class="arrow">
+            ←
+          </span>
+
+        </a>
+
+
+        <!-- MUTFAK -->
+
+        <a
+          href="./mutfak.html"
+          class="department kitchen"
+        >
+
+          <div class="department-icon">
+            🍳
+          </div>
+
+          <h3>
+            المطبخ
+          </h3>
+
+          <p>
+            استقبال الطلبات
+            ومتابعة تحضيرها
+          </p>
+
+          <span class="arrow">
+            ←
+          </span>
+
+        </a>
+
+
+        <!-- FIRIN -->
+
+        <a
+          href="./firin.html"
+          class="department oven"
+        >
+
+          <div class="department-icon">
+            🔥
+          </div>
+
+          <h3>
+            الفرن
+          </h3>
+
+          <p>
+            متابعة طلبات
+            قسم الفرن
+          </p>
+
+          <span class="arrow">
+            ←
+          </span>
+
+        </a>
+
+
+        <!-- IZGARA -->
+
+        <a
+          href="./izgara.html"
+          class="department grill"
+        >
+
+          <div class="department-icon">
+            🥩
+          </div>
+
+          <h3>
+            الشواية
+          </h3>
+
+          <p>
+            متابعة طلبات
+            قسم الشواية
+          </p>
+
+          <span class="arrow">
+            ←
+          </span>
+
+        </a>
+
+
+        <!-- ADMIN -->
+
+        <a
+          href="./admin.html"
+          class="department admin"
+        >
+
+          <div class="department-icon">
+            ⚙️
+          </div>
+
+          <h3>
+            الإدارة
+          </h3>
+
+          <p>
+            إدارة المنتجات
+            والطلبات والنظام
+          </p>
+
+          <span class="arrow">
+            ←
+          </span>
+
+        </a>
+
+
+      </div>
+
+    </section>
+
+
+    <footer class="footer">
+
+      Ayder Sofra © 2026
+
+    </footer>
+
+  </main>
+
 </body>
 </html>
