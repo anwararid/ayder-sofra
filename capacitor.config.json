@@ -1,0 +1,7 @@
+{
+    "appId": "com.aydersofra.app",
+      "appName": "ayder-sofra",
+        "webDir": "./",
+          "bundledWebRuntime": false
+          }
+}
