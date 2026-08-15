@@ -61,7 +61,13 @@ const content =
     "Mutfak",
     "Mutfak siparişlerini takip edin."
   );
+const homeButton = document.createElement("a");
 
+homeButton.href = "./index.html";
+homeButton.className = "home-button";
+homeButton.textContent = "← Ana Sayfa";
+
+document.body.appendChild(homeButton);
 
 /* ==================================================
    MUTFAK ARAYÜZÜ
