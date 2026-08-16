@@ -3,33 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>القائمة الرئيسية</title>
+  <title>قائمة الطعام</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-    body { background-color: #0d1117; color: #fff; padding-bottom: 70px; }
+    body { background-color: #0d1117; color: #fff; padding-bottom: 75px; }
 
-    /* Admin Section */
-    .admin-section { background: #161b22; border-radius: 12px; padding: 20px; margin: 15px; border: 1px solid #30363d; direction: ltr; text-align: left; }
-    .admin-title { color: #f0883e; font-size: 1.2rem; margin-bottom: 15px; font-weight: bold; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: #8b949e; }
-    .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #30363d; background: #0d1117; color: #fff; border-radius: 6px; font-size: 0.95rem; }
+    /* Admin Panel */
+    .admin-section { background: #161b22; border-radius: 12px; padding: 18px; margin: 15px; border: 1px solid #30363d; direction: ltr; text-align: left; }
+    .admin-title { color: #f0883e; font-size: 1.1rem; margin-bottom: 12px; font-weight: bold; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; margin-bottom: 4px; font-size: 0.8rem; color: #8b949e; }
+    .form-group input, .form-group select { width: 100%; padding: 9px; border: 1px solid #30363d; background: #0d1117; color: #fff; border-radius: 6px; font-size: 0.9rem; }
     .form-row { display: flex; gap: 10px; }
     .form-row .form-group { flex: 1; }
-    .btn-add { background: #238636; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 1rem; margin-top: 5px; }
-    .qr-card { background: #1c2128; border: 1px solid #30363d; padding: 12px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-    .qr-info { font-size: 0.85rem; color: #8b949e; }
-    #qrcode img { border: 3px solid #fff; border-radius: 6px; }
+    .btn-add { background: #238636; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.95rem; margin-top: 5px; }
+    .qr-card { background: #1c2128; border: 1px solid #30363d; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+    .qr-info { font-size: 0.8rem; color: #8b949e; }
+    #qrcode img { border: 2px solid #fff; border-radius: 4px; }
 
-    /* Header */
-    header { text-align: center; padding: 15px; font-size: 1.2rem; font-weight: bold; color: #fff; }
+    /* Header & Title */
+    header { text-align: center; padding: 15px; font-size: 1.2rem; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; position: relative; }
+    .back-btn { position: absolute; right: 15px; background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; display: none; }
 
-    /* Grid Layout like the design */
     .container { padding: 10px 15px; }
-    .categories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
+    /* Categories View (Grid 2x2) */
+    .categories-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
     .category-card {
       position: relative;
       height: 120px;
@@ -43,19 +44,13 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      text-decoration: none;
-      transition: transform 0.2s;
     }
-    .category-card:active { transform: scale(0.97); }
-
-    /* Dark Overlay for Image */
     .category-card::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
       background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.65) 100%);
     }
-
     .category-title {
       position: relative;
       z-index: 1;
@@ -64,22 +59,56 @@
       font-weight: 800;
       text-align: center;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
       text-shadow: 0 2px 4px rgba(0,0,0,0.8);
       padding: 0 8px;
     }
 
-    .btn-delete-cat {
+    /* Products View (Image Top + Details Below Right-Aligned) */
+    .products-list { display: flex; flex-direction: column; gap: 15px; }
+    .product-card {
+      position: relative;
+      background: #161b22;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      flex-direction: column;
+    }
+    .product-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+      background-color: #0d1117;
+    }
+    .product-info {
+      padding: 12px 15px;
+      text-align: right;
+    }
+    .product-name {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+    .product-price {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #f0883e;
+    }
+
+    .btn-delete-item {
       position: absolute;
-      top: 6px; left: 6px;
+      top: 10px; left: 10px;
       z-index: 2;
       background: rgba(220, 53, 69, 0.85);
       color: white;
       border: none;
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      font-size: 0.75rem;
+      font-size: 0.8rem;
       cursor: pointer;
     }
 
@@ -94,7 +123,6 @@
       padding: 8px 0;
       z-index: 100;
     }
-
     .nav-item {
       display: flex;
       flex-direction: column;
@@ -104,7 +132,6 @@
       font-size: 0.7rem;
       gap: 3px;
     }
-
     .nav-item.active { color: #f0883e; }
     .nav-item i { font-size: 1.2rem; }
   </style>
@@ -113,7 +140,7 @@
 
   <!-- Admin Panel (Turkish) -->
   <div id="admin-panel" class="admin-section">
-    <div class="admin-title">Yeni Kategori Ekle (إضافة قسم جديد)</div>
+    <div class="admin-title">Yönetim Paneli (لوحة التحكم)</div>
     
     <div class="qr-card">
       <div class="qr-info">
@@ -122,11 +149,13 @@
       <div id="qrcode"></div>
     </div>
 
-    <form id="add-category-form">
+    <!-- Form 1: Add Category -->
+    <form id="add-category-form" style="margin-bottom: 15px; border-bottom: 1px solid #30363d; padding-bottom: 12px;">
+      <div class="admin-title" style="font-size: 0.95rem; color: #fff;">1. Yeni Kategori Ekle (إضافة قسم)</div>
       <div class="form-row">
         <div class="form-group">
-          <label>Kategori Adı (اسم القسم بالعربية) *</label>
-          <input type="text" id="cat-name" placeholder="مثال: الشوربات" required>
+          <label>Kategori Adı (اسم القسم) *</label>
+          <input type="text" id="cat-name" placeholder="مثال: الإفطار" required>
         </div>
         <div class="form-group">
           <label>Görsel URL (رابط الصورة) *</label>
@@ -135,20 +164,51 @@
       </div>
       <button type="submit" class="btn-add">Kategoriyi Ekle (إضافة القسم)</button>
     </form>
+
+    <!-- Form 2: Add Product -->
+    <form id="add-product-form">
+      <div class="admin-title" style="font-size: 0.95rem; color: #fff;">2. Yeni Ürün Ekle (إضافة منتج)</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Kategori (القسم) *</label>
+          <select id="prod-cat-select" required></select>
+        </div>
+        <div class="form-group">
+          <label>Ürün Adı (اسم المنتج) *</label>
+          <input type="text" id="prod-name" placeholder="مثال: بيض بالمقلاة" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fiyat (السعر - TL) *</label>
+          <input type="number" id="prod-price" placeholder="200" required>
+        </div>
+        <div class="form-group">
+          <label>Görsel URL (رابط الصورة) *</label>
+          <input type="url" id="prod-img" placeholder="https://..." required>
+        </div>
+      </div>
+      <button type="submit" class="btn-add">Ürünü Ekle (إضافة المنتج)</button>
+    </form>
   </div>
 
-  <header>أنواع المأكولات</header>
+  <!-- Header -->
+  <header>
+    <button class="back-btn" id="back-btn" onclick="showCategories()"><i class="fas fa-arrow-right"></i></button>
+    <span id="header-title">أنواع المأكولات</span>
+  </header>
 
-  <!-- Categories Grid -->
+  <!-- Content Container -->
   <div class="container">
     <div class="categories-grid" id="categories-grid"></div>
+    <div class="products-list" id="products-list" style="display: none;"></div>
   </div>
 
   <!-- Bottom Navigation -->
   <nav class="bottom-nav">
     <a href="#" class="nav-item"><i class="fab fa-instagram"></i><span>التواصل</span></a>
     <a href="#" class="nav-item"><i class="fas fa-moon"></i><span>الوضع الداكن</span></a>
-    <a href="#" class="nav-item active"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+    <a href="#" class="nav-item active" onclick="showCategories(); return false;"><i class="fas fa-home"></i><span>الرئيسية</span></a>
     <a href="#" class="nav-item"><i class="fas fa-phone"></i><span>اتصل بنا</span></a>
     <a href="#" class="nav-item"><i class="fas fa-globe"></i><span>اللغات</span></a>
   </nav>
@@ -163,29 +223,37 @@
       const customerUrl = window.location.href.split('?')[0] + '?mode=view';
       new QRCode(document.getElementById("qrcode"), {
         text: customerUrl,
-        width: 70,
-        height: 70
+        width: 65,
+        height: 65
       });
     }
 
-    // Default Categories with Arabic titles and representative images
+    // Default Initial Data
     let categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [
       { id: 1, name: 'أنواع الإفطار', img: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=500&q=80' },
-      { id: 2, name: 'التوست والشطائر', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=500&q=80' },
-      { id: 3, name: 'الفطائر والمعجنات', img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=80' },
-      { id: 4, name: 'الشوربات', img: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?auto=format&fit=crop&w=500&q=80' },
-      { id: 5, name: 'اللحوم والمشويات', img: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=80' },
-      { id: 6, name: 'السلطات', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=500&q=80' },
-      { id: 7, name: 'البرجر', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=80' },
-      { id: 8, name: 'الأسماك', img: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=500&q=80' },
-      { id: 9, name: 'الحلويات', img: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=500&q=80' },
-      { id: 10, name: 'المشروبات الباردة', img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=80' }
+      { id: 2, name: 'التوست والشطائر', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=500&q=80' }
     ];
 
-    function saveCategories() {
+    let products = JSON.parse(localStorage.getItem('restaurant_products')) || [
+      { id: 101, catId: 1, name: 'وجبة إفطار مشكلة (Serpme Kahvaltı)', price: 1500, img: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80' },
+      { id: 102, catId: 1, name: 'بيض بالمقلاة (Sahanda Yumurta)', price: 200, img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80' }
+    ];
+
+    function saveData() {
       localStorage.setItem('restaurant_categories', JSON.stringify(categories));
+      localStorage.setItem('restaurant_products', JSON.stringify(products));
+      updateAdminSelect();
     }
 
+    function updateAdminSelect() {
+      const select = document.getElementById('prod-cat-select');
+      select.innerHTML = '';
+      categories.forEach(c => {
+        select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+      });
+    }
+
+    // Display Main Categories
     function renderCategories() {
       const grid = document.getElementById('categories-grid');
       grid.innerHTML = '';
@@ -194,14 +262,56 @@
         const card = document.createElement('div');
         card.className = 'category-card';
         card.style.backgroundImage = `url('${cat.img}')`;
+        card.onclick = () => openCategory(cat);
         card.innerHTML = `
-          ${!isCustomer ? `<button class="btn-delete-cat" onclick="deleteCategory(event, ${cat.id})"><i class="fas fa-times"></i></button>` : ''}
+          ${!isCustomer ? `<button class="btn-delete-item" onclick="deleteCategory(event, ${cat.id})"><i class="fas fa-times"></i></button>` : ''}
           <div class="category-title">${cat.name}</div>
         `;
         grid.appendChild(card);
       });
     }
 
+    // Open Category Products Page
+    function openCategory(cat) {
+      document.getElementById('categories-grid').style.display = 'none';
+      document.getElementById('products-list').style.display = 'flex';
+      document.getElementById('back-btn').style.display = 'block';
+      document.getElementById('header-title').innerText = cat.name;
+
+      const list = document.getElementById('products-list');
+      list.innerHTML = '';
+
+      const filteredProducts = products.filter(p => p.catId === cat.id);
+
+      if (filteredProducts.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#888; padding: 40px 0;">لا توجد منتجات في هذا القسم حالياً.</p>';
+        return;
+      }
+
+      filteredProducts.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          ${!isCustomer ? `<button class="btn-delete-item" onclick="deleteProduct(event, ${prod.id}, ${cat.id})"><i class="fas fa-times"></i></button>` : ''}
+          <img src="${prod.img}" class="product-img" alt="${prod.name}">
+          <div class="product-info">
+            <div class="product-name">${prod.name}</div>
+            <div class="product-price">${prod.price},00 ₺</div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // Return to Categories Grid
+    function showCategories() {
+      document.getElementById('categories-grid').style.display = 'grid';
+      document.getElementById('products-list').style.display = 'none';
+      document.getElementById('back-btn').style.display = 'none';
+      document.getElementById('header-title').innerText = 'أنواع المأكولات';
+    }
+
+    // Handlers
     document.getElementById('add-category-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const newCat = {
@@ -210,8 +320,23 @@
         img: document.getElementById('cat-img').value
       };
       categories.push(newCat);
-      saveCategories();
+      saveData();
       renderCategories();
+      this.reset();
+    });
+
+    document.getElementById('add-product-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const newProd = {
+        id: Date.now(),
+        catId: parseInt(document.getElementById('prod-cat-select').value),
+        name: document.getElementById('prod-name').value,
+        price: document.getElementById('prod-price').value,
+        img: document.getElementById('prod-img').value
+      };
+      products.push(newProd);
+      saveData();
+      alert('Ürün başarıyla eklendi! (تمت إضافة المنتج بنجاح)');
       this.reset();
     });
 
@@ -219,11 +344,24 @@
       e.stopPropagation();
       if (confirm('Kategoriyi silmek istediğinize emin misiniz?')) {
         categories = categories.filter(c => c.id !== id);
-        saveCategories();
+        products = products.filter(p => p.catId !== id);
+        saveData();
         renderCategories();
       }
     }
 
+    function deleteProduct(e, prodId, catId) {
+      e.stopPropagation();
+      if (confirm('Ürünü silmek istediğinize emin misiniz?')) {
+        products = products.filter(p => p.id !== prodId);
+        saveData();
+        const cat = categories.find(c => c.id === catId);
+        openCategory(cat);
+      }
+    }
+
+    // Init
+    updateAdminSelect();
     renderCategories();
   </script>
 </body>
