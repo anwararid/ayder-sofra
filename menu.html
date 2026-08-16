@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>قائمة الطعام</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
@@ -20,9 +19,14 @@
     .form-row .form-group { flex: 1; }
     .btn-add { background: #238636; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.95rem; margin-top: 5px; }
     .btn-add:hover { background: #2ea043; }
-    .qr-card { background: #1c2128; border: 1px solid #30363d; padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-    .qr-info { font-size: 0.8rem; color: #8b949e; }
-    #qrcode img { border: 2px solid #fff; border-radius: 4px; }
+
+    /* Link Box */
+    .link-card { background: #1c2128; border: 1px solid #30363d; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: right; direction: rtl; }
+    .link-title { font-size: 0.85rem; color: #8b949e; margin-bottom: 8px; font-weight: bold; }
+    .link-container { display: flex; gap: 8px; align-items: center; }
+    .link-input { flex: 1; padding: 8px 10px; border: 1px solid #30363d; background: #0d1117; color: #58a6ff; border-radius: 6px; font-size: 0.85rem; direction: ltr; text-align: left; }
+    .btn-copy { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; white-space: nowrap; }
+    .btn-copy:hover { background: #30363d; color: #fff; }
 
     /* Header & Title */
     header { text-align: center; padding: 15px; font-size: 1.2rem; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -143,11 +147,13 @@
   <div id="admin-panel" class="admin-section">
     <div class="admin-title">Yönetim Paneli (لوحة التحكم)</div>
     
-    <div class="qr-card">
-      <div class="qr-info">
-        <strong>Müşteri QR Kodu:</strong><br>Sadece menü görünümü içindir.
+    <!-- Customer Link Box -->
+    <div class="link-card">
+      <div class="link-title">رابط صفحة الزبائن (Müşteri Menü Linki):</div>
+      <div class="link-container">
+        <input type="text" id="customer-url-input" class="link-input" readonly>
+        <button type="button" class="btn-copy" onclick="copyCustomerLink()"><i class="fas fa-copy"></i> نسخ</button>
       </div>
-      <div id="qrcode"></div>
     </div>
 
     <!-- Form 1: Add Category -->
@@ -222,17 +228,21 @@
       document.getElementById('admin-panel').style.display = 'none';
     } else {
       const customerUrl = window.location.href.split('?')[0] + '?mode=view';
-      new QRCode(document.getElementById("qrcode"), {
-        text: customerUrl,
-        width: 65,
-        height: 65
+      document.getElementById('customer-url-input').value = customerUrl;
+    }
+
+    function copyCustomerLink() {
+      const input = document.getElementById('customer-url-input');
+      input.select();
+      input.setSelectionRange(0, 99999);
+      navigator.clipboard.writeText(input.value).then(() => {
+        alert('تم نسخ رابط الزبائن بنجاح!');
       });
     }
 
     let categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [];
     let products = JSON.parse(localStorage.getItem('restaurant_products')) || [];
 
-    // دالة لضغط وتقليل أبعاد الصورة تلقائياً لتفادي امتلاء ذاكرة LocalStorage
     function compressAndResizeImage(file, maxWidth = 600, quality = 0.7) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
