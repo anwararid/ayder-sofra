@@ -21,6 +21,40 @@
 
 
 <body>
+<button
+  id="enableOvenSound"
+  style="
+    position:fixed;
+    top:15px;
+    right:15px;
+    z-index:999999;
+    padding:10px 15px;
+    border:0;
+    border-radius:10px;
+    background:#164b5b;
+    color:white;
+    font-weight:bold;
+  "
+>
+  🔊 Sesi Aç
+</button>
+
+<script>
+document.addEventListener("click", async function enableSound() {
+  try {
+    if (window.ovenAudioContext) {
+      await window.ovenAudioContext.resume();
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+  const button = document.getElementById("enableOvenSound");
+  if (button) button.remove();
+
+  document.removeEventListener("click", enableSound);
+}, { once: true });
+</script>
 
 
 <script type="module">
