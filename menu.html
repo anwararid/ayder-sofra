@@ -19,6 +19,9 @@
     .form-row .form-group { flex: 1; }
     .btn-add { background: #238636; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.95rem; margin-top: 5px; }
     .btn-add:hover { background: #2ea043; }
+    
+    .btn-export { background: #1f6beb; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; font-size: 0.95rem; margin-top: 15px; }
+    .btn-export:hover { background: #388bfd; }
 
     /* Link Box */
     .link-card { background: #1c2128; border: 1px solid #30363d; padding: 12px; border-radius: 8px; margin-bottom: 15px; text-align: right; direction: rtl; }
@@ -195,6 +198,8 @@
       </div>
       <button type="submit" class="btn-add" id="btn-prod-submit">Ürünü Ekle (إضافة المنتج)</button>
     </form>
+
+    <button type="button" class="btn-export" onclick="exportDataJson()"><i class="fas fa-download"></i> تحميل ملف data.json الجديد للرفع على GitHub</button>
   </div>
 
   <!-- Header -->
@@ -229,7 +234,6 @@
       if (isCustomer) {
         document.getElementById('admin-panel').style.display = 'none';
         try {
-          // جلب البيانات من ملف data.json المرفوع على GitHub
           const res = await fetch('data.json?t=' + Date.now());
           const data = await res.json();
           categories = data.categories || [];
@@ -255,6 +259,21 @@
       navigator.clipboard.writeText(input.value).then(() => {
         alert('تم نسخ رابط الزبائن بنجاح!');
       });
+    }
+
+    function exportDataJson() {
+      const dataObj = {
+        categories: categories,
+        products: products
+      };
+      const jsonStr = JSON.stringify(dataObj, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'data.json';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
     function compressAndResizeImage(file, maxWidth = 600, quality = 0.7) {
@@ -390,7 +409,7 @@
         saveData();
         renderCategories();
         this.reset();
-        alert('تمت إضافة القسم بنجاح في ذاكرة الأدمن المحلية!');
+        alert('تمت إضافة القسم! انقر على زر "تحميل ملف data.json" في الأسفل بعد الانتهاء لرفعه لـ GitHub.');
       } catch (err) {
         alert('حدث خطأ: ' + err.message);
       } finally {
@@ -426,7 +445,7 @@
 
         products.push(newProd);
         saveData();
-        alert('تمت إضافة المنتج بنجاح في ذاكرة الأدمن المحلية!');
+        alert('تمت إضافة المنتج! انقر على زر "تحميل ملف data.json" في الأسفل بعد الانتهاء لرفعه لـ GitHub.');
         this.reset();
       } catch (err) {
         alert('حدث خطأ: ' + err.message);
