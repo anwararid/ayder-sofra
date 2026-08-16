@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="tr">
+
+<head>
+
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1"
+  >
+
+  <title>Ayder Sofra | Izgara</title>
+
+  <link
+    rel="stylesheet"
+    href="styles.css"
+  >
+
+</head>
+
+<body class="izgara-page">
+
+<script type="module">
+
+import {
+  listenOrders,
+  setStatus,
+  esc,
+  toast
+} from "./app.js";
+
+
+/* ==================================================
+   SAYFA
+================================================== */
+
+document.body.innerHTML = `
+
+  <div class="grill-page">
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <header class="grill-hero">
+
+      <div class="grill-brand">
+
+        <div class="grill-brand-icon">
+          🍴
+        </div>
+
+        <div>
+
+          <div class="grill-brand-name">
+            AYDER SOFRA
+          </div>
+
+          <div class="grill-brand-subtitle">
+            Lezzet, ustalıkla hazırlanır.
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="grill-hero-center">
+
+        <div class="grill-status">
+          <span class="grill-status-dot"></span>
+          Sistem Aktif
+        </div>
+
+        <h1>
+          IZGARA
+        </h1>
+
+        <p>
+          Barbekü istasyonunu yönetin,
+          ızgara siparişlerini takip edin.
+        </p>
+
+      </div>
+
+
+      <div class="grill-hero-decoration">
+        🥩
+      </div>
+
+    </header>
+
+
+
+    <!-- =========================
+         İSTATİSTİKLER
+    ========================== -->
+
+    <section class="grill-stats">
+
+
+      <div class="grill-stat-card">
+
+        <div class="grill-stat-icon">
+          🔥
+        </div>
+
+        <div>
+
+          <span>
+            AKTİF SİPARİŞ
+          </span>
+
+          <strong id="activeCount">
+            0
+          </strong>
+
+          <small>
+            Toplam aktif sipariş
+          </small>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="grill-stat-card">
+
+        <div class="grill-stat-icon">
+          🔥
+        </div>
+
+        <div>
+
+          <span>
+            HAZIRLANIYOR
+          </span>
+
+          <strong id="preparingCount">
+            0
+          </strong>
+
+          <small>
+            Izgarada hazırlanıyor
+          </small>
+
+        </div>
+
+      </div>
+
+
+
+      <div class="grill-stat-card">
+
+        <div class="grill-stat-icon">
+          🥩
+        </div>
+
+        <div>
+
+          <span>
+            HAZIR
+          </span>
+
+          <strong id="readyCount">
+            0
+          </strong>
+
+          <small>
+            Servise hazır
+          </small>
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+
+    <!-- =========================
+         SİPARİŞLER
+    ========================== -->
+
+    <section class="grill-orders-panel">
+
+
+      <div class="grill-orders-header">
+
+
+        <div>
+
+          <div class="grill-section-title">
+            🔥 IZGARA SİPARİŞLERİ
+          </div>
+
+          <div class="grill-section-subtitle">
+            Barbekü istasyonuna gönderilen aktif siparişler
+          </div>
+
+        </div>
+
+
+        <select id="orderFilter">
+
+          <option value="all">
+            Tüm Siparişler
+          </option>
+
+          <option value="pending">
+            Yeni Sipariş
+          </option>
+
+          <option value="preparing">
+            Hazırlanıyor
+          </option>
+
+          <option value="ready">
+            Hazır
+          </option>
+
+          <option value="served">
+            Servis Edildi
+          </option>
+
+        </select>
+
+
+      </div>
+
+
+
+      <div
+        id="orders"
+        class="grill-orders-grid"
+      ></div>
+
+
+    </section>
+
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="grill-footer">
+
+      <strong>
+        AYDER SOFRA
+      </strong>
+
+      <span>
+        Tazelik, ustalıkla hazırlanır.
+      </span>
+
+    </footer>
+
+
+  </div>
+
+`;
+if (!document.querySelector(".home-button")) {
+  const homeButton = document.createElement("a");
+
+  homeButton.href = "./index.html";
+  homeButton.className = "home-button";
+  homeButton.textContent = "← Ana Sayfa";
+
+  document.body.appendChild(homeButton);
+}
+
+
+
+/* ==================================================
+   ELEMENTLER
+================================================== */
+
+const ordersEl =
+  document.querySelector("#orders");
+
+
+const orderFilter =
+  document.querySelector("#orderFilter");
+
+
+const activeCount =
+  document.querySelector("#activeCount");
+
+
+const preparingCount =
+  document.querySelector("#preparingCount");
+
+
+const readyCount =
+  document.querySelector("#readyCount");
+
+
+
+/* ==================================================
+   DATA
+================================================== */
+
+let orders = [];
+
+
+
+/* ==================================================
+   STATUS
+================================================== */
+
+function statusName(status) {
+
+  const names = {
+
+    pending:
+      "YENİ SİPARİŞ",
+
+    preparing:
+      "HAZIRLANIYOR",
+
+    ready:
+      "HAZIR",
+
+    served:
+      "SERVİS EDİLDİ"
+
+  };
+
+
+  return (
+    names[status] ||
+    status
+  );
+
+}
+
+
+function statusClass(status) {
+
+  const classes = {
+
+    pending:
+      "grill-status-new",
+
+    preparing:
+      "grill-status-preparing",
+
+    ready:
+      "grill-status-ready",
+
+    served:
+      "grill-status-served"
+
+  };
+
+
+  return (
+    classes[status] ||
+    ""
+  );
+
+}
+
+
+
+/* ==================================================
+   RENDER
+================================================== */
+
+function render() {
+
+
+  /* =========================
+     SAYILAR
+  ========================== */
+
+  const active =
+    orders.filter(order =>
+      [
+        "pending",
+        "preparing",
+        "ready"
+      ].includes(
+        order.status
+      )
+    );
+
+
+  activeCount.textContent =
+    active.length;
+
+
+  preparingCount.textContent =
+    orders.filter(
+      order =>
+        order.status ===
+        "preparing"
+    ).length;
+
+
+  readyCount.textContent =
+    orders.filter(
+      order =>
+        order.status ===
+        "ready"
+    ).length;
+
+
+
+  /* =========================
+     FILTER
+  ========================== */
+
+  const filter =
+    orderFilter.value;
+
+
+  const filtered =
+    orders.filter(order => {
+
+      if (
+        filter === "all"
+      ) {
+
+        return true;
+
+      }
+
+
+      return (
+        order.status ===
+        filter
+      );
+
+    });
+
+
+
+  /* =========================
+     ORDERS
+  ========================== */
+
+  const cards =
+    filtered
+      .map(order => {
+
+
+        /*
+         * فقط منتجات IZGARA
+         */
+
+        const items =
+          (order.items || [])
+            .filter(
+              item =>
+                item.department ===
+                "izgara"
+            );
+
+
+        /*
+         * إذا الطلب ما فيه
+         * منتجات للشوي لا نعرضه
+         */
+
+        if (!items.length) {
+
+          return "";
+
+        }
+
+
+
+        return `
+
+          <article
+            class="
+              grill-order-card
+              ${statusClass(
+                order.status
+              )}
+            "
+          >
+
+
+            <!-- HEADER -->
+
+            <div class="grill-order-top">
+
+
+              <div>
+
+                <div class="grill-table-title">
+
+                  MASA
+                  ${esc(
+                    order.table
+                  )}
+
+                </div>
+
+                <small>
+
+                  🕒
+                  ${esc(
+                    order.waiterName ||
+                    "Garson"
+                  )}
+
+                </small>
+
+              </div>
+
+
+              <span
+                class="
+                  grill-order-status
+                  ${statusClass(
+                    order.status
+                  )}
+                "
+              >
+
+                ${statusName(
+                  order.status
+                )}
+
+              </span>
+
+
+            </div>
+
+
+
+            <!-- PRODUCTS -->
+
+            <div class="grill-order-items">
+
+
+              ${items.map(
+                item => `
+
+                  <div
+                    class="grill-order-item"
+                  >
+
+                    <span>
+
+                      <b>
+                        ${Number(
+                          item.qty || 0
+                        )} ×
+                      </b>
+
+                      ${esc(
+                        item.name ||
+                        "Ürün"
+                      )}
+
+                    </span>
+
+                  </div>
+
+                `
+              ).join("")}
+
+
+            </div>
+
+
+
+            <!-- ACTION -->
+
+            <div class="grill-order-action">
+
+
+              ${
+                order.status ===
+                "pending"
+
+                  ? `
+
+                    <button
+                      type="button"
+                      class="btn grill-action-button"
+                      data-id="${esc(order.id)}"
+                      data-status="preparing"
+                    >
+
+                      🔥
+                      HAZIRLAMAYA AL
+
+                    </button>
+
+                  `
+
+                  : ""
+              }
+
+
+
+              ${
+                order.status ===
+                "preparing"
+
+                  ? `
+
+                    <button
+                      type="button"
+                      class="btn grill-action-button"
+                      data-id="${esc(order.id)}"
+                      data-status="ready"
+                    >
+
+                      🥩
+                      HAZIR
+
+                    </button>
+
+                  `
+
+                  : ""
+              }
+
+
+
+              ${
+                order.status ===
+                "ready"
+
+                  ? `
+
+                    <button
+                      type="button"
+                      class="btn grill-action-button"
+                      data-id="${esc(order.id)}"
+                      data-status="served"
+                    >
+
+                      🍽️
+                      SERVİS EDİLDİ
+
+                    </button>
+
+                  `
+
+                  : ""
+              }
+
+
+
+              ${
+                order.status ===
+                "served"
+
+                  ? `
+
+                    <span
+                      class="grill-served-label"
+                    >
+
+                      ✓
+                      Servis edildi
+
+                    </span>
+
+                  `
+
+                  : ""
+              }
+
+
+            </div>
+
+
+          </article>
+
+        `;
+
+      })
+      .join("");
+
+
+
+  if (!cards.trim()) {
+
+    ordersEl.innerHTML = `
+
+      <div
+        class="grill-empty"
+      >
+
+        <div class="grill-empty-icon">
+          🔥
+        </div>
+
+        <h3>
+          Izgara siparişi yok
+        </h3>
+
+        <p>
+          Şu anda ızgara istasyonunda
+          bekleyen sipariş bulunmuyor.
+        </p>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  ordersEl.innerHTML =
+    cards;
+
+}
+
+
+
+/* ==================================================
+   NOTIFICATION + SOUND
+================================================== */
+
+let grillAudioContext = null;
+let previousGrillOrders = new Set();
+let grillNotificationStyleAdded = false;
+
+function playGrillNotificationSound() {
+  try {
+    if (!grillAudioContext) {
+      grillAudioContext =
+        new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (grillAudioContext.state === "suspended") {
+      grillAudioContext.resume();
+    }
+
+    const now = grillAudioContext.currentTime;
+
+    const oscillator = grillAudioContext.createOscillator();
+    const gain = grillAudioContext.createGain();
+
+    oscillator.type = "sine";
+    oscillator.frequency.setValueAtTime(880, now);
+    oscillator.frequency.setValueAtTime(660, now + 0.18);
+
+    gain.gain.setValueAtTime(0.001, now);
+    gain.gain.exponentialRampToValueAtTime(0.8, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+    oscillator.connect(gain);
+    gain.connect(grillAudioContext.destination);
+
+    oscillator.start(now);
+    oscillator.stop(now + 0.55);
+  } catch (error) {
+    console.error("Izgara notification sound error:", error);
+  }
+}
+
+function addGrillNotificationStyles() {
+  if (grillNotificationStyleAdded) return;
+
+  const style = document.createElement("style");
+
+  style.textContent = `
+    .grill-notification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      width: min(92vw, 430px);
+      background: #ffffff;
+      color: #17212b;
+      border: 3px solid #d85e55;
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: 0 15px 45px rgba(0,0,0,.28);
+      font-family: sans-serif;
+      animation: grillNotificationIn .25s ease;
+    }
+
+    @keyframes grillNotificationIn {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -20px) scale(.96);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+      }
+    }
+
+    .grill-notification-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .grill-notification-table {
+      font-size: 19px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .grill-notification-items {
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 14px;
+    }
+
+    .grill-notification-close {
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 11px;
+      background: #164b5b;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+    }
+  `;
+
+  document.head.appendChild(style);
+  grillNotificationStyleAdded = true;
+}
+
+function showGrillNotification(order) {
+  addGrillNotificationStyles();
+
+  const tableNumber =
+    order.table ??
+    order.tableNumber ??
+    "Bilinmiyor";
+
+  const grillItems = (order.items || []).filter(
+    item => item.department === "izgara"
+  );
+
+  if (!grillItems.length) return;
+
+  const notification = document.createElement("div");
+  notification.className = "grill-notification";
+
+  const itemsHtml = grillItems.map(item => `
+    <div>
+      <strong>${Number(item.qty ?? item.quantity ?? 1)}</strong>
+      × ${esc(item.name || "Ürün")}
+    </div>
+  `).join("");
+
+  notification.innerHTML = `
+    <div class="grill-notification-title">
+      🔔 YENİ SİPARİŞ!
+    </div>
+
+    <div class="grill-notification-table">
+      🍖 Masa ${esc(tableNumber)}
+    </div>
+
+    <div class="grill-notification-items">
+      ${itemsHtml}
+    </div>
+
+    <button
+      type="button"
+      class="grill-notification-close"
+    >
+      TAMAM
+    </button>
+  `;
+
+  document.body.appendChild(notification);
+
+  playGrillNotificationSound();
+
+  notification
+    .querySelector(".grill-notification-close")
+    .addEventListener("click", () => {
+      notification.remove();
+    });
+
+  window.setTimeout(() => {
+    if (notification.isConnected) {
+      notification.remove();
+    }
+  }, 15000);
+}
+
+
+/* ==================================================
+   FIREBASE
+================================================== */
+
+listenOrders(
+  incomingOrders => {
+
+    orders =
+      incomingOrders || [];
+
+    render();
+
+    const grillOrders = orders.filter(order => {
+      const activeStatus = [
+        "pending",
+        "preparing",
+        "ready"
+      ].includes(order.status);
+
+      const hasGrillItems = (order.items || []).some(
+        item => item.department === "izgara"
+      );
+
+      return activeStatus && hasGrillItems;
+    });
+
+    grillOrders.forEach(order => {
+      if (
+        order.status === "pending" &&
+        !previousGrillOrders.has(order.id)
+      ) {
+        showGrillNotification(order);
+      }
+    });
+
+    previousGrillOrders = new Set(
+      grillOrders.map(order => order.id)
+    );
+
+  }
+);
+
+
+
+/* ==================================================
+   FILTER
+================================================== */
+
+orderFilter.addEventListener(
+  "change",
+  render
+);
+
+
+
+/* ==================================================
+   BUTTONS
+================================================== */
+
+ordersEl.addEventListener(
+  "click",
+  async event => {
+
+
+    const button =
+      event.target.closest(
+        "[data-status]"
+      );
+
+
+    if (!button) {
+
+      return;
+
+    }
+
+
+    try {
+
+      button.disabled = true;
+
+
+      await setStatus(
+
+        button.dataset.id,
+
+        button.dataset.status
+
+      );
+
+
+      toast(
+        "Sipariş güncellendi."
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        "Izgara status error:",
+        error
+      );
+
+
+      toast(
+        "Sipariş güncellenemedi.",
+        "error"
+      );
+
+
+      button.disabled =
+        false;
+
+    }
+
+  }
+);
+
+
+
+/* ==================================================
+   START
+================================================== */
+
+render();
+
+</script>
+
+</body>
+
+</html>
