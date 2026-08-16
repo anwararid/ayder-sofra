@@ -937,7 +937,7 @@ function playKitchenNotificationSound() {
     oscillator.frequency.setValueAtTime(660, now + 0.18);
 
     gain.gain.setValueAtTime(0.001, now);
-    gain.gain.exponentialRampToValueAtTime(0.35, now + 0.03);
+    gain.gain.exponentialRampToValueAtTime(0.8, now + 0.03);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
 
     oscillator.connect(gain);
