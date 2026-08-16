@@ -907,9 +907,33 @@ function render(
    FIREBASE LISTENER
 ================================================== */
 
-listenOrders(
-  render
-);
+let previousKitchenOrders = new Set();
+
+listenOrders((orders) => {
+
+  render(orders);
+
+  const kitchenOrders = orders.filter(order =>
+    ["pending", "preparing", "ready"].includes(order.status) &&
+    (order.items || []).some(item => item.department === "mutfak")
+  );
+
+  kitchenOrders.forEach(order => {
+
+    if (
+      order.status === "pending" &&
+      !previousKitchenOrders.has(order.id)
+    ) {
+      showKitchenNotification(order);
+    }
+
+  });
+
+  previousKitchenOrders = new Set(
+    kitchenOrders.map(order => order.id)
+  );
+
+});
 
 
 
