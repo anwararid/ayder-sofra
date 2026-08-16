@@ -26,7 +26,6 @@
     .link-container { display: flex; gap: 8px; align-items: center; }
     .link-input { flex: 1; padding: 8px 10px; border: 1px solid #30363d; background: #0d1117; color: #58a6ff; border-radius: 6px; font-size: 0.85rem; direction: ltr; text-align: left; }
     .btn-copy { background: #21262d; color: #c9d1d9; border: 1px solid #30363d; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; white-space: nowrap; }
-    .btn-copy:hover { background: #30363d; color: #fff; }
 
     /* Header & Title */
     header { text-align: center; padding: 15px; font-size: 1.2rem; font-weight: bold; color: #fff; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -147,7 +146,6 @@
   <div id="admin-panel" class="admin-section">
     <div class="admin-title">Yönetim Paneli (لوحة التحكم)</div>
     
-    <!-- Customer Link Box -->
     <div class="link-card">
       <div class="link-title">رابط صفحة الزبائن (Müşteri Menü Linki):</div>
       <div class="link-container">
@@ -224,11 +222,30 @@
     const urlParams = new URLSearchParams(window.location.search);
     const isCustomer = urlParams.get('mode') === 'view';
 
-    if (isCustomer) {
-      document.getElementById('admin-panel').style.display = 'none';
-    } else {
-      const customerUrl = window.location.href.split('?')[0] + '?mode=view';
-      document.getElementById('customer-url-input').value = customerUrl;
+    let categories = [];
+    let products = [];
+
+    async function initApp() {
+      if (isCustomer) {
+        document.getElementById('admin-panel').style.display = 'none';
+        try {
+          // جلب البيانات من ملف data.json المرفوع على GitHub
+          const res = await fetch('data.json?t=' + Date.now());
+          const data = await res.json();
+          categories = data.categories || [];
+          products = data.products || [];
+        } catch (err) {
+          console.error('خطأ في جلب ملف البيانات:', err);
+        }
+      } else {
+        const customerUrl = window.location.href.split('?')[0] + '?mode=view';
+        document.getElementById('customer-url-input').value = customerUrl;
+        
+        categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [];
+        products = JSON.parse(localStorage.getItem('restaurant_products')) || [];
+        updateAdminSelect();
+      }
+      renderCategories();
     }
 
     function copyCustomerLink() {
@@ -239,9 +256,6 @@
         alert('تم نسخ رابط الزبائن بنجاح!');
       });
     }
-
-    let categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [];
-    let products = JSON.parse(localStorage.getItem('restaurant_products')) || [];
 
     function compressAndResizeImage(file, maxWidth = 600, quality = 0.7) {
       return new Promise((resolve, reject) => {
@@ -279,7 +293,7 @@
         localStorage.setItem('restaurant_products', JSON.stringify(products));
         updateAdminSelect();
       } catch (err) {
-        alert('مساحة التخزين امتلأت بالكامل! يرجى حذف بعض الأقسام أو المنتجات القديمة.');
+        alert('مساحة التخزين امتلأت بالكامل!');
       }
     }
 
@@ -300,7 +314,7 @@
       grid.innerHTML = '';
 
       if (categories.length === 0) {
-        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#888; padding:30px 0;">لا توجد أقسام مضافة بعد، يرجى إضافة قسم من لوحة التحكم أعلاه.</p>';
+        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#888; padding:30px 0;">لا توجد أقسام مضافة بعد.</p>';
         return;
       }
 
@@ -355,7 +369,6 @@
       document.getElementById('header-title').innerText = 'أنواع المأكولات';
     }
 
-    // إضافة قسم
     document.getElementById('add-category-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-cat-submit');
@@ -363,7 +376,7 @@
         const fileInput = document.getElementById('cat-img-file');
         if (!fileInput.files || fileInput.files.length === 0) return;
 
-        btn.innerText = 'جاري ضغط الصورة وإضافتها...';
+        btn.innerText = 'جاري المعالجة...';
         btn.disabled = true;
 
         const compressedBase64 = await compressAndResizeImage(fileInput.files[0]);
@@ -377,16 +390,15 @@
         saveData();
         renderCategories();
         this.reset();
-        alert('تمت إضافة القسم بنجاح!');
+        alert('تمت إضافة القسم بنجاح في ذاكرة الأدمن المحلية!');
       } catch (err) {
-        alert('حدث خطأ أثناء معالجة الصورة: ' + err.message);
+        alert('حدث خطأ: ' + err.message);
       } finally {
         btn.innerText = 'Kategoriyi Ekle (إضافة القسم)';
         btn.disabled = false;
       }
     });
 
-    // إضافة منتج
     document.getElementById('add-product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('btn-prod-submit');
@@ -400,7 +412,7 @@
         const fileInput = document.getElementById('prod-img-file');
         if (!fileInput.files || fileInput.files.length === 0) return;
 
-        btn.innerText = 'جاري ضغط الصورة وإضافتها...';
+        btn.innerText = 'جاري المعالجة...';
         btn.disabled = true;
 
         const compressedBase64 = await compressAndResizeImage(fileInput.files[0]);
@@ -414,10 +426,10 @@
 
         products.push(newProd);
         saveData();
-        alert('تمت إضافة المنتج بنجاح!');
+        alert('تمت إضافة المنتج بنجاح في ذاكرة الأدمن المحلية!');
         this.reset();
       } catch (err) {
-        alert('حدث خطأ أثناء معالجة الصورة: ' + err.message);
+        alert('حدث خطأ: ' + err.message);
       } finally {
         btn.innerText = 'Ürünü Ekle (إضافة المنتج)';
         btn.disabled = false;
@@ -426,7 +438,7 @@
 
     function deleteCategory(e, id) {
       e.stopPropagation();
-      if (confirm('هل أنت تأكد من رغبتك في حذف هذا القسم؟')) {
+      if (confirm('هل أنت تأكد من حذف هذا القسم؟')) {
         categories = categories.filter(c => c.id !== id);
         products = products.filter(p => p.catId !== id);
         saveData();
@@ -436,7 +448,7 @@
 
     function deleteProduct(e, prodId, catId) {
       e.stopPropagation();
-      if (confirm('هل أنت تأكد من رغبتك في حذف هذا المنتج؟')) {
+      if (confirm('هل أنت تأكد من حذف هذا المنتج؟')) {
         products = products.filter(p => p.id !== prodId);
         saveData();
         const cat = categories.find(c => c.id === catId);
@@ -444,9 +456,7 @@
       }
     }
 
-    // Init
-    updateAdminSelect();
-    renderCategories();
+    initApp();
   </script>
 </body>
 </html>
