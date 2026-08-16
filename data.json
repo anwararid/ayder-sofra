@@ -1,0 +1,18 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "المشروبات",
+      "img": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600"
+    }
+  ],
+  "products": [
+    {
+      "id": 101,
+      "catId": 1,
+      "name": "شاي أحمر",
+      "price": "15",
+      "img": "https://images.unsplash.com/photo-1576092768241-dec231879fc3?w=600"
+    }
+  ]
+}
