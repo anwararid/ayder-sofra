@@ -63,7 +63,7 @@
       padding: 0 8px;
     }
 
-    /* Products View (Image Top + Details Below Right-Aligned) */
+    /* Products View */
     .products-list { display: flex; flex-direction: column; gap: 15px; }
     .product-card {
       position: relative;
@@ -77,7 +77,7 @@
     }
     .product-img {
       width: 100%;
-      height: 160px;
+      height: 170px;
       object-fit: cover;
       display: block;
       background-color: #0d1117;
@@ -138,7 +138,7 @@
 </head>
 <body>
 
-  <!-- Admin Panel (Turkish) -->
+  <!-- Admin Panel -->
   <div id="admin-panel" class="admin-section">
     <div class="admin-title">Yönetim Paneli (لوحة التحكم)</div>
     
@@ -158,8 +158,8 @@
           <input type="text" id="cat-name" placeholder="مثال: الإفطار" required>
         </div>
         <div class="form-group">
-          <label>Görsel URL (رابط الصورة) *</label>
-          <input type="url" id="cat-img" placeholder="https://..." required>
+          <label>Kategori Görseli (صورة القسم من الهاتف) *</label>
+          <input type="file" id="cat-img-file" accept="image/*" required>
         </div>
       </div>
       <button type="submit" class="btn-add">Kategoriyi Ekle (إضافة القسم)</button>
@@ -184,8 +184,8 @@
           <input type="number" id="prod-price" placeholder="200" required>
         </div>
         <div class="form-group">
-          <label>Görsel URL (رابط الصورة) *</label>
-          <input type="url" id="prod-img" placeholder="https://..." required>
+          <label>Ürün Görseli (صورة المنتج من الهاتف) *</label>
+          <input type="file" id="prod-img-file" accept="image/*" required>
         </div>
       </div>
       <button type="submit" class="btn-add">Ürünü Ekle (إضافة المنتج)</button>
@@ -228,16 +228,18 @@
       });
     }
 
-    // Default Initial Data
-    let categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [
-      { id: 1, name: 'أنواع الإفطار', img: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=500&q=80' },
-      { id: 2, name: 'التوست والشطائر', img: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=500&q=80' }
-    ];
+    let categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [];
+    let products = JSON.parse(localStorage.getItem('restaurant_products')) || [];
 
-    let products = JSON.parse(localStorage.getItem('restaurant_products')) || [
-      { id: 101, catId: 1, name: 'وجبة إفطار مشكلة (Serpme Kahvaltı)', price: 1500, img: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=800&q=80' },
-      { id: 102, catId: 1, name: 'بيض بالمقلاة (Sahanda Yumurta)', price: 200, img: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=800&q=80' }
-    ];
+    // تحويل الصورة المرفوعة من الهاتف إلى صيغة Base64
+    function convertFileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+    }
 
     function saveData() {
       localStorage.setItem('restaurant_categories', JSON.stringify(categories));
@@ -253,10 +255,14 @@
       });
     }
 
-    // Display Main Categories
     function renderCategories() {
       const grid = document.getElementById('categories-grid');
       grid.innerHTML = '';
+
+      if (categories.length === 0) {
+        grid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:#888; padding:30px 0;">لا توجد أقسام مضافة بعد، يرجى إضافة قسم من لوحة التحكم.</p>';
+        return;
+      }
 
       categories.forEach(cat => {
         const card = document.createElement('div');
@@ -271,7 +277,6 @@
       });
     }
 
-    // Open Category Products Page
     function openCategory(cat) {
       document.getElementById('categories-grid').style.display = 'none';
       document.getElementById('products-list').style.display = 'flex';
@@ -303,7 +308,6 @@
       });
     }
 
-    // Return to Categories Grid
     function showCategories() {
       document.getElementById('categories-grid').style.display = 'grid';
       document.getElementById('products-list').style.display = 'none';
@@ -311,33 +315,44 @@
       document.getElementById('header-title').innerText = 'أنواع المأكولات';
     }
 
-    // Handlers
-    document.getElementById('add-category-form').addEventListener('submit', function(e) {
+    // إضافة قسم مع صورة من الهاتف
+    document.getElementById('add-category-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const newCat = {
-        id: Date.now(),
-        name: document.getElementById('cat-name').value,
-        img: document.getElementById('cat-img').value
-      };
-      categories.push(newCat);
-      saveData();
-      renderCategories();
-      this.reset();
+      const fileInput = document.getElementById('cat-img-file');
+      
+      if (fileInput.files.length > 0) {
+        const imageBase64 = await convertFileToBase64(fileInput.files[0]);
+        const newCat = {
+          id: Date.now(),
+          name: document.getElementById('cat-name').value,
+          img: imageBase64
+        };
+        categories.push(newCat);
+        saveData();
+        renderCategories();
+        this.reset();
+      }
     });
 
-    document.getElementById('add-product-form').addEventListener('submit', function(e) {
+    // إضافة منتج مع صورة من الهاتف
+    document.getElementById('add-product-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const newProd = {
-        id: Date.now(),
-        catId: parseInt(document.getElementById('prod-cat-select').value),
-        name: document.getElementById('prod-name').value,
-        price: document.getElementById('prod-price').value,
-        img: document.getElementById('prod-img').value
-      };
-      products.push(newProd);
-      saveData();
-      alert('Ürün başarıyla eklendi! (تمت إضافة المنتج بنجاح)');
-      this.reset();
+      const fileInput = document.getElementById('prod-img-file');
+
+      if (fileInput.files.length > 0) {
+        const imageBase64 = await convertFileToBase64(fileInput.files[0]);
+        const newProd = {
+          id: Date.now(),
+          catId: parseInt(document.getElementById('prod-cat-select').value),
+          name: document.getElementById('prod-name').value,
+          price: document.getElementById('prod-price').value,
+          img: imageBase64
+        };
+        products.push(newProd);
+        saveData();
+        alert('Ürün başarıyla eklendi! (تمت إضافة المنتج بنجاح)');
+        this.reset();
+      }
     });
 
     function deleteCategory(e, id) {
@@ -360,7 +375,6 @@
       }
     }
 
-    // Init
     updateAdminSelect();
     renderCategories();
   </script>
