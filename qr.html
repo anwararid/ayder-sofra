@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>بطاقة QR Code للطاولة - Ayder Sofra</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background-color: #f4f6f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ز أزرار التحكم للطباعة */
+    .actions-bar {
+      margin-bottom: 25px;
+      display: flex;
+      gap: 15px;
+    }
+
+    .btn-print {
+      background: #f0883e;
+      color: #fff;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(240, 136, 62, 0.3);
+      transition: background 0.2s;
+    }
+
+    .btn-print:hover {
+      background: #d96b27;
+    }
+
+    /* كرت الـ QR للطاولة */
+    .qr-card {
+      background: #ffffff;
+      width: 320px;
+      border-radius: 20px;
+      padding: 35px 25px;
+      text-align: center;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      border: 2px solid #e1e4e8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .restaurant-name {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #161b26;
+      margin-bottom: 6px;
+    }
+
+    .sub-title {
+      font-size: 0.95rem;
+      color: #6e7681;
+      font-weight: 700;
+      margin-bottom: 25px;
+    }
+
+    .qr-image-wrapper {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 16px;
+      border: 3px solid #f0883e;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      margin-bottom: 25px;
+    }
+
+    .qr-image-wrapper img {
+      width: 230px;
+      height: 230px;
+      display: block;
+    }
+
+    /* النص المطلوب أسفل الرمز */
+    .qr-label-en {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #161b26;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-family: Arial, sans-serif;
+    }
+
+    .qr-label-ar {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #f0883e;
+      margin-top: 4px;
+    }
+
+    /* إعدادات الطباعة للورق */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .actions-bar {
+        display: none;
+      }
+      .qr-card {
+        box-shadow: none;
+        border: 2px solid #000;
+        margin: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- زر للطباعة أو التنزيل كـ PDF -->
+  <div class="actions-bar">
+    <button class="btn-print" onclick="window.print()">طباعة البطاقة / حفظ كـ PDF</button>
+  </div>
+
+  <!-- البطاقة التي ستطبع وتوضع على الطاولة -->
+  <div class="qr-card">
+    <div class="restaurant-name">AYDER SOFRA</div>
+    <div class="sub-title">امسح الرمز للاطلاع على القائمة</div>
+
+    <div class="qr-image-wrapper">
+      <!-- رمز QR بدقة عالية جداً (800x800) للطباعة الممتازة -->
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=https%3A%2F%2Fanwararid.github.io%2Fayder-sofra%2Fmenu.html%3Fcat%3D1" alt="QR Code">
+    </div>
+
+    <div class="qr-label-en">ARABIC MENU</div>
+    <div class="qr-label-ar">قائمة المأكولات العربية</div>
+  </div>
+
+</body>
+</html>
