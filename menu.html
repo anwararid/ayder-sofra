@@ -419,14 +419,19 @@
   </nav>
 
   <script>
+    // الرمز السري الخاص بك لدخول لوحة التحكم
+    const ADMIN_SECRET_KEY = 'admin';
+
     let urlParams = new URLSearchParams(window.location.search);
-    const isCustomer = urlParams.get('mode') === 'view';
+    const isAdmin = urlParams.get('mode') === ADMIN_SECRET_KEY;
+    const isCustomer = !isAdmin;
 
     let categories = [];
     let products = [];
 
     async function initApp() {
       if (isCustomer) {
+        // الوضع الافتراضي للزبائن
         document.getElementById('admin-panel').style.display = 'none';
         try {
           const res = await fetch('data.json?t=' + Date.now());
@@ -437,7 +442,11 @@
           console.error('خطأ في جلب ملف البيانات:', err);
         }
       } else {
-        const customerUrl = window.location.href.split('?')[0] + '?mode=view';
+        // وضع الأدمن (يفتح فقط عند إدخال الرمز السري)
+        document.getElementById('admin-panel').style.display = 'block';
+        
+        // رابط الزبائن أصبح الرابط المباشر النظيف بدون أي زوائد
+        const customerUrl = window.location.href.split('?')[0];
         document.getElementById('customer-url-input').value = customerUrl;
         
         categories = JSON.parse(localStorage.getItem('restaurant_categories')) || [];
