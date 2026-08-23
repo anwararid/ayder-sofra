@@ -28,13 +28,17 @@
 
     * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; }
 
-    body { 
+    html {
+      background-color: #0b0f19; /* يمنع ظهور البياض نهائياً في أسفل الصفحة */
+    }
+
     body { 
       background: linear-gradient(-45deg, #0b0f19, #1a0f0a, #1c1917, #0f172a);
       background-size: 400% 400%;
+      background-attachment: fixed; /* يجعل الخلفية ثابتة وممتدة طوال التمرير */
       animation: gradientBG 15s ease infinite;
       color: var(--text-main); 
-      padding-bottom: 100px; /* تضمن عدم تغطية الشريط على المنتجات */
+      padding-bottom: 100px; 
       min-height: 100vh;
       -webkit-tap-highlight-color: transparent;
       position: relative;
