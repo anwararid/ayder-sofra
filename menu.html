@@ -29,11 +29,12 @@
     * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; }
 
     body { 
+    body { 
       background: linear-gradient(-45deg, #0b0f19, #1a0f0a, #1c1917, #0f172a);
       background-size: 400% 400%;
       animation: gradientBG 15s ease infinite;
       color: var(--text-main); 
-      padding-bottom: 95px; 
+      padding-bottom: 100px; /* تضمن عدم تغطية الشريط على المنتجات */
       min-height: 100vh;
       -webkit-tap-highlight-color: transparent;
       position: relative;
@@ -347,13 +348,20 @@
     }
 
     .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
       background-color: var(--glass-bg); 
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-top: 1px solid var(--border-color); 
-      display: flex; justify-space: around;
-      padding: 10px 0; z-index: 100;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 12px 0;
+      z-index: 1000;
       box-shadow: 0 -5px 20px rgba(0,0,0,0.4);
     }
     .nav-item { 
