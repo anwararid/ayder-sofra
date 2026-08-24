@@ -666,6 +666,7 @@
       });
     }
 
+    // فتح القسم وتحديث رابط الصفحة
     function openCategory(cat, pushState = true) {
       currentCatId = cat.id;
       if (pushState) {
@@ -673,6 +674,50 @@
         params.set('cat', cat.id);
         history.pushState({ catId: cat.id }, '', '?' + params.toString());
       }
+
+      document.getElementById('categories-grid').style.display = 'none';
+      document.getElementById('products-list').style.display = 'flex';
+      document.getElementById('back-btn').style.display = 'flex';
+      document.getElementById('header-title').innerText = cat.name;
+
+      const list = document.getElementById('products-list');
+      list.innerHTML = '';
+      const filteredProducts = products.filter(p => p.catId === cat.id);
+
+      if (filteredProducts.length === 0) {
+        list.innerHTML = '<p style="text-align:center; color:#888; padding: 40px 0;">لا توجد منتجات في هذا القسم حالياً.</p>';
+        return;
+      }
+
+      filteredProducts.forEach(prod => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.setAttribute('data-id', prod.id);
+        card.innerHTML = `
+          ${!isCustomer ? `
+            <div class="drag-handle"><i class="fas fa-grip-vertical"></i></div>
+            <div class="admin-actions">
+              <button class="btn-action-item edit" onclick="openEditModal(event, ${prod.id})"><i class="fas fa-pen"></i></button>
+              <button class="btn-action-item delete" onclick="deleteProduct(event, ${prod.id}, ${cat.id})"><i class="fas fa-times"></i></button>
+            </div>
+          ` : ''}
+          <img src="${prod.img}" class="product-img" alt="${prod.name}">
+          <div class="product-info">
+            <div class="product-details">
+              <div class="product-name">${prod.name}</div>
+              ${prod.desc ? `<div class="product-desc">${prod.desc}</div>` : ''}
+            </div>
+            <div class="product-price">${prod.price},00 ₺</div>
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // زر الرجوع المباشر للرئيسية
+    window.handleBackButtonClick = function() { 
+      showCategories(true); 
+    };
 
       document.getElementById('categories-grid').style.display = 'none';
       document.getElementById('products-list').style.display = 'flex';
